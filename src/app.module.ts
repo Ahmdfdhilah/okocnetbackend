@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { SeederModule } from './seeder/seeder.module';
 import { SeederService } from './seeder/seeder.service';
 import { AuthModule } from './auth/auth.module';
+import { MailService } from './mails/mail.service';
 
 @Module({
     imports: [
@@ -31,13 +32,14 @@ import { AuthModule } from './auth/auth.module';
         AuthModule,
     ],
     controllers: [],
-    // providers: [
-    //     {
-    //         provide: APP_GUARD,
-    //         useClass: ThrottlerGuard,
-    //     },
-    //     RateLimiterMiddleware,
-    // ],
+    providers: [
+        MailService,
+        // {
+        //     provide: APP_GUARD,
+        //     useClass: ThrottlerGuard,
+        // },
+        // RateLimiterMiddleware,
+    ],
 })
 export class AppModule {
     constructor(private readonly seederService: SeederService) {}
