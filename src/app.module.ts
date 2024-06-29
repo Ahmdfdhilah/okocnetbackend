@@ -13,10 +13,10 @@ import { MailService } from './mails/mail.service';
 @Module({
     imports: [
         ConfigModule.forRoot(),
-        // ThrottlerModule.forRoot([{
-        //     ttl: 10,
-        //     limit: 10,
-        // }]),
+        ThrottlerModule.forRoot([{
+            ttl: 10,
+            limit: 10,
+        }]),
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: process.env.DB_HOST,
@@ -34,11 +34,11 @@ import { MailService } from './mails/mail.service';
     controllers: [],
     providers: [
         MailService,
-        // {
-        //     provide: APP_GUARD,
-        //     useClass: ThrottlerGuard,
-        // },
-        // RateLimiterMiddleware,
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        RateLimiterMiddleware,
     ],
 })
 export class AppModule {
@@ -47,9 +47,9 @@ export class AppModule {
     async onModuleInit() {
         await this.seederService.seedAdminUser();
     }
-    // configure(consumer: MiddlewareConsumer) {
-    //     consumer
-    //         .apply(RateLimiterMiddleware)
-    //         .forRoutes('auth/login');
-    // }
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(RateLimiterMiddleware)
+            .forRoutes('auth/login');
+    }
 }

@@ -1,11 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDtoType } from './dto/create-user.dto';
 import { UpdateUserDtoType } from './dto/update-user.dto';
 import redis from 'src/lib/redis-client';
+import { QueryDto } from 'src/query.dto';
 
 @Injectable()
 export class UsersService {
@@ -45,28 +46,37 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async findAll(page: number = 1, limit: number = 10): Promise<{ users: User[], total: number }> {
+  async findAll(query: QueryDto): Promise<{ users: User[], total: number }> {
+    const { page = 1, limit = 10, search, sort, order } = query;
     const cacheKey = `users:page:${page}:limit:${limit}`;
-    const cachedData = await redis.get<string | null>(cacheKey);
 
+    this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
+
+    const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
-      const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
       this.logger.log(`Cache hit for key: ${cacheKey}`);
+      const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
       return result;
     }
 
+    const skip = (page - 1) * limit;
+    this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+
     const [users, total] = await this.userRepository.findAndCount({
-      skip: (page - 1) * limit,
+      skip,
       take: limit,
+      where: search ? { username: Like(`%${search}%`) } : {},
+      order: sort && order ? { [sort]: order } : {},
     });
 
+    this.logger.log(`DB result - Users count: ${users.length}, Total count: ${total}`);
+
     const result = { users, total };
-    await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-    this.logger.log(`Added to cache with key: ${cacheKey}`);
+    await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 }); 
 
     return result;
   }
-  
+
   async remove(id: string): Promise<void> {
     await this.userRepository.delete(id);
   }

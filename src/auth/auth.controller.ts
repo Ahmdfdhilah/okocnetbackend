@@ -11,6 +11,7 @@ import { CreateUserDtoType } from 'src/users/dto/create-user.dto';
 export class AuthController {
     constructor(private authService: AuthService) {}
 
+    @UseGuards(JwtAuthGuard)
     @Get('me')
     getMe(@Headers('Authorization') authorization: string) {
         if (!authorization) {
@@ -40,31 +41,37 @@ export class AuthController {
         return this.authService.updateUser(id, updateUserDto);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('register')
     async register(@Body() createUserDto: CreateUserDtoType) {
         return this.authService.createUser(createUserDto);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('/email/confirm-email/:confirmationToken')
     async confirmEmail(@Param('confirmationToken') confirmationToken: string) {
         return this.authService.confirmEmail(confirmationToken);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('forgot-password')
     async forgotPassword(@Body('email') email: string) {
         return this.authService.initiatePasswordReset(email);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('reset-password')
     async resetPassword(@Body('resetPasswordToken') resetPasswordToken: string, @Body('newPassword') newPassword: string) {
         return this.authService.resetPassword(resetPasswordToken, newPassword);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('resend-confirmation-email')
     async resendConfirmationEmail(@Body('email') email: string) {
         return this.authService.resendConfirmationEmail(email);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Post('resend-reset-password')
     async resendResetPassword(@Body('email') email: string) {
         return this.authService.resendResetPassword(email);

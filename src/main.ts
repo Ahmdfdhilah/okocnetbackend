@@ -13,11 +13,11 @@ async function bootstrap() {
   app.use(helmet());
   app.useGlobalFilters(new ThrottlerExceptionFilter());
   //cors di enabled untuk frontend endpoints
-//   app.enableCors({
-//     origin: 'http://localhost:3001',
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-//     credentials: true,
-//   });
+  app.enableCors({
+    origin: 'http://localhost:3001',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
   await app.listen(3000);
 }
 bootstrap();

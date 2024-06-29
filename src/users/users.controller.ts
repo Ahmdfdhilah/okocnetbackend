@@ -1,9 +1,10 @@
-import { Controller, Get, Delete, Param, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Delete, Param, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from 'src/entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
+import { QueryDto, QuerySchema } from 'src/query.dto';
 
 @Controller('users')
 export class UsersController {
@@ -17,9 +18,19 @@ export class UsersController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Get()
-  async findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    const { users, total } = await this.usersService.findAll(Number(page), Number(limit));
-    return { users, total };
+  async findAll(@Query() query: any): Promise<{ users: User[], total: number }> {
+    if (query.page) {
+      query.page = Number(query.page);
+    }
+    if (query.limit) {
+      query.limit = Number(query.limit);
+    }
+
+    const result = QuerySchema.safeParse(query);
+    if (!result.success) {
+      throw new BadRequestException(result.error.errors);
+    }
+    return this.usersService.findAll(result.data as QueryDto);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
