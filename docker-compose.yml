@@ -14,7 +14,7 @@ services:
       - ./.env
     depends_on:
       - db
-      - redis
+      - db_backup
     networks:
       - backend-network
 
@@ -29,6 +29,17 @@ services:
     networks:
       - backend-network
 
+  db_backup:
+    image: mariadb:10.6
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=testuser
+      - MYSQL_PASSWORD=password
+      - MYSQL_TCP_PORT=3308
+      - MYSQL_DATABASE=okoce_backup
+    networks:
+      - backend-network
+
   phpmyadmin:
     image: phpmyadmin
     restart: always
@@ -40,13 +51,6 @@ services:
       - PMA_HOST=db
       - PMA_PASSWORD=password
       - PMA_USER=testuser
-    networks:
-      - backend-network
-
-  redis:
-    image: redis:6-alpine
-    ports:
-      - '6379:6379'
     networks:
       - backend-network
 

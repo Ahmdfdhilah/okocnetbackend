@@ -41,16 +41,19 @@ export class AuthController {
         return this.authService.updateUser(id, updateUserDto);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('register')
     async register(@Body() createUserDto: CreateUserDtoType) {
         return this.authService.createUser(createUserDto);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('/email/confirm-email/:confirmationToken')
     async confirmEmail(@Param('confirmationToken') confirmationToken: string) {
         return this.authService.confirmEmail(confirmationToken);
+    }
+    
+    @Post('resend-confirmation-email')
+    async resendConfirmationEmail(@Body('email') email: string) {
+        return this.authService.resendConfirmationEmail(email);
     }
 
     @UseGuards(JwtAuthGuard)
@@ -63,12 +66,6 @@ export class AuthController {
     @Post('reset-password')
     async resetPassword(@Body('resetPasswordToken') resetPasswordToken: string, @Body('newPassword') newPassword: string) {
         return this.authService.resetPassword(resetPasswordToken, newPassword);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Post('resend-confirmation-email')
-    async resendConfirmationEmail(@Body('email') email: string) {
-        return this.authService.resendConfirmationEmail(email);
     }
 
     @UseGuards(JwtAuthGuard)

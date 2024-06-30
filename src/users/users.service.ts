@@ -1,45 +1,58 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { EntityManager, Like, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDtoType } from './dto/create-user.dto';
 import { UpdateUserDtoType } from './dto/update-user.dto';
 import redis from 'src/lib/redis-client';
-import { QueryDto } from 'src/query.dto';
+import { QueryDto } from 'src/lib/query.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+    private readonly entityManager: EntityManager
+  ) { }
   private readonly logger = new Logger(UsersService.name)
-  
+
   async create(createUserDto: CreateUserDtoType): Promise<User> {
     const { password, ...userData } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = this.userRepository.create({
-      ...userData,
-      password: hashedPassword,
+    let newUser: User;
+
+    await this.entityManager.transaction(async transactionalEntityManager => {
+      newUser = await transactionalEntityManager.save(
+        this.userRepository.create({
+          ...userData,
+          password: hashedPassword,
+        }),
+      );
     });
-    return this.userRepository.save(newUser);
+
+    return newUser!;
   }
-
   async update(id: string, updateUserDto: UpdateUserDtoType): Promise<User> {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
+    let updatedUser: User;
 
-    Object.assign(user, updateUserDto);
+    await this.entityManager.transaction(async transactionalEntityManager => {
+      const user = await transactionalEntityManager.findOne(User, { where: { id } });
+      if (!user) {
+        throw new NotFoundException(`User with id ${id} not found`);
+      }
 
-    if (updateUserDto.password) {
-      const hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
-      user.password = hashedPassword;
-    }
+      Object.assign(user, updateUserDto);
 
-    return this.userRepository.save(user);
+      if (updateUserDto.password) {
+        const hashedPassword = await bcrypt.hash(updateUserDto.password, 10);
+        user.password = hashedPassword;
+      }
+
+      updatedUser = await transactionalEntityManager.save(user);
+    });
+
+    return updatedUser!;
   }
 
   async findOne(id: string): Promise<User | undefined> {
@@ -72,7 +85,7 @@ export class UsersService {
     this.logger.log(`DB result - Users count: ${users.length}, Total count: ${total}`);
 
     const result = { users, total };
-    await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 }); 
+    await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;
   }

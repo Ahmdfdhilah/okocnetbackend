@@ -4,7 +4,7 @@ import { User } from 'src/entities/user.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
-import { QueryDto, QuerySchema } from 'src/query.dto';
+import { QueryDto, QuerySchema } from 'src/lib/query.dto';
 
 @Controller('users')
 export class UsersController {

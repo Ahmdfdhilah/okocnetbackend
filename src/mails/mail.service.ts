@@ -11,16 +11,16 @@ export class MailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'ahmad.fadillah0210@gmail.com', 
-        pass: 'gsmx ulzx ulde xpih', 
+        user: 'ahmad.fadillah0210@gmail.com',
+        pass: 'gsmx ulzx ulde xpih',
       },
     });
   }
 
-  async sendMail(to: string, subject: string, html: string) {
+  async sendMail(to: string, subject: string, html: string): Promise<void> {
     try {
       await this.transporter.sendMail({
-        from: '"OK OCE" okoce@gmail.com', 
+        from: '"OK OCE" okoce@gmail.com',
         to,
         subject,
         html,
@@ -31,8 +31,17 @@ export class MailService {
     }
   }
 
-  async sendTemplateMail(to: string, subject: string, title: string, body: string, actionUrl: string, actionText: string) {
-    const html = await emailTemplate(title, body, actionUrl, actionText);
-    await this.sendMail(to, subject, html);
+  async sendTemplateMail(to: string, subject: string, title: string, body: string, actionUrl: string, actionText: string): Promise<void> {
+    try {
+      const html = await emailTemplate(title, body, actionUrl, actionText);
+      await this.sendMail(to, subject, html);
+    } catch (error) {
+      this.logger.error(`Failed to send template email to ${to}`, error.stack);
+    }
+  }
+
+  async sendMultipleEmails(emails: { to: string; subject: string; html: string }[]): Promise<void> {
+    const emailTasks = emails.map(({ to, subject, html }) => this.sendMail(to, subject, html));
+    await Promise.all(emailTasks);
   }
 }

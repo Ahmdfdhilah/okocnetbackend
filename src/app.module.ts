@@ -9,6 +9,8 @@ import { SeederModule } from './seeder/seeder.module';
 import { SeederService } from './seeder/seeder.service';
 import { AuthModule } from './auth/auth.module';
 import { MailService } from './mails/mail.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { BackupService } from './backup/backup.service';
 
 @Module({
     imports: [
@@ -17,6 +19,7 @@ import { MailService } from './mails/mail.service';
             ttl: 10,
             limit: 10,
         }]),
+        ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: process.env.DB_HOST,
@@ -31,9 +34,9 @@ import { MailService } from './mails/mail.service';
         SeederModule,
         AuthModule,
     ],
-    controllers: [],
     providers: [
         MailService,
+        BackupService,
         {
             provide: APP_GUARD,
             useClass: ThrottlerGuard,

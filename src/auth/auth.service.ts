@@ -105,7 +105,6 @@ export class AuthService {
     return { user };
   }
 
-  
   async updateUser(id: string, updateUserDto: UpdateUserDtoType): Promise<any> {
     const { username, email, ...updateData } = updateUserDto;
     const existingUser = await this.userService.findByUsernameOrEmail(username, email);
