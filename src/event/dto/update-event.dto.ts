@@ -18,6 +18,7 @@ export const UpdateEventSchema = z.object({
     deskripsiEvent5: z.string().optional(),
     deskripsiEvent6: z.string().optional(),
     contactPerson: z.string().min(1).max(255).optional(),
+    publishedAt: z.string().optional(),
 });
 
 export type UpdateEventDto = z.infer<typeof UpdateEventSchema>;

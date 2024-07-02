@@ -6,6 +6,7 @@ import { User } from 'src/entities/user.entity';
 import redis from 'src/lib/redis-client';
 import { CreateMasterMentorDto } from './dto/create-master-mentor.dto';
 import { UpdateMasterMentorDto } from './dto/update-master-mentor.dto';
+import { QueryDto } from 'src/lib/query.dto';
 
 @Injectable()
 export class MasterMentorService {
@@ -65,27 +66,36 @@ export class MasterMentorService {
         return this.masterMentorRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(): Promise<MasterMentor[]> {
-        const cacheKey = `master-mentors`;
-
+    async findAll(query: QueryDto): Promise<{ masterMentors: MasterMentor[], total: number }> {
+        const { page = 1, limit = 10, search, sort, order } = query;
+        const cacheKey = `masterMentors`;
+    
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-
+    
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
-            this.logger.log(`Cache hit for key: ${cacheKey}`);
-            return JSON.parse(cachedData);
+          this.logger.log(`Cache hit for key: ${cacheKey}`);
+          const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+          return result;
         }
-
-        this.logger.log(`Cache miss for key: ${cacheKey}`);
-
-        const masterMentors = await this.masterMentorRepository.find({ relations: ['createdBy', 'updatedBy'] });
-
-        this.logger.log(`DB result - MasterMentors count: ${masterMentors.length}`);
-
-        await redis.set(cacheKey, JSON.stringify(masterMentors), { ex: 3600 });
-
-        return masterMentors;
-    }
+    
+        const skip = (page - 1) * limit;
+        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+    
+        const [masterMentors, total] = await this.masterMentorRepository.findAndCount({
+          skip,
+          take: limit,
+          order: sort && order ? { [sort]: order } : {},
+          relations: ['createdBy', 'updatedBy'],
+        });
+    
+        this.logger.log(`DB result - MasterMentors count: ${masterMentors.length}, Total count: ${total}`);
+    
+        const result = { masterMentors, total };
+        await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
+    
+        return result;
+      }
 
     async remove(id: string): Promise<void> {
         const masterMentor = await this.masterMentorRepository.findOne({ where: { id } });

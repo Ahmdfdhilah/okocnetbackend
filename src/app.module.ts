@@ -17,6 +17,10 @@ import { BrandLokalModule } from './brand-lokal/brand-lokal.module';
 import { DonasiModule } from './donasi/donasi.module';
 import { EventModule } from './event/event.module';
 import { MasterMentorModule } from './master-mentor/master-mentor.module';
+import { MerchandiseModule } from './merchandise/merchandise.module';
+import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
+import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
+import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
 
 @Module({
     imports: [
@@ -42,7 +46,11 @@ import { MasterMentorModule } from './master-mentor/master-mentor.module';
         DonasiModule,
         MasterMentorModule,
         BrandLokalModule,
+        MerchandiseModule,
+        PeluangKerjaModule,
         EventModule,
+        PeluangUsahaModule,
+        PenggerakOkoceModule,
         SeederModule,
         AuthModule,
     ],

@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { MasterMentorService } from './master-mentor.service';
 import { MasterMentor } from 'src/entities/master-mentor.entity';
 import { CreateMasterMentorDto } from './dto/create-master-mentor.dto';
 import { UpdateMasterMentorDto } from './dto/update-master-mentor.dto';
+import { QueryDto } from 'src/lib/query.dto';
 
 @Controller('master-mentors')
 export class MasterMentorController {
@@ -17,8 +18,8 @@ export class MasterMentorController {
     }
 
     @Get()
-    async findAll(): Promise<MasterMentor[]> {
-        return this.masterMentorService.findAll();
+    async findAll(@Query() query: QueryDto): Promise<{masterMentors: MasterMentor[], total: number }> {
+        return this.masterMentorService.findAll(query);
     }
 
     @Get(':id')
