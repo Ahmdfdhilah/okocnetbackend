@@ -13,6 +13,10 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { BackupService } from './backup/backup.service';
 import { BeritaModule } from './berita/berita.module';
 import { MagangModule } from './magang/magang.module';
+import { BrandLokalModule } from './brand-lokal/brand-lokal.module';
+import { DonasiModule } from './donasi/donasi.module';
+import { EventModule } from './event/event.module';
+import { MasterMentorModule } from './master-mentor/master-mentor.module';
 
 @Module({
     imports: [
@@ -35,6 +39,10 @@ import { MagangModule } from './magang/magang.module';
         UsersModule,
         BeritaModule,
         MagangModule,
+        DonasiModule,
+        MasterMentorModule,
+        BrandLokalModule,
+        EventModule,
         SeederModule,
         AuthModule,
     ],
