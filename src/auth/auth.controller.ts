@@ -46,15 +46,6 @@ export class AuthController {
         return this.authService.createUser(createUserDto);
     }
 
-    @Get('/email/confirm-email/:confirmationToken')
-    async confirmEmail(@Param('confirmationToken') confirmationToken: string) {
-        return this.authService.confirmEmail(confirmationToken);
-    }
-    
-    @Post('resend-confirmation-email')
-    async resendConfirmationEmail(@Body('email') email: string) {
-        return this.authService.resendConfirmationEmail(email);
-    }
 
     @UseGuards(JwtAuthGuard)
     @Post('forgot-password')

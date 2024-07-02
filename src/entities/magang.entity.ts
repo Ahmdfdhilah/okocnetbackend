@@ -33,19 +33,19 @@ export class Magang {
     @Column({ type: 'text', nullable: false })
     urlMsib: string;
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'text', nullable: true })
     kompetensi1: string;
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'text', nullable: true })
     kompetensi2: string;
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'text', nullable: true })
     kompetensi3: string;
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'text', nullable: true })
     kompetensi4: string;
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'text', nullable: true })
     kompetensi5: string;
 
     @Column({ type: 'text', nullable: true })

@@ -109,10 +109,6 @@ export class UsersService {
     return this.userRepository.findOne({ where: { resetPasswordToken: token } });
   }
 
-  async findByConfirmationToken(token: string): Promise<User> {
-    return this.userRepository.findOne({ where: { confirmationToken: token } });
-  }
-
   async save(user: User): Promise<User> {
     return this.userRepository.save(user);
   }

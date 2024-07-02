@@ -11,6 +11,8 @@ import { AuthModule } from './auth/auth.module';
 import { MailService } from './mails/mail.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BackupService } from './backup/backup.service';
+import { BeritaModule } from './berita/berita.module';
+import { MagangModule } from './magang/magang.module';
 
 @Module({
     imports: [
@@ -31,6 +33,8 @@ import { BackupService } from './backup/backup.service';
             synchronize: true
         }),
         UsersModule,
+        BeritaModule,
+        MagangModule,
         SeederModule,
         AuthModule,
     ],

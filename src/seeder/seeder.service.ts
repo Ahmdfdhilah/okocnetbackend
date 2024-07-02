@@ -22,8 +22,6 @@ export class SeederService {
         email: 'admin@example.com',
         password: hashedPassword,
         role: 'admin',
-        confirmed: true,
-        blocked: false,
       });
 
       await this.userRepository.save(user);

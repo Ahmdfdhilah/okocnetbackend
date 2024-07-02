@@ -84,23 +84,7 @@ export class AuthService {
       username,
       email,
       password,
-      confirmationToken,
     });
-
-    const confirmEmailSubject = 'Confirm Your Email';
-    const confirmEmailTitle = 'Confirm Email';
-    const confirmEmailBody = 'Please click the link below to confirm your email address.';
-    const confirmEmailActionUrl = `http://localhost:3000/auth/email/confirm-email/${confirmationToken}`;
-    const confirmEmailActionText = 'Confirm Email';
-
-    await this.mailService.sendTemplateMail(
-      user.email,
-      confirmEmailSubject,
-      confirmEmailTitle,
-      confirmEmailBody,
-      confirmEmailActionUrl,
-      confirmEmailActionText,
-    );
 
     return { user };
   }
@@ -123,22 +107,6 @@ export class AuthService {
     return { user, accessToken };
   }
 
-  async confirmEmail(confirmationToken: string): Promise<any> {
-    const user = await this.userService.findByConfirmationToken(confirmationToken);
-    if (!confirmationToken) {
-      throw new UnauthorizedException('No token provided for confirmation');
-    }
-    if (!user) {
-      throw new UnauthorizedException('Invalid confirmation token');
-    }
-
-    user.confirmed = true;
-    user.confirmationToken = null;
-
-    await this.userService.save(user);
-
-    return { message: 'Email confirmed successfully' };
-  }
 
   async initiatePasswordReset(email: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
@@ -171,37 +139,6 @@ export class AuthService {
       token: resetPasswordToken
      };
   }
-
-  async resendConfirmationEmail(email: string): Promise<any> {
-    const user = await this.userService.findByEmail(email);
-
-    if (!user) {
-      throw new UnauthorizedException('User not found');
-    }
-
-    const confirmationToken = randomBytes(20).toString('hex');
-    user.confirmationToken = confirmationToken;
-
-    await this.userService.save(user);
-
-    const confirmEmailSubject = 'Confirm Your Email';
-    const confirmEmailTitle = 'Confirm Email';
-    const confirmEmailBody = 'Please click the link below to confirm your email address.';
-    const confirmEmailActionUrl = `http://localhost:3000/auth/email/confirm-email/${confirmationToken}`;
-    const confirmEmailActionText = 'Confirm Email';
-
-    await this.mailService.sendTemplateMail(
-      user.email,
-      confirmEmailSubject,
-      confirmEmailTitle,
-      confirmEmailBody,
-      confirmEmailActionUrl,
-      confirmEmailActionText,
-    );
-
-    return { message: 'Confirmation email resent successfully' };
-  }
-
   async resendResetPassword(email: string): Promise<any> {
     const user = await this.userService.findByEmail(email);
 
