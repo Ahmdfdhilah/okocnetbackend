@@ -12,7 +12,7 @@ export class StrukturPengurusDirektoratController {
     constructor(private readonly strukturPengurusDirektoratService: StrukturPengurusDirektoratService) { }
 
     @Post(':userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('strukturpengurusdirektorats')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-direktorats')))
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -33,7 +33,7 @@ export class StrukturPengurusDirektoratController {
     }
 
     @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('strukturpengurusdirektorats')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-direktorats')))
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

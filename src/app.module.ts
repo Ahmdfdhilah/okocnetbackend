@@ -23,6 +23,9 @@ import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
 import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
 import { PengurusModule } from './pengurus/pengurus.module';
 import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat/struktur-pengurus-direktorat.module';
+import { StrukturPengurusEksekutifModule } from './struktur-pengurus-eksekutif/struktur-pengurus-eksekutif.module';
+import { StrukturPengurusKurasiModule } from './struktur-pengurus-kurasi/struktur-pengurus-eksekutif.module';
+import { StrukturPengurusPembinaModule } from './struktur-pengurus-pembina/struktur-pengurus-eksekutif.module';
 
 @Module({
     imports: [
@@ -55,6 +58,9 @@ import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat
         PeluangUsahaModule,
         StrukturPengurusDirektoratModule,
         PenggerakOkoceModule,
+        StrukturPengurusEksekutifModule,
+        StrukturPengurusKurasiModule,
+        StrukturPengurusPembinaModule,
         SeederModule,
         AuthModule,
     ],

@@ -7,4 +7,4 @@ export const CreateStrukturPengurusEksekutifSchema = z.object({
     publishedAt: z.string(),
 });
 
-export type CreateStrukturPengurusDirektoratDto = z.infer<typeof CreateStrukturPengurusEksekutifSchema>;
+export type CreateStrukturPengurusEksekutifDto = z.infer<typeof CreateStrukturPengurusEksekutifSchema>;

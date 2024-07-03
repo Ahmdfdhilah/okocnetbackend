@@ -63,7 +63,7 @@ export class StrukturPengurusDirektoratService {
 
             if (imgSrc) {
                 if (strukturPengurusDirektorat.fotoPengurus) {
-                    const oldImagePath = path.join(__dirname, '../../public/upload/strukturpengurusdirektorats', path.basename(strukturPengurusDirektorat.fotoPengurus));
+                    const oldImagePath = path.join(__dirname, '../../public/upload/struktur-pengurus-direktorats', path.basename(strukturPengurusDirektorat.fotoPengurus));
                     fs.unlinkSync(oldImagePath);
                 }
                 dataStrukturPengurusDirektorat.fotoPengurus = imgSrc;
@@ -83,7 +83,7 @@ export class StrukturPengurusDirektoratService {
 
     async findAll(query: QueryDto): Promise<{ strukturPengurusDirektorat: StrukturPengurusDirektorat[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `penguruses`;
+        const cacheKey = `strukturpengurusdirektorats`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -120,7 +120,7 @@ export class StrukturPengurusDirektoratService {
         }
 
         if (strukturPengurusDirektorat.fotoPengurus) {
-            const imagePath = path.join(__dirname, '../../public/upload/struktur-pengurus-direktorat', path.basename(strukturPengurusDirektorat.fotoPengurus));
+            const imagePath = path.join(__dirname, '../../public/upload/struktur-pengurus-direktorats', path.basename(strukturPengurusDirektorat.fotoPengurus));
             fs.unlinkSync(imagePath);
         }
 
