@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
-import { StrukturPengurusDirektoratService } from './struktur-pengurus-direktorat.module';
+import { StrukturPengurusDirektoratService } from './struktur-pengurus-direktorat.service';
 import { StrukturPengurusDirektorat } from 'src/entities/struktur-pengurus-direktorat.entity';
 import { CreateStrukturPengurusDirektoratDto } from './dto/create-struktur-pengurus-direktorat.dto';
 import { UpdateStrukturPengurusDirektoratDto } from './dto/update-struktur-pengurus-direktorat.dto';

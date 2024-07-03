@@ -22,7 +22,7 @@ import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
 import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
 import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
 import { PengurusModule } from './pengurus/pengurus.module';
-import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat/struktur-pengurus-direktorat.service';
+import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat/struktur-pengurus-direktorat.module';
 
 @Module({
     imports: [
