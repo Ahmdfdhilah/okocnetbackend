@@ -57,7 +57,7 @@ export class BrandLokalService {
 
       if (imgSrc) {
         if (brandLokal.fotoBrand) {
-          const oldImagePath = path.join(__dirname, '../../public/upload/brand-lokal', path.basename(brandLokal.fotoBrand));
+          const oldImagePath = path.join(__dirname, '../../public/upload/brand-lokals', path.basename(brandLokal.fotoBrand));
           fs.unlinkSync(oldImagePath);
         }
         dataBrandLokal.fotoBrand = imgSrc;
@@ -113,7 +113,7 @@ export class BrandLokalService {
       throw new NotFoundException(`BrandLokal with id ${id} not found`);
     }
     if (brandLokal.fotoBrand) {
-      const imagePath = path.join(__dirname, '../../public/upload/brand-lokal', path.basename(brandLokal.fotoBrand));
+      const imagePath = path.join(__dirname, '../../public/upload/brand-lokals', path.basename(brandLokal.fotoBrand));
       fs.unlinkSync(imagePath);
     }
 

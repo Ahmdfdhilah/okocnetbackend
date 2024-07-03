@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ApiProperty } from '@nestjs/swagger';
 
 export const CreatePeluangUsahaSchema = z.object({
     judulUsaha: z.string(),
@@ -15,4 +16,42 @@ export const CreatePeluangUsahaSchema = z.object({
     publishedAt: z.string(),
 });
 
-export type CreatePeluangUsahaDto = z.infer<typeof CreatePeluangUsahaSchema>;
+export class CreatePeluangUsahaDto {
+    @ApiProperty({ example: 'Judul Usaha' })
+    judulUsaha: string;
+    @ApiProperty({ example: 'file type' })
+    fotoUsaha: string;
+    @ApiProperty({ example: 'Lokasi Usaha' })
+    lokasiUsaha: string;
+    @ApiProperty({ example: 'Kategori Usaha' })
+    kategoriUsaha: string;
+    @ApiProperty({ example: 'Tentang Program' })
+    tentangProgram: string;
+    @ApiProperty({ example: 'Benefit Program' })
+    benefitProgram: string;
+    @ApiProperty({ example: 'Jobdesc Usaha' })
+    jobdescUsaha: string;
+    @ApiProperty({ example: 'Kriteria Usaha' })
+    kriteriaUsaha: string;
+    @ApiProperty({ example: 'https://pendaftaran-usaha.com' })
+    urlPendaftaran: string;
+    @ApiProperty({ enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'], example: 'Full-Time' })
+    sistemKerja: string;
+    @ApiProperty({ example: '2024-07-03T04:48:57.000Z' })
+    publishedAt: string;
+
+    constructor(data: any) {
+        const validatedData = CreatePeluangUsahaSchema.parse(data);
+        this.judulUsaha = validatedData.judulUsaha;
+        this.fotoUsaha = validatedData.fotoUsaha;
+        this.lokasiUsaha = validatedData.lokasiUsaha;
+        this.kategoriUsaha = validatedData.kategoriUsaha;
+        this.tentangProgram = validatedData.tentangProgram;
+        this.benefitProgram = validatedData.benefitProgram;
+        this.jobdescUsaha = validatedData.jobdescUsaha;
+        this.kriteriaUsaha = validatedData.kriteriaUsaha;
+        this.urlPendaftaran = validatedData.urlPendaftaran;
+        this.sistemKerja = validatedData.sistemKerja;
+        this.publishedAt = validatedData.publishedAt;
+    }
+}

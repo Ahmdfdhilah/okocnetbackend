@@ -5,59 +5,61 @@ import { QueryDto } from 'src/lib/query.dto';
 import { CreateBrandLokalDto } from './dto/create-brand-lokal.dto';
 import { UpdateBrandLokalDto } from './dto/update-brand-lokal.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import { extname } from 'path';
-import * as fs from 'fs';
-
-const storage = diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = 'public/upload/brand-lokal';
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-    cb(null, `${uuidv4()}${extname(file.originalname)}`);
-  },
-});
+import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
 @Controller('brand-lokals')
+@ApiTags('brand-lokals')
 export class BrandLokalController {
   constructor(private readonly brandLokalService: BrandLokalService) {}
 
   @Post(':userId')
-  @UseInterceptors(FileInterceptor('file', { storage }))
+  @ApiOperation({ summary: 'Create a new Brand Lokal' })
+  @ApiBody({ type: CreateBrandLokalDto })
+  @UseInterceptors(FileInterceptor('file', fileUploadOptions('brand-lokals')))
   async create(
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() createBrandLokalDto: CreateBrandLokalDto
   ): Promise<BrandLokal> {
-    return this.brandLokalService.create(createBrandLokalDto, userId, file.filename);
+    const imgSrc = getFileUrl('brand-lokals', file);
+    return this.brandLokalService.create(createBrandLokalDto, userId, imgSrc);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all Brand Lokals' })
+  @ApiResponse({ status: 200, description: 'Returns all Brand Lokals' })
   async findAll(@Query() query: QueryDto): Promise<{ brandLokals: BrandLokal[], total: number }> {
     return this.brandLokalService.findAll(query);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a Brand Lokal by ID' })
+  @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
+  @ApiResponse({ status: 200, description: 'Returns the Brand Lokal' })
   async findOne(@Param('id') id: string): Promise<BrandLokal> {
     return this.brandLokalService.findOne(id);
   }
 
   @Put(':id/:userId')
-  @UseInterceptors(FileInterceptor('file', { storage }))
+  @UseInterceptors(FileInterceptor('file', fileUploadOptions('brand-lokals')))
+  @ApiOperation({ summary: 'Update a Brand Lokal by ID' })
+  @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
+  @ApiBody({ type: UpdateBrandLokalDto })
   async update(
     @Param('id') id: string,
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
     @Body() updateBrandLokalDto: UpdateBrandLokalDto
   ): Promise<BrandLokal> {
-    return this.brandLokalService.update(id, userId, updateBrandLokalDto, file?.filename);
+    const imgSrc = getFileUrl('brand-lokals', file);
+    return this.brandLokalService.update(id, userId, updateBrandLokalDto, imgSrc);
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a Brand Lokal by ID' })
+  @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
+  @ApiResponse({ status: 204, description: 'Brand Lokal successfully deleted' })
   async remove(@Param('id') id: string): Promise<void> {
     return this.brandLokalService.remove(id);
   }

@@ -1,19 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import rateLimit from 'express-rate-limit';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  
+
   app.useStaticAssets('public/upload/', {
     prefix: '/public/upload/',
   });
-  
+
+  const options = new DocumentBuilder()
+    .setTitle('OK OCE NET')
+    .setDescription('API description')
+    .setVersion('1.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
+
   app.use(helmet());
-  
+
   // Rate Limiting
   app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 menit

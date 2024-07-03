@@ -3,8 +3,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { AuthPayloadDto } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDtoType } from 'src/users/dto/create-user.dto';
-import { UpdateUserDtoType } from 'src/users/dto/update-user.dto';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { randomBytes } from 'crypto';
 import { MailService } from 'src/mails/mail.service';
 
@@ -65,7 +65,7 @@ export class AuthService {
     return this.jwtService.sign(payload);
   }
 
-  async createUser(createUserDto: CreateUserDtoType): Promise<any> {
+  async createUser(createUserDto: CreateUserDto): Promise<any> {
     const { email, username, password, ...userData } = createUserDto;
 
     const existingUser = await this.userService.findByUsernameOrEmail(username, email);
@@ -89,7 +89,7 @@ export class AuthService {
     return { user };
   }
 
-  async updateUser(id: string, updateUserDto: UpdateUserDtoType): Promise<any> {
+  async updateUser(id: string, updateUserDto: UpdateUserDto): Promise<any> {
     const { username, email, ...updateData } = updateUserDto;
     const existingUser = await this.userService.findByUsernameOrEmail(username, email);
 

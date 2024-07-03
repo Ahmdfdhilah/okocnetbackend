@@ -6,12 +6,16 @@ import { CreateMagangDto } from './dto/create-magang.dto';
 import { UpdateMagangDto } from './dto/update-magang.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
 @Controller('magangs')
+@ApiTags('magangs')
 export class MagangController {
   constructor(private readonly magangService: MagangService) {}
 
   @Post(':userId')
+  @ApiOperation({ summary: 'Create a new Magang' })
+  @ApiBody({ type: CreateMagangDto })
   @UseInterceptors(FileInterceptor('file', fileUploadOptions('magangs')))
   async create(
     @Param('userId') userId: string,
@@ -23,16 +27,24 @@ export class MagangController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all Magangs' })
+  @ApiResponse({ status: 200, description: 'Returns all Magangs' })
   async findAll(@Query() query: QueryDto): Promise<{ magangs: Magang[], total: number }> {
     return this.magangService.findAll(query);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get a Magang by ID' })
+  @ApiParam({ name: 'id', description: 'Magang ID' })
+  @ApiResponse({ status: 200, description: 'Returns the Magang' })
   async findOne(@Param('id') id: string): Promise<Magang> {
     return this.magangService.findOne(id);
   }
 
   @Put(':id/:userId')
+  @ApiOperation({ summary: 'Update a Magang by ID' })
+  @ApiParam({ name: 'id', description: 'Magang ID' })
+  @ApiBody({ type: UpdateMagangDto })
   @UseInterceptors(FileInterceptor('file', fileUploadOptions('magangs')))
   async update(
     @Param('id') id: string,
@@ -45,6 +57,9 @@ export class MagangController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete a Magang by ID' })
+  @ApiParam({ name: 'id', description: 'Magang ID' })
+  @ApiResponse({ status: 204, description: 'Magang successfully deleted' })
   async remove(@Param('id') id: string): Promise<void> {
     return this.magangService.remove(id);
   }

@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Like, Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import * as bcrypt from 'bcryptjs';
-import { CreateUserDtoType } from './dto/create-user.dto';
-import { UpdateUserDtoType } from './dto/update-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import redis from 'src/lib/redis-client';
 import { QueryDto } from 'src/lib/query.dto';
 
@@ -17,7 +17,7 @@ export class UsersService {
   ) { }
   private readonly logger = new Logger(UsersService.name)
 
-  async create(createUserDto: CreateUserDtoType): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     const { password, ...userData } = createUserDto;
     const hashedPassword = await bcrypt.hash(password, 10);
     let newUser: User;
@@ -33,7 +33,7 @@ export class UsersService {
 
     return newUser!;
   }
-  async update(id: string, updateUserDto: UpdateUserDtoType): Promise<User> {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     let updatedUser: User;
 
     await this.entityManager.transaction(async transactionalEntityManager => {

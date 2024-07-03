@@ -7,6 +7,8 @@ import { QueryDto } from 'src/lib/query.dto';
 import { User } from 'src/entities/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
+import { CreateBeritaDto } from './dto/create-berita.dto';
+import { UpdateBeritaDto } from './dto/update-berita.dto';
 
 @Injectable()
 export class BeritaService {
@@ -17,7 +19,7 @@ export class BeritaService {
   ) {}
   private readonly logger = new Logger(BeritaService.name);
 
-  async create(createBeritaDto: Partial<Berita>, userId: string, imgSrc: string): Promise<Berita> {
+  async create(createBeritaDto: CreateBeritaDto, userId: string, imgSrc: string): Promise<Berita> {
     let newBerita: Berita;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -38,7 +40,7 @@ export class BeritaService {
     return newBerita!;
   }
 
-  async update(id: string, userId: string, updateBeritaDto: Partial<Berita>, imgSrc?: string): Promise<Berita> {
+  async update(id: string, userId: string, updateBeritaDto: UpdateBeritaDto, imgSrc?: string): Promise<Berita> {
     let updatedBerita: Berita;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
