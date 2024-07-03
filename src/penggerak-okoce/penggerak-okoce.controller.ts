@@ -12,7 +12,7 @@ export class PenggerakOkoceController {
     constructor(private readonly penggerakOkoceService: PenggerakOkoceService) { }
 
     @Post(':userId')
-    @UseInterceptors(FileInterceptor('fotoPenggerak', fileUploadOptions('penggerak-okoces')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('penggerak-okoces')))
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -33,7 +33,7 @@ export class PenggerakOkoceController {
     }
 
     @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('fotoPenggerak', fileUploadOptions('penggerak-okoces')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('penggerak-okoces')))
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

@@ -12,7 +12,7 @@ export class PeluangKerjaController {
     constructor(private readonly peluangKerjaService: PeluangKerjaService) { }
 
     @Post(':userId')
-    @UseInterceptors(FileInterceptor('fotoKerja', fileUploadOptions('peluang-kerjas')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-kerjas')))
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -33,7 +33,7 @@ export class PeluangKerjaController {
     }
 
     @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('fotoKerja', fileUploadOptions('peluang-kerjas')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-kerjas')))
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

@@ -21,6 +21,8 @@ import { MerchandiseModule } from './merchandise/merchandise.module';
 import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
 import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
 import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
+import { PengurusModule } from './pengurus/pengurus.module';
+import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat/struktur-pengurus-direktorat.service';
 
 @Module({
     imports: [
@@ -49,7 +51,9 @@ import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
         MerchandiseModule,
         PeluangKerjaModule,
         EventModule,
+        PengurusModule,
         PeluangUsahaModule,
+        StrukturPengurusDirektoratModule,
         PenggerakOkoceModule,
         SeederModule,
         AuthModule,
