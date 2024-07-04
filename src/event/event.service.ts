@@ -75,7 +75,7 @@ export class EventService {
         return this.eventRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ events: Event[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: Event[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `events`;
 
@@ -101,7 +101,7 @@ export class EventService {
 
         this.logger.log(`DB result - Events count: ${events.length}, Total count: ${total}`);
 
-        const result = { events, total };
+        const result = { data:events, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

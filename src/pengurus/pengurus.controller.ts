@@ -29,7 +29,7 @@ export class PengurusController {
     @Get()
     @ApiOperation({ summary: 'Get all Penguruses' })
     @ApiResponse({ status: 200, description: 'Returns all Penguruses' })
-    async findAll(@Query() query: QueryDto): Promise<{ penguruses: Pengurus[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: Pengurus[], total: number }> {
         return this.pengurusService.findAll(query);
     }
 

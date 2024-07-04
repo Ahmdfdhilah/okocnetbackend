@@ -29,7 +29,7 @@ export class MerchandiseController {
     @Get()
     @ApiOperation({ summary: 'Get all Merchandises' })
     @ApiResponse({ status: 200, description: 'Returns all Merchandises' })
-    async findAll(@Query() query: QueryDto): Promise<{ merchandises: Merchandise[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: Merchandise[], total: number }> {
         return this.merchandiseService.findAll(query);
     }
 

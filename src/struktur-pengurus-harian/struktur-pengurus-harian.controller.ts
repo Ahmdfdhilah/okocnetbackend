@@ -29,12 +29,12 @@ export class StrukturPengurusHarianController {
         @UploadedFile() file: Express.Multer.File,
         @Body() createStrukturPengurusHarianDto: CreateStrukturPengurusHarianDto,
     ): Promise<StrukturPengurusHarian> {
-        const imgSrc = getFileUrl('strukturpengurusharians', file);
+        const imgSrc = getFileUrl('struktur-pengurus-harians', file);
         return this.strukturPengurusHarianService.create(createStrukturPengurusHarianDto, userId, imgSrc);
     }
 
     @Get()
-    async findAll(@Query() query: QueryDto): Promise<{ strukturPengurusHarian: StrukturPengurusHarian[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: StrukturPengurusHarian[], total: number }> {
         return this.strukturPengurusHarianService.findAll(query);
     }
 
@@ -51,7 +51,7 @@ export class StrukturPengurusHarianController {
         @UploadedFile() file: Express.Multer.File,
         @Body() updateStrukturPengurusHarianDto: UpdateStrukturPengurusHarianDto,
     ): Promise<StrukturPengurusHarian> {
-        const imgSrc = getFileUrl('strukturpengurusharians', file);
+        const imgSrc = getFileUrl('struktur-pengurus-harians', file);
         return this.strukturPengurusHarianService.update(id, userId, updateStrukturPengurusHarianDto, imgSrc);
     }
 

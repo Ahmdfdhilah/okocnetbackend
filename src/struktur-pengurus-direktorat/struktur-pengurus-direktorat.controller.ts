@@ -29,7 +29,7 @@ export class StrukturPengurusDirektoratController {
     @Get()
     @ApiOperation({ summary: 'Get all StrukturPengurusDirektorat' })
     @ApiResponse({ status: 200, description: 'Returns all StrukturPengurusDirektorat' })
-    async findAll(@Query() query: QueryDto): Promise<{ strukturPengurusDirektorat: StrukturPengurusDirektorat[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: StrukturPengurusDirektorat[], total: number }> {
         return this.strukturPengurusDirektoratService.findAll(query);
     }
 

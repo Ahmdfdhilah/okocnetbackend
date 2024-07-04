@@ -75,7 +75,7 @@ export class DonasiService {
     return this.donasiRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
 
-  async findAll(query: QueryDto): Promise<{ donasis: Donasi[], total: number }> {
+  async findAll(query: QueryDto): Promise<{ data: Donasi[], total: number }> {
     const { page = 1, limit = 10, search, sort, order } = query;
     const cacheKey = `donasis`;
 
@@ -101,7 +101,7 @@ export class DonasiService {
 
     this.logger.log(`DB result - Donasis count: ${donasis.length}, Total count: ${total}`);
 
-    const result = { donasis, total };
+    const result = { data: donasis, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;

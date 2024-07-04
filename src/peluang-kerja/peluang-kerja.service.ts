@@ -81,7 +81,7 @@ export class PeluangKerjaService {
         return this.peluangKerjaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ peluangKerjas: PeluangKerja[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: PeluangKerja[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `peluang-kerjas`;
 
@@ -107,7 +107,7 @@ export class PeluangKerjaService {
 
         this.logger.log(`DB result - PeluangKerjas count: ${peluangKerjas.length}, Total count: ${total}`);
 
-        const result = { peluangKerjas, total };
+        const result = { data:peluangKerjas, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

@@ -26,6 +26,8 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_TCP_PORT=3307
       - MYSQL_DATABASE=okoce
+    volumes:
+      - db-data:/var/lib/mysql
     networks:
       - backend-network
 
@@ -37,6 +39,8 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_TCP_PORT=3308
       - MYSQL_DATABASE=okoce_backup
+    volumes:
+      - db-backup-data:/var/lib/mysql
     networks:
       - backend-network
 
@@ -57,3 +61,7 @@ services:
 networks:
   backend-network:
     driver: bridge
+
+volumes:
+  db-data:
+  db-backup-data:

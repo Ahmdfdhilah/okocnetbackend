@@ -29,7 +29,7 @@ export class DonasiController {
   @Get()
   @ApiOperation({ summary: 'Get all Donasis' })
   @ApiResponse({ status: 200, description: 'Returns all Donasis' })
-  async findAll(@Query() query: QueryDto): Promise<{ donasis: Donasi[], total: number }> {
+  async findAll(@Query() query: QueryDto): Promise<{ data: Donasi[], total: number }> {
     return this.donasiService.findAll(query);
   }
 

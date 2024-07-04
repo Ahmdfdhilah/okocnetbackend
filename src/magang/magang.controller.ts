@@ -29,7 +29,7 @@ export class MagangController {
   @Get()
   @ApiOperation({ summary: 'Get all Magangs' })
   @ApiResponse({ status: 200, description: 'Returns all Magangs' })
-  async findAll(@Query() query: QueryDto): Promise<{ magangs: Magang[], total: number }> {
+  async findAll(@Query() query: QueryDto): Promise<{ data: Magang[], total: number }> {
     return this.magangService.findAll(query);
   }
 

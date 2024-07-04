@@ -82,7 +82,7 @@ export class StrukturPengurusEksekutifService {
         return this.strukturPengurusEksekutifRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ strukturPengurusEksekutif: StrukturPengurusEksekutif[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: StrukturPengurusEksekutif[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `struktutpenguruseksekutifs`;
 
@@ -98,7 +98,7 @@ export class StrukturPengurusEksekutifService {
         const skip = (page - 1) * limit;
         this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
 
-        const [strukturPengurusDirektorat, total] = await this.strukturPengurusEksekutifRepository.findAndCount({
+        const [strukturPengurusEksekutif, total] = await this.strukturPengurusEksekutifRepository.findAndCount({
             skip,
             take: limit,
             where: search ? { namaPengurus: Like(`%${search}%`) } : {},
@@ -106,9 +106,9 @@ export class StrukturPengurusEksekutifService {
             relations: ['createdBy', 'updatedBy'],
         });
 
-        this.logger.log(`DB result - Pengurus count: ${strukturPengurusDirektorat.length}, Total count: ${total}`);
+        this.logger.log(`DB result - Pengurus count: ${strukturPengurusEksekutif.length}, Total count: ${total}`);
 
-        const result = { strukturPengurusEksekutif: strukturPengurusDirektorat, total };
+        const result = { data: strukturPengurusEksekutif, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

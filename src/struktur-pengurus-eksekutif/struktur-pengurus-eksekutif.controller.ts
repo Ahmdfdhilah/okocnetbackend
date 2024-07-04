@@ -14,7 +14,7 @@ export class StrukturPengurusEksekutifController {
     constructor(private readonly strukturPengurusEksekutifService: StrukturPengurusEksekutifService) { }
 
     @Post(':userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('strukturpenguruseksekutif')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-eksekutif')))
     @ApiOperation({ summary: 'Create a new StrukturPengurusEksekutif' })
     @ApiBody({ type: CreateStrukturPengurusEksekutifDto })
     async create(
@@ -22,14 +22,14 @@ export class StrukturPengurusEksekutifController {
         @UploadedFile() file: Express.Multer.File,
         @Body() createStrukturPengurusEksekutifDto: CreateStrukturPengurusEksekutifDto,
     ): Promise<StrukturPengurusEksekutif> {
-        const imgSrc = getFileUrl('strukturpenguruseksekutif', file);
+        const imgSrc = getFileUrl('struktur-pengurus-eksekutif', file);
         return this.strukturPengurusEksekutifService.create(createStrukturPengurusEksekutifDto, userId, imgSrc);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all StrukturPengurusEksekutif' })
     @ApiResponse({ status: 200, description: 'Returns all StrukturPengurusEksekutif' })
-    async findAll(@Query() query: QueryDto): Promise<{ strukturPengurusEksekutif: StrukturPengurusEksekutif[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: StrukturPengurusEksekutif[], total: number }> {
         return this.strukturPengurusEksekutifService.findAll(query);
     }
 
@@ -42,7 +42,7 @@ export class StrukturPengurusEksekutifController {
     }
 
     @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('strukturpenguruseksekutif')))
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-eksekutif')))
     @ApiOperation({ summary: 'Update a StrukturPengurusEksekutif by ID' })
     @ApiParam({ name: 'id', description: 'StrukturPengurusEksekutif ID' })
     @ApiBody({ type: UpdateStrukturPengurusEksekutifDto })
@@ -52,7 +52,7 @@ export class StrukturPengurusEksekutifController {
         @UploadedFile() file: Express.Multer.File,
         @Body() updateStrukturPengurusEksekutifDto: UpdateStrukturPengurusEksekutifDto,
     ): Promise<StrukturPengurusEksekutif> {
-        const imgSrc = getFileUrl('strukturpenguruseksekutif', file);
+        const imgSrc = getFileUrl('struktur-pengurus-eksekutif', file);
         return this.strukturPengurusEksekutifService.update(id, userId, updateStrukturPengurusEksekutifDto, imgSrc);
     }
 

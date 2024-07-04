@@ -75,7 +75,7 @@ export class BrandLokalService {
     return this.brandLokalRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
 
-  async findAll(query: QueryDto): Promise<{ brandLokals: BrandLokal[], total: number }> {
+  async findAll(query: QueryDto): Promise<{ data: BrandLokal[], total: number }> {
     const { page = 1, limit = 10, search, sort, order } = query;
     const cacheKey = `brandLokals`;
 
@@ -101,7 +101,7 @@ export class BrandLokalService {
 
     this.logger.log(`DB result - BrandLokals count: ${brandLokals.length}, Total count: ${total}`);
 
-    const result = { brandLokals, total };
+    const result = { data: brandLokals, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;

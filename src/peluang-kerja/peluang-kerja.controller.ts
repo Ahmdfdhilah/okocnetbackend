@@ -29,7 +29,7 @@ export class PeluangKerjaController {
     @Get()
     @ApiOperation({ summary: 'Get all Peluang Kerjas' })
     @ApiResponse({ status: 200, description: 'Returns all Peluang Kerjas' })
-    async findAll(@Query() query: QueryDto): Promise<{ peluangKerjas: PeluangKerja[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: PeluangKerja[], total: number }> {
         return this.peluangKerjaService.findAll(query);
     }
 

@@ -66,7 +66,7 @@ export class MasterMentorService {
         return this.masterMentorRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ masterMentors: MasterMentor[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: MasterMentor[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `masterMentors`;
     
@@ -91,7 +91,7 @@ export class MasterMentorService {
     
         this.logger.log(`DB result - MasterMentors count: ${masterMentors.length}, Total count: ${total}`);
     
-        const result = { masterMentors, total };
+        const result = { data: masterMentors, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
     
         return result;

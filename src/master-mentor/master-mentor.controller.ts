@@ -24,7 +24,7 @@ export class MasterMentorController {
     @Get()
     @ApiOperation({ summary: 'Get all Master Mentors' })
     @ApiResponse({ status: 200, description: 'Returns all Master Mentors' })
-    async findAll(@Query() query: QueryDto): Promise<{ masterMentors: MasterMentor[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: MasterMentor[], total: number }> {
         return this.masterMentorService.findAll(query);
     }
 

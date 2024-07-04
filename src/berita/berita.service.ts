@@ -75,7 +75,7 @@ export class BeritaService {
     return this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
 
-  async findAll(query: QueryDto): Promise<{ beritas: Berita[], total: number }> {
+  async findAll(query: QueryDto): Promise<{ data: Berita[], total: number }> {
     const { page = 1, limit = 10, search, sort, order } = query;
     const cacheKey = `beritas`;
 
@@ -101,7 +101,7 @@ export class BeritaService {
 
     this.logger.log(`DB result - Beritas count: ${beritas.length}, Total count: ${total}`);
 
-    const result = { beritas, total };
+    const result = { data: beritas, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;

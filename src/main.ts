@@ -22,7 +22,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: false
+  }));
 
   // Rate Limiting
   app.use(rateLimit({
@@ -32,12 +34,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
-  // CORS di enabled untuk frontend endpoints
-  app.enableCors({
-    origin: 'http://localhost:3001',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
+  app.enableCors();
 
   // Content Security Policy (CSP)
   app.use((req, res, next) => {

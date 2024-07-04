@@ -29,7 +29,7 @@ export class BeritaController {
   @Get()
   @ApiOperation({ summary: 'Get all Beritas' })
   @ApiResponse({ status: 200, description: 'Returns all Beritas' })
-  async findAll(@Query() query: QueryDto): Promise<{ beritas: Berita[], total: number }> {
+  async findAll(@Query() query: QueryDto): Promise<{ data: Berita[], total: number }> {
     return this.beritaService.findAll(query);
   }
 

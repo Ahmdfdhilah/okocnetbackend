@@ -81,7 +81,7 @@ export class PengurusService {
         return this.pengurusRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ penguruses: Pengurus[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: Pengurus[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `penguruses`;
 
@@ -107,7 +107,7 @@ export class PengurusService {
 
         this.logger.log(`DB result - Pengurus count: ${pengurus.length}, Total count: ${total}`);
 
-        const result = { penguruses: pengurus, total };
+        const result = { data: pengurus, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

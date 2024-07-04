@@ -29,7 +29,7 @@ export class PenggerakOkoceController {
     @Get()
     @ApiOperation({ summary: 'Get all PenggerakOkoces' })
     @ApiResponse({ status: 200, description: 'Returns all PenggerakOkoces' })
-    async findAll(@Query() query: QueryDto): Promise<{ penggerakOkoces: PenggerakOkoce[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: PenggerakOkoce[], total: number }> {
         return this.penggerakOkoceService.findAll(query);
     }
 

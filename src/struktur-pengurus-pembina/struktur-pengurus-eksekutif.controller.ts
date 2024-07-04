@@ -22,14 +22,14 @@ export class StrukturPengurusPembinaController {
         @UploadedFile() file: Express.Multer.File,
         @Body() createStrukturPengurusPembinaDto: CreateStrukturPengurusPembinaDto,
     ): Promise<StrukturPengurusPembina> {
-        const imgSrc = getFileUrl('strukturpenguruspembinas', file);
+        const imgSrc = getFileUrl('struktur-pengurus-pembinas', file);
         return this.strukturPengurusPembinaService.create(createStrukturPengurusPembinaDto, userId, imgSrc);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all StrukturPengurusPembinas' })
     @ApiResponse({ status: 200, description: 'Returns all StrukturPengurusPembinas' })
-    async findAll(@Query() query: QueryDto): Promise<{ strukturPengurusPembina: StrukturPengurusPembina[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: StrukturPengurusPembina[], total: number }> {
         return this.strukturPengurusPembinaService.findAll(query);
     }
 

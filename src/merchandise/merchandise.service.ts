@@ -75,7 +75,7 @@ export class MerchandiseService {
     return this.merchandiseRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
 
-  async findAll(query: QueryDto): Promise<{ merchandises: Merchandise[], total: number }> {
+  async findAll(query: QueryDto): Promise<{ data: Merchandise[], total: number }> {
     const { page = 1, limit = 10, search, sort, order } = query;
     const cacheKey = `merchandises`;
 
@@ -101,7 +101,7 @@ export class MerchandiseService {
 
     this.logger.log(`DB result - Merchandises count: ${merchandises.length}, Total count: ${total}`);
 
-    const result = { merchandises, total };
+    const result = { data:merchandises, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;

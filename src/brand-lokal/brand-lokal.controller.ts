@@ -29,7 +29,7 @@ export class BrandLokalController {
   @Get()
   @ApiOperation({ summary: 'Get all Brand Lokals' })
   @ApiResponse({ status: 200, description: 'Returns all Brand Lokals' })
-  async findAll(@Query() query: QueryDto): Promise<{ brandLokals: BrandLokal[], total: number }> {
+  async findAll(@Query() query: QueryDto): Promise<{ data: BrandLokal[], total: number }> {
     return this.brandLokalService.findAll(query);
   }
 

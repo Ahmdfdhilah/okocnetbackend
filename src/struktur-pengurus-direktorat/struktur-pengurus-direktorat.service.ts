@@ -81,7 +81,7 @@ export class StrukturPengurusDirektoratService {
         return this.strukturPengurusDirektoratRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ strukturPengurusDirektorat: StrukturPengurusDirektorat[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: StrukturPengurusDirektorat[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `strukturpengurusdirektorats`;
 
@@ -107,7 +107,7 @@ export class StrukturPengurusDirektoratService {
 
         this.logger.log(`DB result - Pengurus count: ${strukturPengurusDirektorat.length}, Total count: ${total}`);
 
-        const result = { strukturPengurusDirektorat: strukturPengurusDirektorat, total };
+        const result = { data : strukturPengurusDirektorat, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

@@ -22,14 +22,14 @@ export class StrukturPengurusKurasiController {
         @UploadedFile() file: Express.Multer.File,
         @Body() createStrukturPengurusKurasiDto: CreateStrukturPengurusKurasiDto,
     ): Promise<StrukturPengurusKurasi> {
-        const imgSrc = getFileUrl('strukturpenguruskurasi', file);
+        const imgSrc = getFileUrl('struktur-pengurus-kurasi', file);
         return this.strukturPengurusKurasiService.create(createStrukturPengurusKurasiDto, userId, imgSrc);
     }
 
     @Get()
     @ApiOperation({ summary: 'Get all StrukturPengurusKurasi' })
     @ApiResponse({ status: 200, description: 'Returns all StrukturPengurusKurasi' })
-    async findAll(@Query() query: QueryDto): Promise<{ strukturPengurusKurasi: StrukturPengurusKurasi[], total: number }> {
+    async findAll(@Query() query: QueryDto): Promise<{ data: StrukturPengurusKurasi[], total: number }> {
         return this.strukturPengurusKurasiService.findAll(query);
     }
 
@@ -52,7 +52,7 @@ export class StrukturPengurusKurasiController {
         @UploadedFile() file: Express.Multer.File,
         @Body() updateStrukturPengurusKurasiDto: UpdateStrukturPengurusKurasiDto,
     ): Promise<StrukturPengurusKurasi> {
-        const imgSrc = getFileUrl('strukturpenguruskurasi', file);
+        const imgSrc = getFileUrl('struktur-pengurus-kurasi', file);
         return this.strukturPengurusKurasiService.update(id, userId, updateStrukturPengurusKurasiDto, imgSrc);
     }
 

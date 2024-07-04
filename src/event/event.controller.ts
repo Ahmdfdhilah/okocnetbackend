@@ -29,7 +29,7 @@ export class EventController {
   @Get()
   @ApiOperation({ summary: 'Get all Events' })
   @ApiResponse({ status: 200, description: 'Returns all Events' })
-  async findAll(@Query() query: QueryDto): Promise<{ events: Event[], total: number }> {
+  async findAll(@Query() query: QueryDto): Promise<{ data: Event[], total: number }> {
     return this.eventService.findAll(query);
   }
 

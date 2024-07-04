@@ -81,7 +81,7 @@ export class StrukturPengurusHarianService {
         return this.strukturPengurusHarianRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(query: QueryDto): Promise<{ strukturPengurusHarian: StrukturPengurusHarian[], total: number }> {
+    async findAll(query: QueryDto): Promise<{ data: StrukturPengurusHarian[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
         const cacheKey = `strukturpengurusharians`;
 
@@ -107,7 +107,7 @@ export class StrukturPengurusHarianService {
 
         this.logger.log(`DB result - Pengurus count: ${strukturPengurusHarian.length}, Total count: ${total}`);
 
-        const result = { strukturPengurusHarian: strukturPengurusHarian, total };
+        const result = { data : strukturPengurusHarian, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;
