@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, Uploa
 import { PengurusService } from './pengurus.service';
 import { Pengurus } from 'src/entities/pengurus.entity';
 import { CreatePengurusDto } from './dto/create-pengurus.dto';
-import { UpdatePengurusDto } from './dto/update-pengurus.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { UpdatePengurusDto } from './dto/update-pengurus.dto';
 
 @Controller('penguruses')
 @ApiTags('penguruses')
@@ -16,7 +16,37 @@ export class PengurusController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('penguruses')))
     @ApiOperation({ summary: 'Create a new Pengurus' })
-    @ApiBody({ type: CreatePengurusDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['file', 'namaFounder', 'jabatanFounder', 'publishedAt'],
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                namaFounder: {
+                    type: 'string',
+                    description: 'Nama Founder',
+                    example: 'John Doe',
+                },
+                jabatanFounder: {
+                    type: 'string',
+                    description: 'Jabatan Founder',
+                    example: 'Ketua',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -44,8 +74,37 @@ export class PengurusController {
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('penguruses')))
     @ApiOperation({ summary: 'Update a Pengurus by ID' })
+    @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Pengurus ID' })
-    @ApiBody({ type: UpdatePengurusDto })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                namaFounder: {
+                    type: 'string',
+                    description: 'Nama Founder',
+                    example: 'John Doe',
+                },
+                jabatanFounder: {
+                    type: 'string',
+                    description: 'Jabatan Founder',
+                    example: 'Ketua',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

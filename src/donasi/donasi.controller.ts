@@ -6,7 +6,7 @@ import { CreateDonasiDto } from './dto/create-donasi.dto';
 import { UpdateDonasiDto } from './dto/update-donasi.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('donasis')
 @ApiTags('donasis')
@@ -15,7 +15,37 @@ export class DonasiController {
 
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Donasi' })
-  @ApiBody({ type: CreateDonasiDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file', 'judulDonasi', 'deskripsiDonasi', 'publishedAt'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File upload',
+          example: 'file.jpg',
+        },
+        judulDonasi: {
+          type: 'string',
+          description: 'Judul Donasi',
+          example: 'Bantuan Bencana',
+        },
+        deskripsiDonasi: {
+          type: 'string',
+          description: 'Deskripsi Donasi',
+          example: 'Bantuan untuk korban bencana alam',
+        },
+        publishedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Tanggal publikasi',
+          example: '2024-07-03T04:48:57.000Z',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file', fileUploadOptions('donasis')))
   async create(
     @Param('userId') userId: string,
@@ -43,8 +73,37 @@ export class DonasiController {
 
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Donasi by ID' })
+  @ApiConsumes('multipart/form-data')
   @ApiParam({ name: 'id', description: 'Donasi ID' })
-  @ApiBody({ type: UpdateDonasiDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File upload',
+          example: 'file.jpg',
+        },
+        judulDonasi: {
+          type: 'string',
+          description: 'Judul Donasi',
+          example: 'Bantuan Bencana',
+        },
+        deskripsiDonasi: {
+          type: 'string',
+          description: 'Deskripsi Donasi',
+          example: 'Bantuan untuk korban bencana alam',
+        },
+        publishedAt: {
+          type: 'string',
+          format: 'date-time',
+          description: 'Tanggal publikasi',
+          example: '2024-07-03T04:48:57.000Z',
+        },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file', fileUploadOptions('donasis')))
   async update(
     @Param('id') id: string,

@@ -13,11 +13,6 @@ export const CreateEventSchema = z.object({
   quotaEvent: z.string().min(1).max(255),
   durasiEvent: z.string().min(1).max(255),
   narasumber: z.string().min(1),
-  deskripsiEvent2: z.string().optional(),
-  deskripsiEvent3: z.string().optional(),
-  deskripsiEvent4: z.string().optional(),
-  deskripsiEvent5: z.string().optional(),
-  deskripsiEvent6: z.string().optional(),
   contactPerson: z.string().min(1).max(255),
   publishedAt: z.string(),
 });

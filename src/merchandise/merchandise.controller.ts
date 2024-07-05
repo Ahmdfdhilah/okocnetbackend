@@ -6,7 +6,7 @@ import { UpdateMerchandiseDto } from './dto/update-merchandise.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('merchandises')
 @ApiTags('merchandises')
@@ -16,7 +16,52 @@ export class MerchandiseController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Create a new Merchandise' })
-    @ApiBody({ type: CreateMerchandiseDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['file', 'judulMerchandise', 'deskripsiMerchandise', 'hargaMerchandise', 'stockMerchandise', 'linkMerchandise', 'publishedAt'],
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                judulMerchandise: {
+                    type: 'string',
+                    description: 'Judul Merchandise',
+                    example: 'Nama Merchandise',
+                },
+                deskripsiMerchandise: {
+                    type: 'string',
+                    description: 'Deskripsi Merchandise',
+                    example: 'Deskripsi singkat tentang merchandise',
+                },
+                hargaMerchandise: {
+                    type: 'string',
+                    description: 'Harga Merchandise',
+                    example: 'Rp 100.000',
+                },
+                stockMerchandise: {
+                    type: 'string',
+                    description: 'Stock Merchandise',
+                    example: '10',
+                },
+                linkMerchandise: {
+                    type: 'string',
+                    description: 'Link Merchandise',
+                    example: 'https://link-merchandise.com',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -44,8 +89,52 @@ export class MerchandiseController {
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Update a Merchandise by ID' })
+    @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Merchandise ID' })
-    @ApiBody({ type: UpdateMerchandiseDto })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                judulMerchandise: {
+                    type: 'string',
+                    description: 'Judul Merchandise',
+                    example: 'Nama Merchandise',
+                },
+                deskripsiMerchandise: {
+                    type: 'string',
+                    description: 'Deskripsi Merchandise',
+                    example: 'Deskripsi singkat tentang merchandise',
+                },
+                hargaMerchandise: {
+                    type: 'string',
+                    description: 'Harga Merchandise',
+                    example: 'Rp 100.000',
+                },
+                stockMerchandise: {
+                    type: 'string',
+                    description: 'Stock Merchandise',
+                    example: '10',
+                },
+                linkMerchandise: {
+                    type: 'string',
+                    description: 'Link Merchandise',
+                    example: 'https://link-merchandise.com',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

@@ -24,8 +24,9 @@ import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
 import { PengurusModule } from './pengurus/pengurus.module';
 import { StrukturPengurusDirektoratModule } from './struktur-pengurus-direktorat/struktur-pengurus-direktorat.module';
 import { StrukturPengurusEksekutifModule } from './struktur-pengurus-eksekutif/struktur-pengurus-eksekutif.module';
-import { StrukturPengurusKurasiModule } from './struktur-pengurus-kurasi/struktur-pengurus-eksekutif.module';
-import { StrukturPengurusPembinaModule } from './struktur-pengurus-pembina/struktur-pengurus-eksekutif.module';
+import { StrukturPengurusKurasiModule } from './struktur-pengurus-kurasi/struktur-pengurus-kurasi.module';
+import { StrukturPengurusPembinaModule } from './struktur-pengurus-pembina/struktur-pengurus-pembina.module';
+import { StrukturPengurusHarianModule } from './struktur-pengurus-harian/struktur-pengurus-harian.module';
 
 @Module({
     imports: [
@@ -59,6 +60,7 @@ import { StrukturPengurusPembinaModule } from './struktur-pengurus-pembina/struk
         StrukturPengurusDirektoratModule,
         PenggerakOkoceModule,
         StrukturPengurusEksekutifModule,
+        StrukturPengurusHarianModule,
         StrukturPengurusKurasiModule,
         StrukturPengurusPembinaModule,
         SeederModule,

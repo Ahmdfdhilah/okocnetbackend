@@ -97,7 +97,7 @@ export class StrukturPengurusPembinaService {
         const skip = (page - 1) * limit;
         this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
 
-        const [strukturPengurusPembina, total] = await this.strukturPengurusPembinaRepository.findAndCount({
+        const [data, total] = await this.strukturPengurusPembinaRepository.findAndCount({
             skip,
             take: limit,
             where: search ? { namaPembina: Like(`%${search}%`) } : {},
@@ -105,9 +105,9 @@ export class StrukturPengurusPembinaService {
             relations: ['createdBy', 'updatedBy'],
         });
 
-        this.logger.log(`DB result - Pembina count: ${strukturPengurusPembina.length}, Total count: ${total}`);
+        this.logger.log(`DB result - Pembina count: ${data.length}, Total count: ${total}`);
 
-        const result = { data:strukturPengurusPembina, total };
+        const result = { data, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

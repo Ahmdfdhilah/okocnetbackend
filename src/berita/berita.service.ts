@@ -19,7 +19,7 @@ export class BeritaService {
   ) {}
   private readonly logger = new Logger(BeritaService.name);
 
-  async create(createBeritaDto: CreateBeritaDto, userId: string, imgSrc: string): Promise<Berita> {
+  async create(createBeritaDto: CreateBeritaDto, userId: string, fotoBerita: string, fotoContent: string): Promise<Berita> {
     let newBerita: Berita;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -30,7 +30,7 @@ export class BeritaService {
       const createdBy = user;
       const updatedBy = user;
 
-      const dataBerita = { ...createBeritaDto, createdBy, updatedBy, fotoBerita: imgSrc };
+      const dataBerita = { ...createBeritaDto, createdBy, updatedBy, fotoBerita, fotoContent };
       newBerita = await transactionalEntityManager.save(
         this.beritaRepository.create(dataBerita),
       );
@@ -40,7 +40,7 @@ export class BeritaService {
     return newBerita!;
   }
 
-  async update(id: string, userId: string, updateBeritaDto: UpdateBeritaDto, imgSrc?: string): Promise<Berita> {
+  async update(id: string, userId: string, updateBeritaDto: UpdateBeritaDto, fotoBerita?: string, fotoContent?: string): Promise<Berita> {
     let updatedBerita: Berita;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -55,12 +55,20 @@ export class BeritaService {
       const updatedBy = user;
       const dataBerita = { ...updateBeritaDto, updatedBy };
 
-      if (imgSrc) {
+      if (fotoBerita) {
         if (berita.fotoBerita) {
           const oldImagePath = path.join(__dirname, '../../public/upload/beritas', path.basename(berita.fotoBerita));
           fs.unlinkSync(oldImagePath);
         }
-        dataBerita.fotoBerita = imgSrc;
+        dataBerita.fotoBerita = fotoBerita;
+      }
+
+      if (fotoContent) {
+        if (berita.fotoContent) {
+          const oldImagePath = path.join(__dirname, '../../public/upload/beritas', path.basename(berita.fotoContent));
+          fs.unlinkSync(oldImagePath);
+        }
+        dataBerita.fotoContent = fotoContent;
       }
 
       Object.assign(berita, dataBerita);

@@ -107,7 +107,7 @@ export class StrukturPengurusKurasiService {
 
         this.logger.log(`DB result - Kurasi count: ${strukturPengurusKurasi.length}, Total count: ${total}`);
 
-        const result = { data:strukturPengurusKurasi, total };
+        const result = { data : strukturPengurusKurasi, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;

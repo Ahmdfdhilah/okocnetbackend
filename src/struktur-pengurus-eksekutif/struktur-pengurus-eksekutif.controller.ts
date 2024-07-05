@@ -6,17 +6,47 @@ import { UpdateStrukturPengurusEksekutifDto } from './dto/update-struktur-ekseku
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
-@Controller('pengurus-eksekutif')
-@ApiTags('pengurus-eksekutif')
+@Controller('struktur-pengurus-eksekutifs')
+@ApiTags('struktur-pengurus-eksekutifs')
 export class StrukturPengurusEksekutifController {
-    constructor(private readonly strukturPengurusEksekutifService: StrukturPengurusEksekutifService) { }
+    constructor(private readonly strukturPengurusEksekutifService: StrukturPengurusEksekutifService) {}
 
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-eksekutif')))
     @ApiOperation({ summary: 'Create a new StrukturPengurusEksekutif' })
-    @ApiBody({ type: CreateStrukturPengurusEksekutifDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['file', 'namaPengurus', 'jabatanPengurus', 'publishedAt'],
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                namaPengurus: {
+                    type: 'string',
+                    description: 'Nama Pengurus',
+                    example: 'John Doe',
+                },
+                jabatanPengurus: {
+                    type: 'string',
+                    description: 'Jabatan Pengurus',
+                    example: 'Ketua',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -45,7 +75,36 @@ export class StrukturPengurusEksekutifController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-pengurus-eksekutif')))
     @ApiOperation({ summary: 'Update a StrukturPengurusEksekutif by ID' })
     @ApiParam({ name: 'id', description: 'StrukturPengurusEksekutif ID' })
-    @ApiBody({ type: UpdateStrukturPengurusEksekutifDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                namaPengurus: {
+                    type: 'string',
+                    description: 'Nama Pengurus',
+                    example: 'John Doe',
+                },
+                jabatanPengurus: {
+                    type: 'string',
+                    description: 'Jabatan Pengurus',
+                    example: 'Ketua',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

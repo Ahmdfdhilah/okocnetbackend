@@ -24,8 +24,8 @@ export class Event {
     @Column({ type: 'text', nullable: false })
     urlPendaftaran: string;
 
-    @Column({ type: 'text', nullable: false })
-    deskripsiEvent: string;
+    @Column({ type: 'simple-array', nullable: false })
+    deskripsiEvent: string[];
 
     @Column({ type: 'text', nullable: false })
     tempatEvent: string;
@@ -38,21 +38,6 @@ export class Event {
 
     @Column({ type: 'text', nullable: false })
     narasumber: string;
-
-    @Column({ type: 'text', nullable: true })
-    deskripsiEvent2: string;
-
-    @Column({ type: 'text', nullable: true })
-    deskripsiEvent3: string;
-
-    @Column({ type: 'text', nullable: true })
-    deskripsiEvent4: string;
-
-    @Column({ type: 'text', nullable: true })
-    deskripsiEvent5: string;
-
-    @Column({ type: 'text', nullable: true })
-    deskripsiEvent6: string;
 
     @Column({ type: 'varchar', length: 255, nullable: false })
     contactPerson: string;

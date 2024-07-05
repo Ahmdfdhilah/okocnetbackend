@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StrukturPengurusPembina } from 'src/entities/struktur-pengurus-pembina.entity';
 import { User } from 'src/entities/user.entity';
-import { StrukturPengurusPembinaController } from './struktur-pengurus-eksekutif.controller';
-import { StrukturPengurusPembinaService } from './struktur-pengurus-eksekutif.service';
+import { StrukturPengurusPembinaController } from './struktur-pengurus-pembina.controller';
+import { StrukturPengurusPembinaService } from './struktur-pengurus-pembina.service';
 
 
 @Module({

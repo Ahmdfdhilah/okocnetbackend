@@ -1,7 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Like } from 'typeorm';
-import { BrandLokal } from 'src/entities/brand-lokal.entitiy';
+import { BrandLokal } from 'src/entities/brand-lokal.entity';
 import redis from 'src/lib/redis-client';
 import { QueryDto } from 'src/lib/query.dto';
 import { User } from 'src/entities/user.entity';

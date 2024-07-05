@@ -2,11 +2,11 @@ import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, Uploa
 import { PeluangUsahaService } from './peluang-usaha.service';
 import { PeluangUsaha } from 'src/entities/peluang-usaha.entity';
 import { CreatePeluangUsahaDto } from './dto/create-peluang-usaha.dto';
-import { UpdatePeluangUsahaDto } from './dto/update-peluang-usaha.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { UpdatePeluangUsahaDto } from './dto/update-peluang-usaha.dto';
 
 @Controller('peluang-usahas')
 @ApiTags('peluang-usahas')
@@ -16,7 +16,79 @@ export class PeluangUsahaController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-usahas')))
     @ApiOperation({ summary: 'Create a new Peluang Usaha' })
-    @ApiBody({ type: CreatePeluangUsahaDto })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['file', 'judulUsaha', 'lokasiUsaha', 'kategoriUsaha', 'tentangProgram', 'benefitProgram', 'periodePendaftaran', 'jobdescUsaha', 'kriteriaUsaha', 'urlPendaftaran', 'sistemKerja', 'publishedAt'],
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                judulUsaha: {
+                    type: 'string',
+                    description: 'Judul Usaha',
+                    example: 'Nama Usaha',
+                },
+                lokasiUsaha: {
+                    type: 'string',
+                    description: 'Lokasi Usaha',
+                    example: 'Jakarta',
+                },
+                kategoriUsaha: {
+                    type: 'string',
+                    description: 'Kategori Usaha',
+                    example: 'Teknologi',
+                },
+                tentangProgram: {
+                    type: 'string',
+                    description: 'Tentang Program',
+                    example: 'Deskripsi singkat tentang program',
+                },
+                benefitProgram: {
+                    type: 'string',
+                    description: 'Benefit Program',
+                    example: 'Manfaat dari program',
+                },
+                jobdescUsaha: {
+                    type: 'string',
+                    description: 'Jobdesc Usaha',
+                    example: 'Tugas dan tanggung jawab',
+                },
+                kriteriaUsaha: {
+                    type: 'string',
+                    description: 'Kriteria Usaha',
+                    example: 'Persyaratan yang dibutuhkan',
+                },
+                urlPendaftaran: {
+                    type: 'string',
+                    description: 'URL Pendaftaran',
+                    example: 'https://pendaftaran-usaha.com',
+                },
+                sistemKerja: {
+                    type: 'string',
+                    enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'],
+                    description: 'Sistem Kerja',
+                    example: 'Full-Time',
+                },
+                periodePendaftaran: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Periode Pendaftaran (optional)',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
@@ -44,8 +116,79 @@ export class PeluangUsahaController {
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-usahas')))
     @ApiOperation({ summary: 'Update a Peluang Usaha by ID' })
+    @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Peluang Usaha ID' })
-    @ApiBody({ type: UpdatePeluangUsahaDto })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
+                judulUsaha: {
+                    type: 'string',
+                    description: 'Judul Usaha',
+                    example: 'Nama Usaha',
+                },
+                lokasiUsaha: {
+                    type: 'string',
+                    description: 'Lokasi Usaha',
+                    example: 'Jakarta',
+                },
+                kategoriUsaha: {
+                    type: 'string',
+                    description: 'Kategori Usaha',
+                    example: 'Teknologi',
+                },
+                tentangProgram: {
+                    type: 'string',
+                    description: 'Tentang Program',
+                    example: 'Deskripsi singkat tentang program',
+                },
+                benefitProgram: {
+                    type: 'string',
+                    description: 'Benefit Program',
+                    example: 'Manfaat dari program',
+                },
+                jobdescUsaha: {
+                    type: 'string',
+                    description: 'Jobdesc Usaha',
+                    example: 'Tugas dan tanggung jawab',
+                },
+                kriteriaUsaha: {
+                    type: 'string',
+                    description: 'Kriteria Usaha',
+                    example: 'Persyaratan yang dibutuhkan',
+                },
+                urlPendaftaran: {
+                    type: 'string',
+                    description: 'URL Pendaftaran',
+                    example: 'https://pendaftaran-usaha.com',
+                },
+                sistemKerja: {
+                    type: 'string',
+                    enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'],
+                    description: 'Sistem Kerja',
+                    example: 'Full-Time',
+                },
+                periodePendaftaran: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Periode Pendaftaran (optional)',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+                publishedAt: {
+                    type: 'string',
+                    format: 'date-time',
+                    description: 'Tanggal publikasi',
+                    example: '2024-07-03T04:48:57.000Z',
+                },
+            },
+        },
+    })
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,

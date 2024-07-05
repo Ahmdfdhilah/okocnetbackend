@@ -84,7 +84,7 @@ export class StrukturPengurusEksekutifService {
 
     async findAll(query: QueryDto): Promise<{ data: StrukturPengurusEksekutif[], total: number }> {
         const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `struktutpenguruseksekutifs`;
+        const cacheKey = `strukturpenguruseksekutifs`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 

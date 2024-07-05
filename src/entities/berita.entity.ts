@@ -9,8 +9,8 @@ export class Berita {
   @Column({ type: 'varchar', length: 255, nullable: false })
   judulBerita: string;
 
-  @Column({ type: 'text', nullable: false })
-  deskripsiBerita: string;
+  @Column({ type: 'simple-array', nullable: false })
+  deskripsiBerita: string[];
 
   @Column({ type: 'date', nullable: false })
   tanggalBerita: string;
@@ -26,30 +26,6 @@ export class Berita {
 
   @Column({ type: 'varchar', nullable: false })
   fotoContent: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita2: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita3: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita4: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita5: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita6: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita7: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita8: string;
-
-  @Column({ type: 'text', nullable: true })
-  deskripsiBerita9: string;
 
   @CreateDateColumn()
   createdAt: Date;

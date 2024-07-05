@@ -1,12 +1,12 @@
 import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BrandLokalService } from './brand-lokal.service';
-import { BrandLokal } from 'src/entities/brand-lokal.entitiy';
+import { BrandLokal } from 'src/entities/brand-lokal.entity';
 import { QueryDto } from 'src/lib/query.dto';
 import { CreateBrandLokalDto } from './dto/create-brand-lokal.dto';
 import { UpdateBrandLokalDto } from './dto/update-brand-lokal.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('brand-lokals')
 @ApiTags('brand-lokals')
@@ -15,7 +15,24 @@ export class BrandLokalController {
 
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Brand Lokal' })
-  @ApiBody({ type: CreateBrandLokalDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required:['judulBrand', 'deskripsiBrand', 'publishedAt', 'file'],
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File upload',
+          example: 'file.jpg',
+        },
+        judulBrand: { type: 'string' , example: 'Brand Lokal'},
+        deskripsiBrand: { type: 'string', example: 'Deskripsi Brand Lokal' },
+        publishedAt: { type: 'string', format: 'date-time' ,example: '2024-07-03T04:48:57.000Z' },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('file', fileUploadOptions('brand-lokals')))
   async create(
     @Param('userId') userId: string,
@@ -42,10 +59,26 @@ export class BrandLokalController {
   }
 
   @Put(':id/:userId')
-  @UseInterceptors(FileInterceptor('file', fileUploadOptions('brand-lokals')))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a Brand Lokal by ID' })
   @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
-  @ApiBody({ type: UpdateBrandLokalDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File upload',
+          example: 'file.jpg',
+        },
+        judulBrand: { type: 'string' , example: 'Brand Lokal'},
+        deskripsiBrand: { type: 'string', example: 'Deskripsi Brand Lokal' },
+        publishedAt: { type: 'string', format: 'date-time' ,example: '2024-07-03T04:48:57.000Z' },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file', fileUploadOptions('brand-lokals')))
   async update(
     @Param('id') id: string,
     @Param('userId') userId: string,
