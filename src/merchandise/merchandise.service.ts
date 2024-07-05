@@ -37,7 +37,7 @@ export class MerchandiseService {
       );
     });
 
-    await redis.del(`merchandises`);
+    await this.clearMerchandisesCache();
     return newMerchandise!;
   }
 
@@ -67,7 +67,7 @@ export class MerchandiseService {
       updatedMerchandise = await transactionalEntityManager.save(merchandise);
     });
 
-    await redis.del(`merchandises`); 
+    await this.clearMerchandisesCache();
     return updatedMerchandise!;
   }
 
@@ -76,8 +76,8 @@ export class MerchandiseService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: Merchandise[], total: number }> {
-    const { page = 1, limit = 10, search, sort, order } = query;
-    const cacheKey = `merchandises`;
+    const { limit, search, sort, order } = query;
+    const cacheKey = `merchandises_${limit}_${search}_${sort}_${order}`;
 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -88,24 +88,32 @@ export class MerchandiseService {
       return result;
     }
 
-    const skip = (page - 1) * limit;
-    this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+    const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+    if (sort && order) {
+      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else if (order && !sort) {
+      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else {
+      orderOption['createdAt'] = 'DESC';
+    }
 
     const [merchandises, total] = await this.merchandiseRepository.findAndCount({
-      skip,
       take: limit,
       where: search ? { judulMerchandise: Like(`%${search}%`) } : {},
-      order: sort && order ? { [sort]: order } : {},
+      order: orderOption,
       relations: ['createdBy', 'updatedBy'],
     });
 
     this.logger.log(`DB result - Merchandises count: ${merchandises.length}, Total count: ${total}`);
 
-    const result = { data:merchandises, total };
+    const result = { data: merchandises, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;
   }
+
   async remove(id: string): Promise<void> {
     const merchandise = await this.merchandiseRepository.findOne({ where: { id } });
     if (!merchandise) {
@@ -118,6 +126,14 @@ export class MerchandiseService {
     }
 
     await this.merchandiseRepository.delete(id);
-    await redis.del(`merchandises`); 
+    await this.clearMerchandisesCache();
+  }
+
+  private async clearMerchandisesCache() {
+    const keys = await redis.keys('merchandises_*');
+        
+    if (keys.length > 0) {
+        await redis.del(...keys);
+    }
   }
 }

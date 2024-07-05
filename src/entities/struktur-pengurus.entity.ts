@@ -1,19 +1,22 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
-@Entity('struktur_pengurus_direktorats')
-export class StrukturPengurusDirektorat {
+@Entity('struktur_penguruses')
+export class StrukturPengurus {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ type: 'varchar', length: 255, nullable: false })
-    namaPengurus: string;
+    nama: string;
 
     @Column({ type: 'varchar', length: 255, nullable: false })
-    jabatanPengurus: string;
+    jabatan: string;
 
     @Column({ type: 'text', nullable: true })
-    fotoPengurus: string;
+    foto: string;
+
+    @Column({ type: 'enum', enum: ['founder', 'eksekutif', 'harian', 'kurasi', 'pembina', 'direktorat'], nullable: false })
+    tipe: string;
 
     @CreateDateColumn()
     createdAt: Date;

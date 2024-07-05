@@ -27,56 +27,14 @@ export class Magang {
     @Column({ type: 'text', nullable: false })
     benefitMagang: string;
 
-    @Column({ type: 'text', nullable: false })
-    kriteriaPeserta: string;
+    @Column({  type: 'simple-array', nullable: false })
+    kriteriaPeserta: string[];
 
     @Column({ type: 'text', nullable: false })
     urlMsib: string;
 
-    @Column({ type: 'text', nullable: true })
-    kompetensi1: string;
-
-    @Column({ type: 'text', nullable: true })
-    kompetensi2: string;
-
-    @Column({ type: 'text', nullable: true })
-    kompetensi3: string;
-
-    @Column({ type: 'text', nullable: true })
-    kompetensi4: string;
-
-    @Column({ type: 'text', nullable: true })
-    kompetensi5: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta1: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta2: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta3: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta4: string;
-
-    @Column({ type: 'varchar', nullable: true })
-    kriteriaPeserta5: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta6: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta7: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta8: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta9: string;
-
-    @Column({ type: 'text', nullable: true })
-    kriteriaPeserta10: string;
+    @Column({  type: 'simple-array', nullable: true })
+    kompetensi: string[];
 
     @CreateDateColumn()
     createdAt: Date;

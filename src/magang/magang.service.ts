@@ -36,7 +36,7 @@ export class MagangService {
       );
     });
 
-    await redis.del(`magangs`);
+    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
     return newMagang!;
   }
 
@@ -67,7 +67,7 @@ export class MagangService {
       updatedMagang = await transactionalEntityManager.save(magang);
     });
 
-    await redis.del(`magangs`);
+    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
     return updatedMagang!;
   }
 
@@ -76,8 +76,8 @@ export class MagangService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: Magang[], total: number }> {
-    const { page = 1, limit = 10, search, sort, order } = query;
-    const cacheKey = `magangs`;
+    const { limit, search, sort, order } = query;
+    const cacheKey = `magangs_${limit}_${search}_${sort}_${order}`;
 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -88,14 +88,22 @@ export class MagangService {
       return result;
     }
 
-    const skip = (page - 1) * limit;
-    this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+    const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+    if (sort && order) {
+      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else if (order && !sort) {
+      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    }
+    else {
+      orderOption['createdAt'] = 'DESC';
+    }
 
     const [magangs, total] = await this.magangRepository.findAndCount({
-      skip,
       take: limit,
       where: search ? { judulMagang: Like(`%${search}%`) } : {},
-      order: sort && order ? { [sort]: order } : {},
+      order: orderOption,
       relations: ['createdBy', 'updatedBy'],
     });
 
@@ -119,6 +127,13 @@ export class MagangService {
     }
 
     await this.magangRepository.delete(id);
-    await redis.del(`magangs`);
+    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
+  }
+
+  private async clearAllMagangsCache(): Promise<void> {
+    const keys = await redis.keys('magangs_*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
   }
 }

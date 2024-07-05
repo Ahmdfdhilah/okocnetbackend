@@ -35,7 +35,7 @@ export class MasterMentorService {
             );
         });
 
-        await redis.del(`master-mentors`);
+        await this.clearMasterMentorsCache();
         return newMasterMentor!;
     }
 
@@ -58,7 +58,7 @@ export class MasterMentorService {
             updatedMasterMentor = await transactionalEntityManager.save(masterMentor);
         });
 
-        await redis.del(`master-mentors`);
+        await this.clearMasterMentorsCache();
         return updatedMasterMentor!;
     }
 
@@ -67,35 +67,43 @@ export class MasterMentorService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: MasterMentor[], total: number }> {
-        const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `masterMentors`;
-    
+        const { limit, sort, order } = query;
+        const cacheKey = `masterMentors_${sort}_${limit}_${order}`;
+
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-    
+
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
-          this.logger.log(`Cache hit for key: ${cacheKey}`);
-          const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
-          return result;
+            this.logger.log(`Cache hit for key: ${cacheKey}`);
+            const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+            return result;
         }
-    
-        const skip = (page - 1) * limit;
-        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
-    
+
+        this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        }
+        else {
+            orderOption['createdAt'] = 'DESC';
+        }
+
         const [masterMentors, total] = await this.masterMentorRepository.findAndCount({
-          skip,
-          take: limit,
-          order: sort && order ? { [sort]: order } : {},
-          relations: ['createdBy', 'updatedBy'],
+            take: limit,
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy'],
         });
-    
+
         this.logger.log(`DB result - MasterMentors count: ${masterMentors.length}, Total count: ${total}`);
-    
+
         const result = { data: masterMentors, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-    
+
         return result;
-      }
+    }
 
     async remove(id: string): Promise<void> {
         const masterMentor = await this.masterMentorRepository.findOne({ where: { id } });
@@ -104,6 +112,14 @@ export class MasterMentorService {
         }
 
         await this.masterMentorRepository.delete(id);
-        await redis.del(`master-mentors`);
+        await this.clearMasterMentorsCache();
+    }
+
+    private async clearMasterMentorsCache(): Promise<void> {
+        const keys = await redis.keys('masterMentors_*');
+        
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
     }
 }

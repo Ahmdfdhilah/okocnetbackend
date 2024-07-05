@@ -8,16 +8,11 @@ export const UpdateEventSchema = z.object({
   pointEvent: z.string().min(1).max(255).optional(),
   fotoEvent: z.string().min(1).optional(),
   urlPendaftaran: z.string().min(1).optional(),
-  deskripsiEvent: z.string().min(1).optional(),
+  deskripsiEvent: z.array(z.string()),
   tempatEvent: z.string().min(1).optional(),
   quotaEvent: z.string().min(1).max(255).optional(),
   durasiEvent: z.string().min(1).max(255).optional(),
   narasumber: z.string().min(1).optional(),
-  deskripsiEvent2: z.string().optional(),
-  deskripsiEvent3: z.string().optional(),
-  deskripsiEvent4: z.string().optional(),
-  deskripsiEvent5: z.string().optional(),
-  deskripsiEvent6: z.string().optional(),
   contactPerson: z.string().min(1).max(255).optional(),
   publishedAt: z.string().optional(),
 });
@@ -40,9 +35,8 @@ export class UpdateEventDto {
 
   @ApiPropertyOptional({ example: 'http://url-pendaftaran.com' })
   urlPendaftaran?: string;
-
-  @ApiPropertyOptional({ example: 'Learn to code in 10 days' })
-  deskripsiEvent?: string;
+  
+  deskripsiEvent?: string[];
 
   @ApiPropertyOptional({ example: 'Jakarta' })
   tempatEvent?: string;
@@ -55,21 +49,6 @@ export class UpdateEventDto {
 
   @ApiPropertyOptional({ example: 'John Doe' })
   narasumber?: string;
-
-  @ApiPropertyOptional({ example: 'Detailed description 2' })
-  deskripsiEvent2?: string;
-
-  @ApiPropertyOptional({ example: 'Detailed description 3' })
-  deskripsiEvent3?: string;
-
-  @ApiPropertyOptional({ example: 'Detailed description 4' })
-  deskripsiEvent4?: string;
-
-  @ApiPropertyOptional({ example: 'Detailed description 5' })
-  deskripsiEvent5?: string;
-
-  @ApiPropertyOptional({ example: 'Detailed description 6' })
-  deskripsiEvent6?: string;
 
   @ApiPropertyOptional({ example: '08123456789' })
   contactPerson?: string;

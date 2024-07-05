@@ -51,8 +51,10 @@ export class BeritaController {
     @UploadedFiles() files: {file: Express.Multer.File, file2: Express.Multer.File},
     @Body() createBeritaDto: CreateBeritaDto,
   ): Promise<Berita> {
-    const fotoBerita = getFileUrl('beritas', files.file);
-    const fotoContent = getFileUrl('beritas', files.file2);
+    console.log(files.file);
+    const fotoBerita = getFileUrl('beritas', files.file[0]);
+    const fotoContent = getFileUrl('beritas', files.file2[0]);
+
     try {
       return this.beritaService.create(createBeritaDto, userId, fotoBerita, fotoContent);
     } catch (error) {
@@ -118,8 +120,8 @@ export class BeritaController {
     @Body() updateBeritaDto: UpdateBeritaDto,
   ): Promise<Berita> {
 
-    const fotoBerita = getFileUrl('beritas', files.file);
-    const fotoContent = getFileUrl('beritas', files.file2);
+    const fotoBerita = getFileUrl('beritas', files.file[0]);
+    const fotoContent = getFileUrl('beritas', files.file2[0]);
     try {
       return this.beritaService.update(id, userId, updateBeritaDto, fotoBerita, fotoContent);
     } catch (error) {

@@ -37,7 +37,7 @@ export class PeluangKerjaService {
             );
         });
 
-        await redis.del(`peluang-kerjas`);
+        await this.clearPeluangKerjasCache();
         return newPeluangKerja!;
     }
 
@@ -73,7 +73,7 @@ export class PeluangKerjaService {
             updatedPeluangKerja = await transactionalEntityManager.save(peluangKerja);
         });
 
-        await redis.del(`peluang-kerjas`);
+        await this.clearPeluangKerjasCache();
         return updatedPeluangKerja!;
     }
 
@@ -82,8 +82,8 @@ export class PeluangKerjaService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PeluangKerja[], total: number }> {
-        const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `peluang-kerjas`;
+        const { limit, search, sort, order } = query;
+        const cacheKey = `peluang-kerjas_${limit}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -94,20 +94,27 @@ export class PeluangKerjaService {
             return result;
         }
 
-        const skip = (page - 1) * limit;
-        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+        this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else {
+            orderOption['createdAt'] = 'DESC';
+        }
 
         const [peluangKerjas, total] = await this.peluangKerjaRepository.findAndCount({
-            skip,
             take: limit,
             where: search ? { judulKerja: Like(`%${search}%`) } : {},
-            order: sort && order ? { [sort]: order } : {},
+            order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         });
 
         this.logger.log(`DB result - PeluangKerjas count: ${peluangKerjas.length}, Total count: ${total}`);
 
-        const result = { data:peluangKerjas, total };
+        const result = { data: peluangKerjas, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;
@@ -125,6 +132,14 @@ export class PeluangKerjaService {
         }
 
         await this.peluangKerjaRepository.delete(id);
-        await redis.del(`peluang-kerjas`);
+        await this.clearPeluangKerjasCache();
+    }
+
+    private async clearPeluangKerjasCache() {
+        const keys = await redis.keys('peluang-kerjas_*');
+        
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
     }
 }

@@ -36,7 +36,7 @@ export class BrandLokalService {
       );
     });
 
-    await redis.del(`brandLokals`);
+    await this.clearAllBrandLokalCache(); // hapus semua cache yang relevan
     return newBrandLokal!;
   }
 
@@ -67,7 +67,7 @@ export class BrandLokalService {
       updatedBrandLokal = await transactionalEntityManager.save(brandLokal);
     });
 
-    await redis.del(`brandLokals`);
+    await this.clearAllBrandLokalCache(); // hapus semua cache yang relevan
     return updatedBrandLokal!;
   }
 
@@ -76,11 +76,9 @@ export class BrandLokalService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: BrandLokal[], total: number }> {
-    const { page = 1, limit = 10, search, sort, order } = query;
-    const cacheKey = `brandLokals`;
-
+    const { limit, search, sort, order } = query;
+    const cacheKey = `brandLokals_${limit}_${search}_${sort}_${order}`; // membuat cache key yang dinamis
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
       this.logger.log(`Cache hit for key: ${cacheKey}`);
@@ -88,14 +86,22 @@ export class BrandLokalService {
       return result;
     }
 
-    const skip = (page - 1) * limit;
-    this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+    const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+    if (sort && order) {
+      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else if (order && !sort) {
+      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    }
+    else {
+      orderOption['createdAt'] = 'DESC';
+    }
 
     const [brandLokals, total] = await this.brandLokalRepository.findAndCount({
-      skip,
       take: limit,
       where: search ? { judulBrand: Like(`%${search}%`) } : {},
-      order: sort && order ? { [sort]: order } : {},
+      order: orderOption,
       relations: ['createdBy', 'updatedBy'],
     });
 
@@ -118,6 +124,13 @@ export class BrandLokalService {
     }
 
     await this.brandLokalRepository.delete(id);
-    await redis.del(`brandLokals`);
+    await this.clearAllBrandLokalCache(); // hapus semua cache yang relevan
+  }
+
+  private async clearAllBrandLokalCache(): Promise<void> {
+    const keys = await redis.keys('brandLokals_*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
   }
 }

@@ -16,7 +16,7 @@ export class BeritaService {
     @InjectRepository(Berita)
     private readonly beritaRepository: Repository<Berita>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
   private readonly logger = new Logger(BeritaService.name);
 
   async create(createBeritaDto: CreateBeritaDto, userId: string, fotoBerita: string, fotoContent: string): Promise<Berita> {
@@ -36,7 +36,7 @@ export class BeritaService {
       );
     });
 
-    await redis.del(`beritas`);
+    await this.clearAllBeritaCache();
     return newBerita!;
   }
 
@@ -75,7 +75,7 @@ export class BeritaService {
       updatedBerita = await transactionalEntityManager.save(berita);
     });
 
-    await redis.del(`beritas`);
+    await this.clearAllBeritaCache();
     return updatedBerita!;
   }
 
@@ -84,9 +84,8 @@ export class BeritaService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: Berita[], total: number }> {
-    const { page = 1, limit = 10, search, sort, order } = query;
-    const cacheKey = `beritas`;
-
+    const { limit, search, sort, order } = query;
+    const cacheKey = `beritas_${limit}_${search}_${sort}_${order}`; 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
     const cachedData = await redis.get<string | null>(cacheKey);
@@ -96,14 +95,22 @@ export class BeritaService {
       return result;
     }
 
-    const skip = (page - 1) * limit;
-    this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+    const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+    if (sort && order) {
+      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else if (order && !sort) {
+      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    }
+    else {
+      orderOption['createdAt'] = 'DESC';
+    }
 
     const [beritas, total] = await this.beritaRepository.findAndCount({
-      skip,
       take: limit,
       where: search ? { judulBerita: Like(`%${search}%`) } : {},
-      order: sort && order ? { [sort]: order } : {},
+      order: orderOption,
       relations: ['createdBy', 'updatedBy'],
     });
 
@@ -114,6 +121,7 @@ export class BeritaService {
 
     return result;
   }
+
 
   async remove(id: string): Promise<void> {
     const berita = await this.beritaRepository.findOne({ where: { id } });
@@ -126,6 +134,12 @@ export class BeritaService {
     }
 
     await this.beritaRepository.delete(id);
-    await redis.del(`beritas`);
+    await this.clearAllBeritaCache();
+  }
+  private async clearAllBeritaCache(): Promise<void> {
+    const keys = await redis.keys('beritas_*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
   }
 }

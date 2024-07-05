@@ -11,7 +11,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } fr
 @Controller('magangs')
 @ApiTags('magangs')
 export class MagangController {
-  constructor(private readonly magangService: MagangService) {}
+  constructor(private readonly magangService: MagangService) { }
 
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Magang' })
@@ -59,104 +59,25 @@ export class MagangController {
           example: 'Competitive salary, Flexible hours',
         },
         kriteriaPeserta: {
-          type: 'string',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
           description: 'Kriteria Peserta',
-          example: 'Final year student, GPA > 3.0',
+          example: ['Final year student', 'GPA > 3.0'],
         },
         urlMsib: {
           type: 'string',
           description: 'URL MSIB',
           example: 'http://url-msib.com',
         },
-        kompetensi1: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 1',
-          example: 'JavaScript',
-        },
-        kompetensi2: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 2',
-          example: 'Node.js',
-        },
-        kompetensi3: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 3',
-          example: 'React.js',
-        },
-        kompetensi4: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 4',
-          example: 'TypeScript',
-        },
-        kompetensi5: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 5',
-          example: 'GraphQL',
-        },
-        kriteriaPeserta1: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 1',
-          example: 'Experience with web development',
-        },
-        kriteriaPeserta2: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 2',
-          example: 'Good communication skills',
-        },
-        kriteriaPeserta3: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 3',
-          example: 'Ability to work in a team',
-        },
-        kriteriaPeserta4: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 4',
-          example: 'Problem-solving skills',
-        },
-        kriteriaPeserta5: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 5',
-          example: 'Adaptability',
-        },
-        kriteriaPeserta6: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 6',
-          example: 'Self-motivation',
-        },
-        kriteriaPeserta7: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 7',
-          example: 'Time management',
-        },
-        kriteriaPeserta8: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 8',
-          example: 'Attention to detail',
-        },
-        kriteriaPeserta9: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 9',
-          example: 'Positive attitude',
-        },
-        kriteriaPeserta10: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 10',
-          example: 'Leadership skills',
+        kompetensi: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Kompetensi',
+          example: ['JavaScript', 'Node.js', 'React.js', 'TypeScript', 'GraphQL'],
         },
         publishedAt: {
           type: 'string',
@@ -239,104 +160,25 @@ export class MagangController {
           example: 'Competitive salary, Flexible hours',
         },
         kriteriaPeserta: {
-          type: 'string',
+          type: 'array',
+          items: {
+            type: 'string',
+          },
           description: 'Kriteria Peserta',
-          example: 'Final year student, GPA > 3.0',
+          example: ['Final year student', 'GPA > 3.0'],
         },
         urlMsib: {
           type: 'string',
           description: 'URL MSIB',
           example: 'http://url-msib.com',
         },
-        kompetensi1: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 1',
-          example: 'JavaScript',
-        },
-        kompetensi2: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 2',
-          example: 'Node.js',
-        },
-        kompetensi3: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 3',
-          example: 'React.js',
-        },
-        kompetensi4: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 4',
-          example: 'TypeScript',
-        },
-        kompetensi5: {
-          type: 'string',
-          nullable: true,
-          description: 'Kompetensi 5',
-          example: 'GraphQL',
-        },
-        kriteriaPeserta1: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 1',
-          example: 'Experience with web development',
-        },
-        kriteriaPeserta2: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 2',
-          example: 'Good communication skills',
-        },
-        kriteriaPeserta3: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 3',
-          example: 'Ability to work in a team',
-        },
-        kriteriaPeserta4: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 4',
-          example: 'Problem-solving skills',
-        },
-        kriteriaPeserta5: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 5',
-          example: 'Adaptability',
-        },
-        kriteriaPeserta6: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 6',
-          example: 'Self-motivation',
-        },
-        kriteriaPeserta7: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 7',
-          example: 'Time management',
-        },
-        kriteriaPeserta8: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 8',
-          example: 'Attention to detail',
-        },
-        kriteriaPeserta9: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 9',
-          example: 'Positive attitude',
-        },
-        kriteriaPeserta10: {
-          type: 'string',
-          nullable: true,
-          description: 'Kriteria Peserta 10',
-          example: 'Leadership skills',
+        kompetensi: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Kompetensi',
+          example: ['JavaScript', 'Node.js', 'React.js', 'TypeScript', 'GraphQL'],
         },
         publishedAt: {
           type: 'string',

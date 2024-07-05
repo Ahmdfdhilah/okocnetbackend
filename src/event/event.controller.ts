@@ -58,9 +58,10 @@ export class EventController {
                     example: 'http://url-pendaftaran.com',
                 },
                 deskripsiEvent: {
-                    type: 'string',
+                    type: 'array',
+                    items: { type: 'string' },
                     description: 'Deskripsi Event',
-                    example: 'Deskripsi singkat tentang event',
+                    example: ['Deskripsi singkat tentang event'],
                 },
                 tempatEvent: {
                     type: 'string',
@@ -81,31 +82,6 @@ export class EventController {
                     type: 'string',
                     description: 'Narasumber',
                     example: 'John Doe',
-                },
-                deskripsiEvent2: {
-                    type: 'string',
-                    description: 'Deskripsi Event 2',
-                    example: 'Detailed description 2',
-                },
-                deskripsiEvent3: {
-                    type: 'string',
-                    description: 'Deskripsi Event 3',
-                    example: 'Detailed description 3',
-                },
-                deskripsiEvent4: {
-                    type: 'string',
-                    description: 'Deskripsi Event 4',
-                    example: 'Detailed description 4',
-                },
-                deskripsiEvent5: {
-                    type: 'string',
-                    description: 'Deskripsi Event 5',
-                    example: 'Detailed description 5',
-                },
-                deskripsiEvent6: {
-                    type: 'string',
-                    description: 'Deskripsi Event 6',
-                    example: 'Detailed description 6',
                 },
                 contactPerson: {
                     type: 'string',
@@ -191,9 +167,10 @@ export class EventController {
                     example: 'http://url-pendaftaran.com',
                 },
                 deskripsiEvent: {
-                    type: 'string',
+                    type: 'array',
+                    items: { type: 'string' },
                     description: 'Deskripsi Event',
-                    example: 'Deskripsi singkat tentang event',
+                    example: ['Deskripsi singkat tentang event'],
                 },
                 tempatEvent: {
                     type: 'string',
@@ -214,31 +191,6 @@ export class EventController {
                     type: 'string',
                     description: 'Narasumber',
                     example: 'John Doe',
-                },
-                deskripsiEvent2: {
-                    type: 'string',
-                    description: 'Deskripsi Event 2',
-                    example: 'Detailed description 2',
-                },
-                deskripsiEvent3: {
-                    type: 'string',
-                    description: 'Deskripsi Event 3',
-                    example: 'Detailed description 3',
-                },
-                deskripsiEvent4: {
-                    type: 'string',
-                    description: 'Deskripsi Event 4',
-                    example: 'Detailed description 4',
-                },
-                deskripsiEvent5: {
-                    type: 'string',
-                    description: 'Deskripsi Event 5',
-                    example: 'Detailed description 5',
-                },
-                deskripsiEvent6: {
-                    type: 'string',
-                    description: 'Deskripsi Event 6',
-                    example: 'Detailed description 6',
                 },
                 contactPerson: {
                     type: 'string',

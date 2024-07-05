@@ -37,7 +37,7 @@ export class PeluangUsahaService {
             );
         });
 
-        await redis.del(`peluang-usahas`);
+        await this.clearPeluangUsahasCache();
         return newPeluangUsaha!;
     }
 
@@ -73,7 +73,7 @@ export class PeluangUsahaService {
             updatedPeluangUsaha = await transactionalEntityManager.save(peluangUsaha);
         });
 
-        await redis.del(`peluang-usahas`);
+        await this.clearPeluangUsahasCache();
         return updatedPeluangUsaha!;
     }
 
@@ -82,8 +82,8 @@ export class PeluangUsahaService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PeluangUsaha[], total: number }> {
-        const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `peluang-usahas`;
+        const { limit, search, sort, order } = query;
+        const cacheKey = `peluang-usahas_${limit}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -94,20 +94,27 @@ export class PeluangUsahaService {
             return result;
         }
 
-        const skip = (page - 1) * limit;
-        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+        this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else {
+            orderOption['createdAt'] = 'DESC';
+        }
 
         const [peluangUsahas, total] = await this.peluangUsahaRepository.findAndCount({
-            skip,
             take: limit,
             where: search ? { judulUsaha: Like(`%${search}%`) } : {},
-            order: sort && order ? { [sort]: order } : {},
+            order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         });
 
         this.logger.log(`DB result - PeluangUsahas count: ${peluangUsahas.length}, Total count: ${total}`);
 
-        const result = { data:peluangUsahas, total };
+        const result = { data: peluangUsahas, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;
@@ -125,6 +132,14 @@ export class PeluangUsahaService {
         }
 
         await this.peluangUsahaRepository.delete(id);
-        await redis.del(`peluang-usahas`);
+        await this.clearPeluangUsahasCache();
+    }
+
+    private async clearPeluangUsahasCache() {
+        const keys = await redis.keys('peluang-usahas_*');
+        
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
     }
 }

@@ -37,7 +37,7 @@ export class PenggerakOkoceService {
             );
         });
 
-        await redis.del(`penggerak-okoces`);
+        await this.clearAllCache();
         return newPenggerakOkoce!;
     }
 
@@ -73,7 +73,7 @@ export class PenggerakOkoceService {
             updatedPenggerakOkoce = await transactionalEntityManager.save(penggerakOkoce);
         });
 
-        await redis.del(`penggerak-okoces`);
+        await this.clearAllCache();
         return updatedPenggerakOkoce!;
     }
 
@@ -82,8 +82,8 @@ export class PenggerakOkoceService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PenggerakOkoce[], total: number }> {
-        const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `penggerak-okoces`;
+        const { limit, search, sort, order } = query;
+        const cacheKey = `penggerak-okoces_${limit}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -92,16 +92,24 @@ export class PenggerakOkoceService {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
-        }
-
-        const skip = (page - 1) * limit;
-        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
-
+          }
+      
+          this.logger.log(`Fetching from DB with limit: ${limit}`);
+      
+          const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+          if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+          } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+          }
+          else {
+            orderOption['createdAt'] = 'DESC';
+          }
+      
         const [penggerakOkoces, total] = await this.penggerakOkoceRepository.findAndCount({
-            skip,
             take: limit,
             where: search ? { namaPenggerak: Like(`%${search}%`) } : {},
-            order: sort && order ? { [sort]: order } : {},
+            order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         });
 
@@ -125,6 +133,14 @@ export class PenggerakOkoceService {
         }
 
         await this.penggerakOkoceRepository.delete(id);
-        await redis.del(`penggerak-okoces`);
+        await this.clearAllCache();
+    }
+
+    private async clearAllCache() {
+        const keys = await redis.keys('penggerak-okoces_*');
+        
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
     }
 }

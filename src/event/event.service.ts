@@ -36,7 +36,7 @@ export class EventService {
             );
         });
 
-        await redis.del(`events`);
+        await this.clearAllEventsCache(); // hapus semua cache yang relevan
         return newEvent!;
     }
 
@@ -67,7 +67,7 @@ export class EventService {
             updatedEvent = await transactionalEntityManager.save(event);
         });
 
-        await redis.del(`events`);
+        await this.clearAllEventsCache(); // hapus semua cache yang relevan
         return updatedEvent!;
     }
 
@@ -76,8 +76,8 @@ export class EventService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: Event[], total: number }> {
-        const { page = 1, limit = 10, search, sort, order } = query;
-        const cacheKey = `events`;
+        const { limit, search, sort, order } = query;
+        const cacheKey = `events_${limit}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -88,14 +88,22 @@ export class EventService {
             return result;
         }
 
-        const skip = (page - 1) * limit;
-        this.logger.log(`Fetching from DB with skip: ${skip}, limit: ${limit}`);
+        this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        }
+        else {
+            orderOption['createdAt'] = 'DESC';
+        }
 
         const [events, total] = await this.eventRepository.findAndCount({
-            skip,
             take: limit,
             where: search ? { judulEvent: Like(`%${search}%`) } : {},
-            order: sort && order ? { [sort]: order } : {},
+            order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         });
 
@@ -118,6 +126,13 @@ export class EventService {
         }
 
         await this.eventRepository.delete(id);
-        await redis.del(`events`);
+        await this.clearAllEventsCache(); // hapus semua cache yang relevan
+    }
+
+    private async clearAllEventsCache(): Promise<void> {
+        const keys = await redis.keys('events_*');
+        if (keys.length > 0) {
+            await redis.del(...keys);
+        }
     }
 }

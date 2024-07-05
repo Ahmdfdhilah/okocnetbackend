@@ -8,7 +8,7 @@ export const CreateEventSchema = z.object({
   pointEvent: z.string().min(1).max(255),
   fotoEvent: z.string().min(1),
   urlPendaftaran: z.string().min(1),
-  deskripsiEvent: z.string().min(1),
+  deskripsiEvent:z.array(z.string()),
   tempatEvent: z.string().min(1),
   quotaEvent: z.string().min(1).max(255),
   durasiEvent: z.string().min(1).max(255),
@@ -36,8 +36,7 @@ export class CreateEventDto {
   @ApiProperty({ example: 'http://url-pendaftaran.com' })
   urlPendaftaran: string;
 
-  @ApiProperty({ example: 'Learn to code in 10 days' })
-  deskripsiEvent: string;
+  deskripsiEvent: string[];
 
   @ApiProperty({ example: 'Jakarta' })
   tempatEvent: string;
@@ -50,21 +49,6 @@ export class CreateEventDto {
 
   @ApiProperty({ example: 'John Doe' })
   narasumber: string;
-
-  @ApiProperty({ example: 'Detailed description 2' })
-  deskripsiEvent2?: string;
-
-  @ApiProperty({ example: 'Detailed description 3' })
-  deskripsiEvent3?: string;
-
-  @ApiProperty({ example: 'Detailed description 4' })
-  deskripsiEvent4?: string;
-
-  @ApiProperty({ example: 'Detailed description 5' })
-  deskripsiEvent5?: string;
-
-  @ApiProperty({ example: 'Detailed description 6' })
-  deskripsiEvent6?: string;
 
   @ApiProperty({ example: '08123456789' })
   contactPerson: string;
