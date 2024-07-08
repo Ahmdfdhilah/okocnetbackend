@@ -59,8 +59,13 @@ export class PeluangKerjaService {
                 throw new NotFoundException(`PeluangKerja with id ${id} not found`);
             }
             const updatedBy = user;
-            const dataPeluangKerja = { ...updatePeluangKerjaDto, updatedBy };
-
+            const dataPeluangKerja = {
+                ...peluangKerja,
+                ...updatePeluangKerjaDto,
+                updatedBy,
+                fotoKerja: imgSrc || peluangKerja.fotoKerja, 
+            };
+            
             if (imgSrc) {
                 if (peluangKerja.fotoKerja) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/peluang-kerjas', path.basename(peluangKerja.fotoKerja));

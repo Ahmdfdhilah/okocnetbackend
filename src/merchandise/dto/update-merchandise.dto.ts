@@ -7,8 +7,8 @@ export const UpdateMerchandiseSchema = z.object({
     hargaMerchandise: z.string().optional(),
     stockMerchandise: z.string().optional(),
     linkMerchandise: z.string().optional(),
-    fotoMerchandise: z.string().optional(),
-    publishedAt: z.string().optional(),
+    fotoMerchandise: z.array(z.string()).optional(),
+    publishedAt: z.date().optional(),
 });
 
 export class UpdateMerchandiseDto {
@@ -23,9 +23,9 @@ export class UpdateMerchandiseDto {
     @ApiPropertyOptional({ example: 'https://link-merchandise.com' })
     linkMerchandise?: string;
     @ApiPropertyOptional({ example: 'file type' })
-    fotoMerchandise?: string;
+    fotoMerchandise?: string[];
     @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
-    publishedAt?: string;
+    publishedAt?: Date;
 
     constructor(data: any) {
         const validatedData = UpdateMerchandiseSchema.parse(data);

@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user.entity';
+import { Teks } from './teks.entity';
 
 @Entity('events')  
 export class Event {
@@ -12,8 +13,8 @@ export class Event {
     @Column({ type: 'date', nullable: false })
     tanggalEvent: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: false })
-    hargaEvent: string;
+    @Column({ type: 'int', nullable: false })
+    hargaEvent: number;
 
     @Column({ type: 'varchar', length: 255, nullable: false })
     pointEvent: string;
@@ -24,8 +25,8 @@ export class Event {
     @Column({ type: 'text', nullable: false })
     urlPendaftaran: string;
 
-    @Column({ type: 'simple-array', nullable: false })
-    deskripsiEvent: string[];
+    @OneToMany(() => Teks, teks => teks.event, { cascade: true })
+    deskripsiEvent: Teks[];
 
     @Column({ type: 'text', nullable: false })
     tempatEvent: string;

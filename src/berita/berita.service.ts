@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository, Like } from 'typeorm';
 import { Berita } from '../entities/berita.entity';
+import { Teks } from '../entities/teks.entity';
 import redis from 'src/lib/redis-client';
 import { QueryDto } from 'src/lib/query.dto';
 import { User } from 'src/entities/user.entity';
@@ -15,6 +16,8 @@ export class BeritaService {
   constructor(
     @InjectRepository(Berita)
     private readonly beritaRepository: Repository<Berita>,
+    @InjectRepository(Teks)
+    private readonly teksRepository: Repository<Teks>,
     private readonly entityManager: EntityManager,
   ) { }
   private readonly logger = new Logger(BeritaService.name);
@@ -30,7 +33,21 @@ export class BeritaService {
       const createdBy = user;
       const updatedBy = user;
 
-      const dataBerita = { ...createBeritaDto, createdBy, updatedBy, fotoBerita, fotoContent };
+      const teksEntities = createBeritaDto.deskripsiBerita.map(str => {
+        const teks = new Teks();
+        teks.str = str;
+        return teks;
+      });
+
+      const dataBerita = {
+        ...createBeritaDto,
+        deskripsiBerita: teksEntities,
+        createdBy,
+        updatedBy,
+        fotoBerita,
+        fotoContent
+      };
+
       newBerita = await transactionalEntityManager.save(
         this.beritaRepository.create(dataBerita),
       );
@@ -48,7 +65,7 @@ export class BeritaService {
       if (!user) {
         throw new NotFoundException(`User with id ${userId} not found`);
       }
-      const berita = await transactionalEntityManager.findOne(Berita, { where: { id } });
+      const berita = await transactionalEntityManager.findOne(Berita, { where: { id }, relations: ['deskripsiBerita'] });
       if (!berita) {
         throw new NotFoundException(`Berita with id ${id} not found`);
       }
@@ -70,8 +87,17 @@ export class BeritaService {
         }
         dataBerita.fotoContent = fotoContent;
       }
-
-      Object.assign(berita, dataBerita);
+      let dataBeritaWithDeskripsi = {...dataBerita, deskripsiBerita: null}
+      if (updateBeritaDto.deskripsiBerita) {
+        const teksEntities = updateBeritaDto.deskripsiBerita.map(str => {
+          const teks = new Teks();
+          teks.str = str;
+          return teks;
+        });
+        dataBeritaWithDeskripsi.deskripsiBerita = teksEntities
+      }
+      
+      Object.assign(berita, dataBeritaWithDeskripsi);
       updatedBerita = await transactionalEntityManager.save(berita);
     });
 
@@ -80,7 +106,7 @@ export class BeritaService {
   }
 
   async findOne(id: string): Promise<Berita | undefined> {
-    return this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
+    return this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiBerita'] });
   }
 
   async findAll(query: QueryDto): Promise<{ data: Berita[], total: number }> {
@@ -111,7 +137,7 @@ export class BeritaService {
       take: limit,
       where: search ? { judulBerita: Like(`%${search}%`) } : {},
       order: orderOption,
-      relations: ['createdBy', 'updatedBy'],
+      relations: ['createdBy', 'updatedBy', 'deskripsiBerita'],
     });
 
     this.logger.log(`DB result - Beritas count: ${beritas.length}, Total count: ${total}`);
@@ -122,9 +148,8 @@ export class BeritaService {
     return result;
   }
 
-
   async remove(id: string): Promise<void> {
-    const berita = await this.beritaRepository.findOne({ where: { id } });
+    const berita = await this.beritaRepository.findOne({ where: { id }, relations: ['deskripsiBerita'] });
     if (!berita) {
       throw new NotFoundException(`Berita with id ${id} not found`);
     }
@@ -136,6 +161,7 @@ export class BeritaService {
     await this.beritaRepository.delete(id);
     await this.clearAllBeritaCache();
   }
+
   private async clearAllBeritaCache(): Promise<void> {
     const keys = await redis.keys('beritas_*');
     if (keys.length > 0) {

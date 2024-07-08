@@ -14,7 +14,7 @@ export const UpdateEventSchema = z.object({
   durasiEvent: z.string().min(1).max(255).optional(),
   narasumber: z.string().min(1).optional(),
   contactPerson: z.string().min(1).max(255).optional(),
-  publishedAt: z.string().optional(),
+  publishedAt: z.date().optional(),
 });
 
 export class UpdateEventDto {
@@ -54,7 +54,7 @@ export class UpdateEventDto {
   contactPerson?: string;
 
   @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
-  publishedAt?: string;
+  publishedAt?: Date;
 
   constructor(data: any) {
     const validatedData = UpdateEventSchema.parse(data);

@@ -5,7 +5,7 @@ export const UpdateDonasiSchema = z.object({
   judulDonasi: z.string().optional(),
   deskripsiDonasi: z.string().optional(),
   fotoDonasi: z.string().optional(),
-  publishedAt: z.string(),
+  publishedAt: z.date(),
 });
 
 export class UpdateDonasiDto {
@@ -19,7 +19,7 @@ export class UpdateDonasiDto {
   fotoDonasi?: string;
 
   @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
-  publishedAt?: string;
+  publishedAt?: Date;
 
   constructor(data: any) {
     const validatedData = UpdateDonasiSchema.parse(data);

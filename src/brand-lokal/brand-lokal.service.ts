@@ -53,7 +53,13 @@ export class BrandLokalService {
         throw new NotFoundException(`BrandLokal with id ${id} not found`);
       }
       const updatedBy = user;
-      const dataBrandLokal = { ...updateBrandLokalDto, updatedBy };
+      const dataBrandLokal: Partial<BrandLokal> = {
+        judulBrand: updateBrandLokalDto.judulBrand || brandLokal.judulBrand,
+        deskripsiBrand: updateBrandLokalDto.deskripsiBrand || brandLokal.deskripsiBrand,
+        fotoBrand: imgSrc || brandLokal.fotoBrand,
+        publishedAt: updateBrandLokalDto.publishedAt || brandLokal.publishedAt,
+        updatedBy,
+      };
 
       if (imgSrc) {
         if (brandLokal.fotoBrand) {

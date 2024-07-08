@@ -59,18 +59,22 @@ export class PeluangUsahaService {
                 throw new NotFoundException(`PeluangUsaha with id ${id} not found`);
             }
             const updatedBy = user;
-            const dataPeluangUsaha = { ...updatePeluangUsahaDto, updatedBy };
 
-            if (imgSrc) {
-                if (peluangUsaha.fotoUsaha) {
-                    const oldImagePath = path.join(__dirname, '../../public/upload/peluang-usahas', path.basename(peluangUsaha.fotoUsaha));
-                    fs.unlinkSync(oldImagePath);
-                }
-                dataPeluangUsaha.fotoUsaha = imgSrc;
+            const dataPeluangUsaha = {
+                ...peluangUsaha,
+                ...updatePeluangUsahaDto,
+                updatedBy,
+                fotoUsaha: imgSrc || peluangUsaha.fotoUsaha,
+            };
+
+            if (imgSrc && peluangUsaha.fotoUsaha) {
+                const oldImagePath = path.join(__dirname, '../../public/upload/peluang-usahas', path.basename(peluangUsaha.fotoUsaha));
+                fs.unlinkSync(oldImagePath);
             }
 
-            Object.assign(peluangUsaha, dataPeluangUsaha);
-            updatedPeluangUsaha = await transactionalEntityManager.save(peluangUsaha);
+            updatedPeluangUsaha = await transactionalEntityManager.save(
+                this.peluangUsahaRepository.create(dataPeluangUsaha),
+            );
         });
 
         await this.clearPeluangUsahasCache();

@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { Teks } from 'src/entities/teks.entity';
 
 @Injectable()
 export class EventService {
@@ -30,13 +31,26 @@ export class EventService {
             const createdBy = user;
             const updatedBy = user;
 
-            const dataEvent = { ...createEventDto, createdBy, updatedBy, fotoEvent: imgSrc };
+            const teksEntities = createEventDto.deskripsiEvent.map(str => {
+                const teks = new Teks();
+                teks.str = str;
+                return teks;
+            });
+
+            const dataEvent = {
+                ...createEventDto,
+                deskripsiEvent: teksEntities,
+                createdBy,
+                updatedBy,
+                fotoEvent: imgSrc
+            };
+
             newEvent = await transactionalEntityManager.save(
                 this.eventRepository.create(dataEvent),
             );
         });
 
-        await this.clearAllEventsCache(); // hapus semua cache yang relevan
+        await this.clearAllEventsCache();
         return newEvent!;
     }
 
@@ -53,7 +67,17 @@ export class EventService {
                 throw new NotFoundException(`Event with id ${id} not found`);
             }
             const updatedBy = user;
-            const dataEvent = { ...updateEventDto, updatedBy };
+
+            let teksData;
+            if (updateEventDto.deskripsiEvent) {
+                const teksEntities = updateEventDto.deskripsiEvent.map(str => {
+                    const teks = new Teks();
+                    teks.str = str;
+                    return teks;
+                });
+                teksData = teksEntities;
+            }
+            const dataEvent = { ...updateEventDto, updatedBy, deskripsiEvent: teksData };
 
             if (imgSrc) {
                 if (event.fotoEvent) {
@@ -62,17 +86,17 @@ export class EventService {
                 }
                 dataEvent.fotoEvent = imgSrc;
             }
-
+          
             Object.assign(event, dataEvent);
             updatedEvent = await transactionalEntityManager.save(event);
         });
 
-        await this.clearAllEventsCache(); // hapus semua cache yang relevan
+        await this.clearAllEventsCache();
         return updatedEvent!;
     }
 
     async findOne(id: string): Promise<Event | undefined> {
-        return this.eventRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
+        return this.eventRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiEvent'] });
     }
 
     async findAll(query: QueryDto): Promise<{ data: Event[], total: number }> {
@@ -104,7 +128,7 @@ export class EventService {
             take: limit,
             where: search ? { judulEvent: Like(`%${search}%`) } : {},
             order: orderOption,
-            relations: ['createdBy', 'updatedBy'],
+            relations: ['createdBy', 'updatedBy', 'deskripsiEvent'],
         });
 
         this.logger.log(`DB result - Events count: ${events.length}, Total count: ${total}`);
@@ -126,7 +150,7 @@ export class EventService {
         }
 
         await this.eventRepository.delete(id);
-        await this.clearAllEventsCache(); // hapus semua cache yang relevan
+        await this.clearAllEventsCache(); 
     }
 
     private async clearAllEventsCache(): Promise<void> {

@@ -103,6 +103,7 @@ export class EventController {
         @Body() createEventDto: CreateEventDto,
     ): Promise<Event> {
         const imgSrc = getFileUrl('events', file);
+        console.log(imgSrc);
         return this.eventService.create(createEventDto, userId, imgSrc);
     }
 

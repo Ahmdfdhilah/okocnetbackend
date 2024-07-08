@@ -21,6 +21,7 @@ export class CreateBeritaDto {
     description: 'Deskripsi dari berita',
     type: [String],
   })
+  
   deskripsiBerita: string[];
 
   @ApiProperty({ example: '2024-07-03', description: 'Tanggal berita' })

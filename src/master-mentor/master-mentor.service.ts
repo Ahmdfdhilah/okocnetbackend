@@ -53,7 +53,10 @@ export class MasterMentorService {
             }
             const updatedBy = user;
 
-            const dataMasterMentor = { ...updateMasterMentorDto, updatedBy };
+            const dataMasterMentor: Partial<MasterMentor>= {
+                urlMasterMentor: updateMasterMentorDto.urlMasterMentor || masterMentor.urlMasterMentor,
+                publishedAt: updateMasterMentorDto.publishedAt || masterMentor.publishedAt,
+                updatedBy };
             Object.assign(masterMentor, dataMasterMentor);
             updatedMasterMentor = await transactionalEntityManager.save(masterMentor);
         });

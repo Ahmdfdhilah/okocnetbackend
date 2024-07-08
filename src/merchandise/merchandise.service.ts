@@ -20,7 +20,7 @@ export class MerchandiseService {
 
   private readonly logger = new Logger(MerchandiseService.name);
 
-  async create(createMerchandiseDto: CreateMerchandiseDto, userId: string, imgSrc: string): Promise<Merchandise> {
+  async create(createMerchandiseDto: CreateMerchandiseDto, userId: string, imgSrcs: string[]): Promise<Merchandise> {
     let newMerchandise: Merchandise;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -31,7 +31,7 @@ export class MerchandiseService {
       const createdBy = user;
       const updatedBy = user;
 
-      const dataMerchandise = { ...createMerchandiseDto, createdBy, updatedBy, fotoMerchandise: imgSrc };
+      const dataMerchandise = { ...createMerchandiseDto, createdBy, updatedBy, fotoMerchandise: imgSrcs };
       newMerchandise = await transactionalEntityManager.save(
         this.merchandiseRepository.create(dataMerchandise),
       );
@@ -41,7 +41,7 @@ export class MerchandiseService {
     return newMerchandise!;
   }
 
-  async update(id: string, updateMerchandiseDto: UpdateMerchandiseDto, userId: string, imgSrc?: string): Promise<Merchandise> {
+  async update(id: string, updateMerchandiseDto: UpdateMerchandiseDto, userId: string, imgSrcs?: string[]): Promise<Merchandise> {
     let updatedMerchandise: Merchandise;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -54,16 +54,26 @@ export class MerchandiseService {
         throw new NotFoundException(`Merchandise with id ${id} not found`);
       }
       const updatedBy = user;
-      const dataMerchandise = { ...updateMerchandiseDto, updatedBy };
-
-      if (imgSrc) {
+      const updatedData : Partial<Merchandise> = {
+        judulMerchandise: updateMerchandiseDto.judulMerchandise || merchandise.judulMerchandise,
+        deskripsiMerchandise: updateMerchandiseDto.deskripsiMerchandise || merchandise.deskripsiMerchandise,
+        hargaMerchandise: updateMerchandiseDto.hargaMerchandise || merchandise.hargaMerchandise,
+        stockMerchandise: updateMerchandiseDto.stockMerchandise || merchandise.stockMerchandise,
+        linkMerchandise: updateMerchandiseDto.linkMerchandise || merchandise.linkMerchandise,
+        fotoMerchandise: updateMerchandiseDto.fotoMerchandise || merchandise.fotoMerchandise,
+        publishedAt: updateMerchandiseDto.publishedAt || merchandise.publishedAt,
+        updatedBy,
+      };
+      if (imgSrcs) {
         if (merchandise.fotoMerchandise) {
-          const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(merchandise.fotoMerchandise));
-          fs.unlinkSync(oldImagePath);
+          for (const oldImage of merchandise.fotoMerchandise) {
+            const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(oldImage));
+            fs.unlinkSync(oldImagePath);
+          }
         }
-        dataMerchandise.fotoMerchandise = imgSrc;
+        updatedData.fotoMerchandise = imgSrcs;
       }
-      Object.assign(merchandise, dataMerchandise);
+      Object.assign(merchandise, updatedData);
       updatedMerchandise = await transactionalEntityManager.save(merchandise);
     });
 
@@ -121,8 +131,10 @@ export class MerchandiseService {
     }
 
     if (merchandise.fotoMerchandise) {
-      const imagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(merchandise.fotoMerchandise));
-      fs.unlinkSync(imagePath);
+      for (const image of merchandise.fotoMerchandise) {
+        const imagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(image));
+        fs.unlinkSync(imagePath);
+      }
     }
 
     await this.merchandiseRepository.delete(id);

@@ -5,7 +5,7 @@ export const UpdatePenggerakOkoceSchema = z.object({
     namaPenggerak: z.string().min(1).max(255).optional(),
     deskripsiPenggerak: z.string().min(1).optional(),
     fotoPenggerak: z.string().min(1).optional(),
-    publishedAt: z.string().optional(),
+    publishedAt: z.date().optional(),
 });
 
 export class UpdatePenggerakOkoceDto {
@@ -16,7 +16,7 @@ export class UpdatePenggerakOkoceDto {
     @ApiPropertyOptional({ example: 'file type' })
     fotoPenggerak?: string;
     @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
-    publishedAt?: string;
+    publishedAt?: Date;
 
     constructor(data: any) {
         const validatedData = UpdatePenggerakOkoceSchema.parse(data);

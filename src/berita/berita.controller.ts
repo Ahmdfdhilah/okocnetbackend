@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors
 import { BeritaService } from './berita.service';
 import { Berita } from 'src/entities/berita.entity';
 import { QueryDto } from 'src/lib/query.dto';
-import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express'; // Sesuaikan interceptor yang digunakan
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { CreateBeritaDto } from './dto/create-berita.dto';
 import { UpdateBeritaDto } from './dto/update-berita.dto';
@@ -34,7 +34,14 @@ export class BeritaController {
           example: 'file2.jpg',
         },
         judulBerita: { type: 'string', example: 'Judul Berita', description: 'Judul dari berita' },
-        deskripsiBerita: { type: 'array', items: { type: 'string' }, example: ['Deskripsi 1', 'Deskripsi 2'], description: 'Deskripsi dari berita' },
+        deskripsiBerita: { 
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          example: ['Deskripsi 1', 'Deskripsi 2'],
+          description: 'Deskripsi dari berita',
+        },
         tanggalBerita: { type: 'string', example: '2024-07-03', description: 'Tanggal berita' },
         authorBerita: { type: 'string', example: 'John Doe', description: 'Penulis berita' },
         editorBerita: { type: 'string', example: 'Jane Doe', description: 'Editor berita' },
@@ -51,7 +58,9 @@ export class BeritaController {
     @UploadedFiles() files: {file: Express.Multer.File, file2: Express.Multer.File},
     @Body() createBeritaDto: CreateBeritaDto,
   ): Promise<Berita> {
-    console.log(files.file);
+    if (typeof createBeritaDto.deskripsiBerita === 'string') {
+      createBeritaDto.deskripsiBerita = [createBeritaDto.deskripsiBerita]
+    }
     const fotoBerita = getFileUrl('beritas', files.file[0]);
     const fotoContent = getFileUrl('beritas', files.file2[0]);
 

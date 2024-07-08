@@ -53,8 +53,14 @@ export class DonasiService {
         throw new NotFoundException(`Donasi with id ${id} not found`);
       }
       const updatedBy = user;
-      const dataDonasi = { ...updateDonasiDto, updatedBy };
-
+      
+      const dataDonasi: Partial<Donasi> = {
+        judulDonasi: updateDonasiDto.judulDonasi || donasi.judulDonasi,
+        deskripsiDonasi: updateDonasiDto.deskripsiDonasi || donasi.deskripsiDonasi,
+        fotoDonasi: imgSrc || donasi.fotoDonasi,
+        publishedAt: updateDonasiDto.publishedAt || donasi.publishedAt,
+        updatedBy,
+      };
       if (imgSrc) {
         if (donasi.fotoDonasi) {
           const oldImagePath = path.join(__dirname, '../../public/upload/donasis', path.basename(donasi.fotoDonasi));
@@ -67,7 +73,7 @@ export class DonasiService {
       updatedDonasi = await transactionalEntityManager.save(donasi);
     });
 
-    await this.clearAllDonasiCache(); // hapus semua cache yang relevan
+    await this.clearAllDonasiCache(); 
     return updatedDonasi!;
   }
 
@@ -77,7 +83,7 @@ export class DonasiService {
 
   async findAll(query: QueryDto): Promise<{ data: Donasi[], total: number }> {
     const { limit, search, sort, order } = query;
-    const cacheKey = `donasis_${limit}_${search}_${sort}_${order}`; // membuat cache key yang dinamis
+    const cacheKey = `donasis_${limit}_${search}_${sort}_${order}`; 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {

@@ -12,7 +12,7 @@ export const UpdateMagangSchema = z.object({
   kriteriaPeserta: z.array(z.string()).optional(),
   urlMsib: z.string().optional(),
   kompetensi: z.array(z.string()).optional(),
-  publishedAt: z.string().nullable().optional(),
+  publishedAt: z.date().nullable().optional(),
 });
 
 export class UpdateMagangDto {
@@ -47,7 +47,7 @@ export class UpdateMagangDto {
   urlMsib?: string;
   
   @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z', nullable: true })
-  publishedAt?: string;
+  publishedAt?: Date;
 
   constructor(data: any) {
     const validatedData = UpdateMagangSchema.parse(data);

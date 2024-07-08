@@ -26,10 +26,10 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_TCP_PORT=3307
       - MYSQL_DATABASE=okoce
-    volumes:
-      - db-data:/var/lib/mysql
     networks:
       - backend-network
+    volumes:
+      - db_data:/var/lib/mysql
 
   db_backup:
     image: mariadb:10.6
@@ -39,10 +39,10 @@ services:
       - MYSQL_PASSWORD=password
       - MYSQL_TCP_PORT=3308
       - MYSQL_DATABASE=okoce_backup
-    volumes:
-      - db-backup-data:/var/lib/mysql
     networks:
       - backend-network
+    volumes:
+      - db_backup_data:/var/lib/mysql
 
   phpmyadmin:
     image: phpmyadmin
@@ -63,5 +63,5 @@ networks:
     driver: bridge
 
 volumes:
-  db-data:
-  db-backup-data:
+  db_data:
+  db_backup_data:

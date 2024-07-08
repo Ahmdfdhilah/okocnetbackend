@@ -53,21 +53,34 @@ export class MagangService {
         throw new NotFoundException(`Magang with id ${id} not found`);
       }
       const updatedBy = user;
-      const dataMagang = { ...updateMagangDto, updatedBy };
-      
+      const updatedData: Partial<Magang> = {
+        judulMagang: updateMagangDto.judulMagang || magang.judulMagang,
+        lokasiMagang: updateMagangDto.lokasiMagang || magang.lokasiMagang,
+        durasiMagang: updateMagangDto.durasiMagang || magang.durasiMagang,
+        jenisMagang: updateMagangDto.jenisMagang || magang.jenisMagang,
+        fotoMagang: updateMagangDto.fotoMagang || magang.fotoMagang,
+        tentangProgram: updateMagangDto.tentangProgram || magang.tentangProgram,
+        benefitMagang: updateMagangDto.benefitMagang || magang.benefitMagang,
+        kriteriaPeserta: updateMagangDto.kriteriaPeserta || magang.kriteriaPeserta,
+        urlMsib: updateMagangDto.urlMsib || magang.urlMsib,
+        kompetensi: updateMagangDto.kompetensi || magang.kompetensi,
+        publishedAt: updateMagangDto.publishedAt || magang.publishedAt,
+        updatedBy,
+      };
+
       if (imgSrc) {
         if (magang.fotoMagang) {
           const oldImagePath = path.join(__dirname, '../../public/upload/magangs', path.basename(magang.fotoMagang));
           fs.unlinkSync(oldImagePath);
         }
-        dataMagang.fotoMagang = imgSrc;
+        updatedData.fotoMagang = imgSrc;
       }
 
-      Object.assign(magang, dataMagang);
+      Object.assign(magang, updatedData);
       updatedMagang = await transactionalEntityManager.save(magang);
     });
 
-    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
+    await this.clearAllMagangsCache();
     return updatedMagang!;
   }
 
@@ -127,7 +140,7 @@ export class MagangService {
     }
 
     await this.magangRepository.delete(id);
-    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
+    await this.clearAllMagangsCache(); 
   }
 
   private async clearAllMagangsCache(): Promise<void> {

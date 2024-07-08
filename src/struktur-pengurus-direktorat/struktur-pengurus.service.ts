@@ -59,17 +59,29 @@ export class StrukturPengurusService {
                 throw new NotFoundException(`Struktur Pengurus with id ${id} not found`);
             }
             const updatedBy = user;
-            const dataStrukturPengurus = { ...updateStrukturPengurusDto, updatedBy };
+
+            const updatedData = {
+                nama: updateStrukturPengurusDto.nama || strukturPengurus.nama,
+                jabatan: updateStrukturPengurusDto.jabatan || strukturPengurus.jabatan,
+                publishedAt: updateStrukturPengurusDto.publishedAt || strukturPengurus.publishedAt,
+                tipe: updateStrukturPengurusDto.tipe || strukturPengurus.tipe,
+                updatedBy: updatedBy,
+                foto: null
+            };
 
             if (imgSrc) {
                 if (strukturPengurus.foto) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/struktur-penguruses', path.basename(strukturPengurus.foto));
-                    fs.unlinkSync(oldImagePath);
+                    if (oldImagePath) {
+                        fs.unlinkSync(oldImagePath);
+                    }
                 }
-                dataStrukturPengurus.foto = imgSrc;
+                updatedData.foto = imgSrc;
+            } else {
+                updatedData.foto = strukturPengurus.foto;
             }
 
-            Object.assign(strukturPengurus, dataStrukturPengurus);
+            Object.assign(strukturPengurus, updatedData);
             updatedStrukturPengurus = await transactionalEntityManager.save(strukturPengurus);
         });
 
@@ -92,20 +104,20 @@ export class StrukturPengurusService {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
-          }
-      
-          this.logger.log(`Fetching from DB with limit: ${limit}`);
-      
-          const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
-          if (sort && order) {
+        }
+
+        this.logger.log(`Fetching from DB with limit: ${limit}`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
             orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-          } else if (order && !sort) {
+        } else if (order && !sort) {
             orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-          }
-          else {
+        }
+        else {
             orderOption['createdAt'] = 'DESC';
-          }
-      
+        }
+
         const [strukturPenguruses, total] = await this.strukturPengurusRepository.findAndCount({
             take: limit,
             where: search ? { nama: Like(`%${search}%`) } : {},
@@ -138,7 +150,7 @@ export class StrukturPengurusService {
 
     private async clearAllStrukturCache() {
         const keys = await redis.keys('strukturpenguruses_*');
-        
+
         if (keys.length > 0) {
             await redis.del(...keys);
         }

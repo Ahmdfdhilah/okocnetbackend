@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export const CreateEventSchema = z.object({
   judulEvent: z.string().min(1).max(255),
   tanggalEvent: z.string(),
-  hargaEvent: z.string().min(1).max(255),
+  hargaEvent: z.number(),
   pointEvent: z.string().min(1).max(255),
   fotoEvent: z.string().min(1),
   urlPendaftaran: z.string().min(1),
@@ -25,7 +25,7 @@ export class CreateEventDto {
   tanggalEvent: string;
 
   @ApiProperty({ example: '100000' })
-  hargaEvent: string;
+  hargaEvent: number;
 
   @ApiProperty({ example: '10' })
   pointEvent: string;

@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
+import { Teks } from './teks.entity';
 
 @Entity('beritas')
 export class Berita {
@@ -9,8 +10,8 @@ export class Berita {
   @Column({ type: 'varchar', length: 255, nullable: false })
   judulBerita: string;
 
-  @Column({ type: 'simple-array', nullable: false })
-  deskripsiBerita: string[];
+  @OneToMany(() => Teks, teks => teks.berita, { cascade: true })
+  deskripsiBerita: Teks[];
 
   @Column({ type: 'date', nullable: false })
   tanggalBerita: string;

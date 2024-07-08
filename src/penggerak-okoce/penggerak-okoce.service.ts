@@ -56,20 +56,28 @@ export class PenggerakOkoceService {
             }
             const penggerakOkoce = await transactionalEntityManager.findOne(PenggerakOkoce, { where: { id } });
             if (!penggerakOkoce) {
-                throw new NotFoundException(`PenggerakOkoce with id ${id} not found`);
+                throw new NotFoundException(`Penggerak Okoce with id ${id} not found`);
             }
             const updatedBy = user;
-            const dataPenggerakOkoce = { ...updatePenggerakOkoceDto, updatedBy };
+
+            const updatedData: Partial<PenggerakOkoce> = {
+                namaPenggerak: updatePenggerakOkoceDto.namaPenggerak || penggerakOkoce.namaPenggerak,
+                deskripsiPenggerak: updatePenggerakOkoceDto.deskripsiPenggerak || penggerakOkoce.deskripsiPenggerak,
+                publishedAt: updatePenggerakOkoceDto.publishedAt || penggerakOkoce.publishedAt,
+                updatedBy: updatedBy,
+            };
 
             if (imgSrc) {
                 if (penggerakOkoce.fotoPenggerak) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/penggerak-okoces', path.basename(penggerakOkoce.fotoPenggerak));
                     fs.unlinkSync(oldImagePath);
                 }
-                dataPenggerakOkoce.fotoPenggerak = imgSrc;
+                updatedData.fotoPenggerak = imgSrc;
+            } else {
+                updatedData.fotoPenggerak = penggerakOkoce.fotoPenggerak;
             }
 
-            Object.assign(penggerakOkoce, dataPenggerakOkoce);
+            Object.assign(penggerakOkoce, updatedData);
             updatedPenggerakOkoce = await transactionalEntityManager.save(penggerakOkoce);
         });
 

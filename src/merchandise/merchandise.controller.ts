@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFiles, Query } from '@nestjs/common';
 import { MerchandiseService } from './merchandise.service';
 import { Merchandise } from 'src/entities/merchandise.entity';
 import { CreateMerchandiseDto } from './dto/create-merchandise.dto';
 import { UpdateMerchandiseDto } from './dto/update-merchandise.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { fileUploadOptions, getFileUrls } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
@@ -14,19 +14,22 @@ export class MerchandiseController {
     constructor(private readonly merchandiseService: MerchandiseService) { }
 
     @Post(':userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('merchandises')))
+    @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Create a new Merchandise' })
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
             type: 'object',
-            required: ['file', 'judulMerchandise', 'deskripsiMerchandise', 'hargaMerchandise', 'stockMerchandise', 'linkMerchandise', 'publishedAt'],
+            required: ['files', 'judulMerchandise', 'deskripsiMerchandise', 'hargaMerchandise', 'stockMerchandise', 'linkMerchandise', 'publishedAt'],
             properties: {
-                file: {
-                    type: 'string',
-                    format: 'binary',
-                    description: 'File upload',
-                    example: 'file.jpg',
+                files: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary',
+                    },
+                    description: 'File uploads',
+                    example: ['file1.jpg', 'file2.jpg'],
                 },
                 judulMerchandise: {
                     type: 'string',
@@ -64,11 +67,11 @@ export class MerchandiseController {
     })
     async create(
         @Param('userId') userId: string,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles() files: Express.Multer.File[],
         @Body() createMerchandiseDto: CreateMerchandiseDto,
     ): Promise<Merchandise> {
-        const imgSrc = getFileUrl('merchandises', file);
-        return this.merchandiseService.create(createMerchandiseDto, userId, imgSrc);
+        const imgSrcs = getFileUrls('merchandises', files);
+        return this.merchandiseService.create(createMerchandiseDto, userId, imgSrcs);
     }
 
     @Get()
@@ -87,7 +90,7 @@ export class MerchandiseController {
     }
 
     @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('merchandises')))
+    @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Update a Merchandise by ID' })
     @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Merchandise ID' })
@@ -95,11 +98,14 @@ export class MerchandiseController {
         schema: {
             type: 'object',
             properties: {
-                file: {
-                    type: 'string',
-                    format: 'binary',
-                    description: 'File upload',
-                    example: 'file.jpg',
+                files: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                        format: 'binary',
+                    },
+                    description: 'File uploads',
+                    example: ['file1.jpg', 'file2.jpg'],
                 },
                 judulMerchandise: {
                     type: 'string',
@@ -138,11 +144,11 @@ export class MerchandiseController {
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,
-        @UploadedFile() file: Express.Multer.File,
+        @UploadedFiles() files: Express.Multer.File[],
         @Body() updateMerchandiseDto: UpdateMerchandiseDto,
     ): Promise<Merchandise> {
-        const imgSrc = getFileUrl('merchandises', file);
-        return this.merchandiseService.update(id, updateMerchandiseDto, userId, imgSrc);
+        const imgSrcs = files.length > 0 ? getFileUrls('merchandises', files) : undefined;
+        return this.merchandiseService.update(id, updateMerchandiseDto, userId, imgSrcs);
     }
 
     @Delete(':id')

@@ -7,7 +7,7 @@ export const CreateMerchandiseSchema = z.object({
     hargaMerchandise: z.string(),
     stockMerchandise: z.string(),
     linkMerchandise: z.string(),
-    fotoMerchandise: z.string(),
+    fotoMerchandise: z.array(z.string()),
     publishedAt: z.string(),
 });
 
@@ -23,7 +23,7 @@ export class CreateMerchandiseDto {
     @ApiProperty({ example: 'https://link-merchandise.com' })
     linkMerchandise: string;
     @ApiProperty({ example: 'file type' })
-    fotoMerchandise: string;
+    fotoMerchandise: string[];
     @ApiProperty({ example: '2024-07-03T04:48:57.000Z' })
     publishedAt: string;
 
