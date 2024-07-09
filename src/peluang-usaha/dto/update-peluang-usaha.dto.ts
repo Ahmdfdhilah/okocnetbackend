@@ -11,7 +11,6 @@ export const UpdatePeluangUsahaSchema = z.object({
     jobdescUsaha: z.string().optional(),
     kriteriaUsaha: z.string().optional(),
     urlPendaftaran: z.string().optional(),
-    sistemKerja: z.enum(['Full-Time', 'Part-Time', 'Contract', 'Volunteer']).optional(),
     periodePendaftaran: z.string().optional(),
     publishedAt: z.string().optional(),
 });
@@ -35,8 +34,6 @@ export class UpdatePeluangUsahaDto {
     kriteriaUsaha?: string;
     @ApiPropertyOptional({ example: 'https://pendaftaran-usaha.com' })
     urlPendaftaran?: string;
-    @ApiPropertyOptional({ enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'], example: 'Full-Time' })
-    sistemKerja?: string;
     @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
     publishedAt?: string;
 
@@ -51,7 +48,6 @@ export class UpdatePeluangUsahaDto {
         this.jobdescUsaha = validatedData.jobdescUsaha;
         this.kriteriaUsaha = validatedData.kriteriaUsaha;
         this.urlPendaftaran = validatedData.urlPendaftaran;
-        this.sistemKerja = validatedData.sistemKerja;
         this.publishedAt = validatedData.publishedAt;
     }
 }

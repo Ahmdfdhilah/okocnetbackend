@@ -12,8 +12,8 @@ export class Merchandise {
     @Column({ type: 'text', nullable: true })
     deskripsiMerchandise: string;
 
-    @Column({ type: 'varchar', length: 255, nullable: false })
-    hargaMerchandise: string;
+    @Column({ type: 'int', nullable: false })
+    hargaMerchandise: number;
 
     @Column({ type: 'simple-array', nullable: false })
     fotoMerchandise: string[];

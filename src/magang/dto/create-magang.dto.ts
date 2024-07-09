@@ -5,6 +5,7 @@ export const CreateMagangSchema = z.object({
   judulMagang: z.string().max(255),
   lokasiMagang: z.string().max(255),
   durasiMagang: z.string().max(255),
+  deskripsiMagang: z.array(z.string()),
   jenisMagang: z.enum(['Hybrid', 'WFO (Work From Office)', 'WFH (Work From Home)']),
   fotoMagang: z.string(),
   tentangProgram: z.string(),
@@ -44,7 +45,9 @@ export class CreateMagangDto {
   urlMsib: string;
   
   @ApiProperty({ type: [String], example: ['JavaScript', 'Node.js', 'React.js'] })
-  kompetensi?: string[];
+  kompetensi: string[];
+
+  deskripsiMagang: string[];
   
   @ApiProperty({ example: '2024-07-03T04:48:57.000Z', nullable: true })
   publishedAt?: string;

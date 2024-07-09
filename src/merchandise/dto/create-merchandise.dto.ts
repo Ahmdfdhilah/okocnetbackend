@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export const CreateMerchandiseSchema = z.object({
     judulMerchandise: z.string(),
     deskripsiMerchandise: z.string().optional(),
-    hargaMerchandise: z.string(),
+    hargaMerchandise: z.number(),
     stockMerchandise: z.string(),
     linkMerchandise: z.string(),
     fotoMerchandise: z.array(z.string()),
@@ -17,7 +17,7 @@ export class CreateMerchandiseDto {
     @ApiProperty({ example: 'Deskripsi Merchandise' })
     deskripsiMerchandise?: string;
     @ApiProperty({ example: 'Rp 100.000' })
-    hargaMerchandise: string;
+    hargaMerchandise: number;
     @ApiProperty({ example: '10' })
     stockMerchandise: string;
     @ApiProperty({ example: 'https://link-merchandise.com' })

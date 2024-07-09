@@ -148,9 +148,9 @@ export class EventController {
                     example: '2024-07-10',
                 },
                 hargaEvent: {
-                    type: 'string',
+                    type: 'number',
                     description: 'Harga Event',
-                    example: 'Rp 100.000',
+                    example: '100000',
                 },
                 pointEvent: {
                     type: 'string',

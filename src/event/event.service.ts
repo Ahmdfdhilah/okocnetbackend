@@ -31,9 +31,10 @@ export class EventService {
             const createdBy = user;
             const updatedBy = user;
 
-            const teksEntities = createEventDto.deskripsiEvent.map(str => {
+            const teksEntities = createEventDto.deskripsiEvent.map((str, index) => {
                 const teks = new Teks();
                 teks.str = str;
+                teks.order = index;
                 return teks;
             });
 
@@ -70,8 +71,9 @@ export class EventService {
 
             let teksData;
             if (updateEventDto.deskripsiEvent) {
-                const teksEntities = updateEventDto.deskripsiEvent.map(str => {
+                const teksEntities = updateEventDto.deskripsiEvent.map((str, index) => {
                     const teks = new Teks();
+                    teks.order = index;
                     teks.str = str;
                     return teks;
                 });
@@ -86,7 +88,7 @@ export class EventService {
                 }
                 dataEvent.fotoEvent = imgSrc;
             }
-          
+
             Object.assign(event, dataEvent);
             updatedEvent = await transactionalEntityManager.save(event);
         });
@@ -96,7 +98,11 @@ export class EventService {
     }
 
     async findOne(id: string): Promise<Event | undefined> {
-        return this.eventRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiEvent'] });
+        const event = await this.eventRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiEvent'] });
+        if (event) {
+            event.deskripsiEvent.sort((a, b) => a.order - b.order);
+        }
+        return event;
     }
 
     async findAll(query: QueryDto): Promise<{ data: Event[], total: number }> {
@@ -132,8 +138,11 @@ export class EventService {
         });
 
         this.logger.log(`DB result - Events count: ${events.length}, Total count: ${total}`);
+        events.forEach(event => {
+            event.deskripsiEvent.sort((a, b) => a.order - b.order);
+        });
 
-        const result = { data:events, total };
+        const result = { data: events, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
         return result;
@@ -150,7 +159,7 @@ export class EventService {
         }
 
         await this.eventRepository.delete(id);
-        await this.clearAllEventsCache(); 
+        await this.clearAllEventsCache();
     }
 
     private async clearAllEventsCache(): Promise<void> {

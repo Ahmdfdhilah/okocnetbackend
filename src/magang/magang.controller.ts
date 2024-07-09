@@ -19,7 +19,7 @@ export class MagangController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['file', 'judulMagang', 'lokasiMagang', 'durasiMagang', 'jenisMagang', 'tentangProgram', 'benefitMagang', 'kriteriaPeserta', 'urlMsib', 'publishedAt'],
+      required: ['file', 'judulMagang', 'lokasiMagang', 'durasiMagang', 'jenisMagang','kompetensi', 'deskripsiMagang', 'tentangProgram', 'benefitMagang', 'kriteriaPeserta', 'urlMsib', 'publishedAt'],
       properties: {
         file: {
           type: 'string',
@@ -31,6 +31,14 @@ export class MagangController {
           type: 'string',
           description: 'Judul Magang',
           example: 'Nama Magang',
+        },
+        deskripsiMagang: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Deskripsi',
+          example: ['Deskripsi 1', 'Deskripsi 2'],
         },
         lokasiMagang: {
           type: 'string',
@@ -142,6 +150,14 @@ export class MagangController {
           type: 'string',
           description: 'Durasi Magang',
           example: '3 months',
+        },
+        deskripsiMagang: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'Deskripsi',
+          example: ['Deskripsi 1', 'Deskripsi 2'],
         },
         jenisMagang: {
           type: 'string',

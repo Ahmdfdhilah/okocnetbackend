@@ -11,7 +11,6 @@ export const CreatePeluangUsahaSchema = z.object({
     jobdescUsaha: z.string(),
     kriteriaUsaha: z.string(),
     urlPendaftaran: z.string(),
-    sistemKerja: z.enum(['Full-Time', 'Part-Time', 'Contract', 'Volunteer']),
     periodePendaftaran: z.string().optional(),
     publishedAt: z.string(),
 });
@@ -35,8 +34,6 @@ export class CreatePeluangUsahaDto {
     kriteriaUsaha: string;
     @ApiProperty({ example: 'https://pendaftaran-usaha.com' })
     urlPendaftaran: string;
-    @ApiProperty({ enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'], example: 'Full-Time' })
-    sistemKerja: string;
     @ApiProperty({ example: '2024-07-03T04:48:57.000Z' })
     publishedAt: string;
 
@@ -51,7 +48,6 @@ export class CreatePeluangUsahaDto {
         this.jobdescUsaha = validatedData.jobdescUsaha;
         this.kriteriaUsaha = validatedData.kriteriaUsaha;
         this.urlPendaftaran = validatedData.urlPendaftaran;
-        this.sistemKerja = validatedData.sistemKerja;
         this.publishedAt = validatedData.publishedAt;
     }
 }

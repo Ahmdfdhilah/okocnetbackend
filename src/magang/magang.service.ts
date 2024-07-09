@@ -9,6 +9,7 @@ import { CreateMagangDto } from './dto/create-magang.dto';
 import { UpdateMagangDto } from './dto/update-magang.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Teks } from 'src/entities/teks.entity';
 
 @Injectable()
 export class MagangService {
@@ -16,7 +17,7 @@ export class MagangService {
     @InjectRepository(Magang)
     private readonly magangRepository: Repository<Magang>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
   private readonly logger = new Logger(MagangService.name);
 
   async create(createMagangDto: CreateMagangDto, userId: string, imgSrc: string): Promise<Magang> {
@@ -30,13 +31,32 @@ export class MagangService {
       const createdBy = user;
       const updatedBy = user;
 
-      const dataMagang = { ...createMagangDto, createdBy, updatedBy, fotoMagang: imgSrc };
+      const teksDeskripsiEntities = createMagangDto.deskripsiMagang.map((str, index) => {
+        const teks = new Teks();
+        teks.str = str;
+        teks.order = index;
+        return teks;
+      });
+      const teksKriteriaEntities = createMagangDto.kriteriaPeserta.map((str, index) => {
+        const teks = new Teks();
+        teks.str = str;
+        teks.order = index; 
+        return teks;
+      });
+      const teksKompetensiEntities = createMagangDto.kompetensi.map((str, index) => {
+        const teks = new Teks();
+        teks.str = str;
+        teks.order = index; 
+        return teks;
+      });
+
+      const dataMagang = { ...createMagangDto, createdBy, updatedBy, fotoMagang: imgSrc, deskripsiMagang: teksDeskripsiEntities, kriteriaPeserta: teksKriteriaEntities, kompetensi: teksKompetensiEntities };
       newMagang = await transactionalEntityManager.save(
         this.magangRepository.create(dataMagang),
       );
     });
 
-    await this.clearAllMagangsCache(); // hapus semua cache yang relevan
+    await this.clearAllMagangsCache();
     return newMagang!;
   }
 
@@ -52,6 +72,35 @@ export class MagangService {
       if (!magang) {
         throw new NotFoundException(`Magang with id ${id} not found`);
       }
+      let teksDeskripsiEntities;
+      let teksKompetensiEntities;
+      let teksKriteriaEntities;
+
+      if (updateMagangDto.deskripsiMagang) {
+        teksDeskripsiEntities = updateMagangDto.deskripsiMagang.map((str, index) => {
+          const teks = new Teks();
+          teks.str = str;
+          teks.order = index;
+          return teks;
+        });
+      }
+      if (updateMagangDto.kompetensi) {
+        teksKompetensiEntities = updateMagangDto.kompetensi.map((str, index)  => {
+          const teks = new Teks();
+          teks.str = str;
+          teks.order = index;
+          return teks;
+        });
+      }
+      if (updateMagangDto.kriteriaPeserta) {
+
+        teksKriteriaEntities = updateMagangDto.kriteriaPeserta.map((str, index)  => {
+          const teks = new Teks();
+          teks.str = str;
+          teks.order = index;
+          return teks;
+        });
+      }
       const updatedBy = user;
       const updatedData: Partial<Magang> = {
         judulMagang: updateMagangDto.judulMagang || magang.judulMagang,
@@ -61,10 +110,11 @@ export class MagangService {
         fotoMagang: updateMagangDto.fotoMagang || magang.fotoMagang,
         tentangProgram: updateMagangDto.tentangProgram || magang.tentangProgram,
         benefitMagang: updateMagangDto.benefitMagang || magang.benefitMagang,
-        kriteriaPeserta: updateMagangDto.kriteriaPeserta || magang.kriteriaPeserta,
         urlMsib: updateMagangDto.urlMsib || magang.urlMsib,
-        kompetensi: updateMagangDto.kompetensi || magang.kompetensi,
         publishedAt: updateMagangDto.publishedAt || magang.publishedAt,
+        deskripsiMagang: teksDeskripsiEntities || magang.deskripsiMagang,
+        kriteriaPeserta: teksKriteriaEntities || magang.kriteriaPeserta,
+        kompetensi: teksKompetensiEntities || magang.kompetensi,
         updatedBy,
       };
 
@@ -85,7 +135,14 @@ export class MagangService {
   }
 
   async findOne(id: string): Promise<Magang | undefined> {
-    return this.magangRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
+    const magang = await this.magangRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'kriteriaPeserta', 'kompetensi', 'deskripsiMagang'] });
+  
+    if (magang) {
+      magang.deskripsiMagang.sort((a, b) => a.order - b.order);
+      magang.kriteriaPeserta.sort((a, b) => a.order - b.order);
+      magang.kompetensi.sort((a, b) => a.order - b.order);
+    }
+    return magang;
   }
 
   async findAll(query: QueryDto): Promise<{ data: Magang[], total: number }> {
@@ -117,14 +174,20 @@ export class MagangService {
       take: limit,
       where: search ? { judulMagang: Like(`%${search}%`) } : {},
       order: orderOption,
-      relations: ['createdBy', 'updatedBy'],
+      relations: ['createdBy', 'updatedBy', 'kriteriaPeserta', 'kompetensi', 'deskripsiMagang'],
     });
 
     this.logger.log(`DB result - Magangs count: ${magangs.length}, Total count: ${total}`);
 
-    const result = { data:magangs, total };
+    magangs.forEach(magang => {
+      magang.deskripsiMagang.sort((a, b) => a.order - b.order);
+      magang.kriteriaPeserta.sort((a, b) => a.order - b.order);
+      magang.kompetensi.sort((a, b) => a.order - b.order);
+    });
+  
+    const result = { data: magangs, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-
+  
     return result;
   }
 
@@ -140,7 +203,7 @@ export class MagangService {
     }
 
     await this.magangRepository.delete(id);
-    await this.clearAllMagangsCache(); 
+    await this.clearAllMagangsCache();
   }
 
   private async clearAllMagangsCache(): Promise<void> {

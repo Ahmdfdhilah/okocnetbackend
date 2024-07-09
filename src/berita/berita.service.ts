@@ -33,9 +33,10 @@ export class BeritaService {
       const createdBy = user;
       const updatedBy = user;
 
-      const teksEntities = createBeritaDto.deskripsiBerita.map(str => {
+      const teksEntities = createBeritaDto.deskripsiBerita.map((str, index) => {
         const teks = new Teks();
         teks.str = str;
+        teks.order = index;
         return teks;
       });
 
@@ -89,9 +90,10 @@ export class BeritaService {
       }
       let dataBeritaWithDeskripsi = {...dataBerita, deskripsiBerita: null}
       if (updateBeritaDto.deskripsiBerita) {
-        const teksEntities = updateBeritaDto.deskripsiBerita.map(str => {
+        const teksEntities = updateBeritaDto.deskripsiBerita.map((str, index) => {
           const teks = new Teks();
           teks.str = str;
+          teks.order = index;
           return teks;
         });
         dataBeritaWithDeskripsi.deskripsiBerita = teksEntities
@@ -106,7 +108,11 @@ export class BeritaService {
   }
 
   async findOne(id: string): Promise<Berita | undefined> {
-    return this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiBerita'] });
+    const berita = await this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiBerita'] });
+    if (berita) {
+      berita.deskripsiBerita.sort((a, b) => a.order - b.order); 
+    }
+    return berita;
   }
 
   async findAll(query: QueryDto): Promise<{ data: Berita[], total: number }> {
@@ -141,6 +147,10 @@ export class BeritaService {
     });
 
     this.logger.log(`DB result - Beritas count: ${beritas.length}, Total count: ${total}`);
+
+    beritas.forEach(berita => {
+      berita.deskripsiBerita.sort((a, b) => a.order - b.order);
+    });
 
     const result = { data: beritas, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });

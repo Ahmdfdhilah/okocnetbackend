@@ -20,7 +20,7 @@ export class PeluangUsahaController {
     @ApiBody({
         schema: {
             type: 'object',
-            required: ['file', 'judulUsaha', 'lokasiUsaha', 'kategoriUsaha', 'tentangProgram', 'benefitProgram', 'periodePendaftaran', 'jobdescUsaha', 'kriteriaUsaha', 'urlPendaftaran', 'sistemKerja', 'publishedAt'],
+            required: ['file', 'judulUsaha', 'lokasiUsaha', 'kategoriUsaha', 'tentangProgram', 'benefitProgram', 'periodePendaftaran', 'jobdescUsaha', 'kriteriaUsaha', 'urlPendaftaran', 'publishedAt'],
             properties: {
                 file: {
                     type: 'string',
@@ -67,12 +67,6 @@ export class PeluangUsahaController {
                     type: 'string',
                     description: 'URL Pendaftaran',
                     example: 'https://pendaftaran-usaha.com',
-                },
-                sistemKerja: {
-                    type: 'string',
-                    enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'],
-                    description: 'Sistem Kerja',
-                    example: 'Full-Time',
                 },
                 periodePendaftaran: {
                     type: 'string',
@@ -167,18 +161,6 @@ export class PeluangUsahaController {
                     type: 'string',
                     description: 'URL Pendaftaran',
                     example: 'https://pendaftaran-usaha.com',
-                },
-                sistemKerja: {
-                    type: 'string',
-                    enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'],
-                    description: 'Sistem Kerja',
-                    example: 'Full-Time',
-                },
-                periodePendaftaran: {
-                    type: 'string',
-                    format: 'date-time',
-                    description: 'Periode Pendaftaran (optional)',
-                    example: '2024-07-03T04:48:57.000Z',
                 },
                 publishedAt: {
                     type: 'string',

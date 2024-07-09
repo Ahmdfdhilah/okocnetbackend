@@ -11,6 +11,7 @@ export const UpdateMagangSchema = z.object({
   benefitMagang: z.string().optional(),
   kriteriaPeserta: z.array(z.string()).optional(),
   urlMsib: z.string().optional(),
+  deskripsiMagang: z.array(z.string()).optional(),
   kompetensi: z.array(z.string()).optional(),
   publishedAt: z.date().nullable().optional(),
 });
@@ -42,6 +43,8 @@ export class UpdateMagangDto {
   
   @ApiPropertyOptional({ type: [String], example: ['JavaScript', 'Node.js', 'React.js', 'TypeScript', 'GraphQL'] })
   kompetensi?: string[];
+
+  deskripsiMagang?: string[];
   
   @ApiPropertyOptional({ example: 'http://url-msib.com' })
   urlMsib?: string;

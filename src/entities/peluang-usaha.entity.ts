@@ -33,9 +33,6 @@ export class PeluangUsaha {
     @Column({ type: 'varchar', length: 255, nullable: false })
     urlPendaftaran: string;
 
-    @Column({ type: 'enum', enum: ['Full-Time', 'Part-Time', 'Contract', 'Volunteer'], nullable: false })
-    sistemKerja: string;
-
     @Column({ type: 'text', nullable: true })
     periodePendaftaran: string;
 

@@ -42,9 +42,9 @@ export class MerchandiseController {
                     example: 'Deskripsi singkat tentang merchandise',
                 },
                 hargaMerchandise: {
-                    type: 'string',
+                    type: 'number',
                     description: 'Harga Merchandise',
-                    example: 'Rp 100.000',
+                    example: '100000',
                 },
                 stockMerchandise: {
                     type: 'string',

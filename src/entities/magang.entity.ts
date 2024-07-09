@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from './user.entity';
+import { Teks } from './teks.entity';
 
 @Entity('magangs')
 export class Magang {
@@ -24,17 +25,20 @@ export class Magang {
     @Column({ type: 'text', nullable: false })
     tentangProgram: string;
 
+    @OneToMany(() => Teks, teks => teks.deskripsiMagang, { cascade: true })
+    deskripsiMagang: Teks[];
+
     @Column({ type: 'text', nullable: false })
     benefitMagang: string;
 
-    @Column({  type: 'simple-array', nullable: false })
-    kriteriaPeserta: string[];
+    @OneToMany(() => Teks, teks => teks.kriteriaPeserta, { cascade: true })
+    kriteriaPeserta: Teks[];
 
     @Column({ type: 'text', nullable: false })
     urlMsib: string;
 
-    @Column({  type: 'simple-array', nullable: true })
-    kompetensi: string[];
+    @OneToMany(() => Teks, teks => teks.kompetensi, { cascade: true })
+    kompetensi: Teks[];
 
     @CreateDateColumn()
     createdAt: Date;
