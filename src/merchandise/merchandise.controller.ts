@@ -71,6 +71,8 @@ export class MerchandiseController {
         @Body() createMerchandiseDto: CreateMerchandiseDto,
     ): Promise<Merchandise> {
         const imgSrcs = getFileUrls('merchandises', files);
+        console.log(files);
+        
         return this.merchandiseService.create(createMerchandiseDto, userId, imgSrcs);
     }
 
@@ -138,6 +140,14 @@ export class MerchandiseController {
                     description: 'Tanggal publikasi',
                     example: '2024-07-03T04:48:57.000Z',
                 },
+                fotoMerchandise: {
+                    type: 'array',
+                    items: {
+                        type: 'string',
+                    },
+                    description: 'Existing files',
+                    example: ['https://link-to-existing-file1.jpg', 'https://link-to-existing-file2.jpg'],
+                },
             },
         },
     })
@@ -147,7 +157,16 @@ export class MerchandiseController {
         @UploadedFiles() files: Express.Multer.File[],
         @Body() updateMerchandiseDto: UpdateMerchandiseDto,
     ): Promise<Merchandise> {
-        const imgSrcs = files.length > 0 ? getFileUrls('merchandises', files) : undefined;
+        let imgSrcs = updateMerchandiseDto.fotoMerchandise || [];
+        console.log(updateMerchandiseDto.fotoMerchandise);
+        
+        if (files.length > 0) {
+            const newFileUrls = getFileUrls('merchandises', files);
+            imgSrcs = imgSrcs.concat(newFileUrls);
+        }
+        console.log(imgSrcs);
+        
+
         return this.merchandiseService.update(id, updateMerchandiseDto, userId, imgSrcs);
     }
 

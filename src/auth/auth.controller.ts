@@ -41,10 +41,6 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'Returns JWT token.' })
     async login(@Body() authPayloadDto: AuthPayloadDto, @Req() req) {
         const user = req.user;
-        console.log(user);
-        if (!user.confirmed) {
-            throw new UnauthorizedException('User not confirmed');
-        }
         return { accessToken: this.authService.getJwtToken(user) };
     }
 

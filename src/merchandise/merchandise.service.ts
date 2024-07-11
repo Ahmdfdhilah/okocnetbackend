@@ -45,42 +45,47 @@ export class MerchandiseService {
     let updatedMerchandise: Merchandise;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
-      const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
-      if (!user) {
-        throw new NotFoundException(`User with id ${userId} not found`);
-      }
-      const merchandise = await transactionalEntityManager.findOne(Merchandise, { where: { id } });
-      if (!merchandise) {
-        throw new NotFoundException(`Merchandise with id ${id} not found`);
-      }
-      const updatedBy = user;
-      const updatedData : Partial<Merchandise> = {
-        judulMerchandise: updateMerchandiseDto.judulMerchandise || merchandise.judulMerchandise,
-        deskripsiMerchandise: updateMerchandiseDto.deskripsiMerchandise || merchandise.deskripsiMerchandise,
-        hargaMerchandise: updateMerchandiseDto.hargaMerchandise || merchandise.hargaMerchandise,
-        stockMerchandise: updateMerchandiseDto.stockMerchandise || merchandise.stockMerchandise,
-        linkMerchandise: updateMerchandiseDto.linkMerchandise || merchandise.linkMerchandise,
-        fotoMerchandise: updateMerchandiseDto.fotoMerchandise || merchandise.fotoMerchandise,
-        publishedAt: updateMerchandiseDto.publishedAt || merchandise.publishedAt,
-        updatedBy,
-      };
-      if (imgSrcs) {
-        if (merchandise.fotoMerchandise) {
-          for (const oldImage of merchandise.fotoMerchandise) {
-            const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(oldImage));
-            fs.unlinkSync(oldImagePath);
-          }
+        const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
+        if (!user) {
+            throw new NotFoundException(`User with id ${userId} not found`);
         }
-        updatedData.fotoMerchandise = imgSrcs;
-      }
-      Object.assign(merchandise, updatedData);
-      updatedMerchandise = await transactionalEntityManager.save(merchandise);
+        const merchandise = await transactionalEntityManager.findOne(Merchandise, { where: { id } });
+        if (!merchandise) {
+            throw new NotFoundException(`Merchandise with id ${id} not found`);
+        }
+        const updatedBy = user;
+
+        const updatedData : Partial<Merchandise> = {
+            judulMerchandise: updateMerchandiseDto.judulMerchandise || merchandise.judulMerchandise,
+            deskripsiMerchandise: updateMerchandiseDto.deskripsiMerchandise || merchandise.deskripsiMerchandise,
+            hargaMerchandise: updateMerchandiseDto.hargaMerchandise || merchandise.hargaMerchandise,
+            stockMerchandise: updateMerchandiseDto.stockMerchandise || merchandise.stockMerchandise,
+            linkMerchandise: updateMerchandiseDto.linkMerchandise || merchandise.linkMerchandise,
+            publishedAt: updateMerchandiseDto.publishedAt || merchandise.publishedAt,
+            updatedBy,
+        };
+
+        if (imgSrcs) {
+            if (merchandise.fotoMerchandise) {
+                for (const oldImage of merchandise.fotoMerchandise) {
+                    if (!imgSrcs.includes(oldImage)) {
+                        const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(oldImage));
+                        if (fs.existsSync(oldImagePath)) {
+                            fs.unlinkSync(oldImagePath);
+                        }
+                    }
+                }
+            }
+            updatedData.fotoMerchandise = imgSrcs;
+        }
+
+        Object.assign(merchandise, updatedData);
+        updatedMerchandise = await transactionalEntityManager.save(merchandise);
     });
 
     await this.clearMerchandisesCache();
     return updatedMerchandise!;
-  }
-
+}
   async findOne(id: string): Promise<Merchandise | undefined> {
     return this.merchandiseRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
@@ -133,7 +138,9 @@ export class MerchandiseService {
     if (merchandise.fotoMerchandise) {
       for (const image of merchandise.fotoMerchandise) {
         const imagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(image));
-        fs.unlinkSync(imagePath);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
       }
     }
 

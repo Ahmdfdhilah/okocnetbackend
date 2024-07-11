@@ -71,7 +71,19 @@ export class BeritaService {
         throw new NotFoundException(`Berita with id ${id} not found`);
       }
       const updatedBy = user;
-      const dataBerita = { ...updateBeritaDto, updatedBy };
+
+      let teksData;
+      if (updateBeritaDto.deskripsiBerita) {
+        const teksEntities = updateBeritaDto.deskripsiBerita.map((str, index) => {
+          const teks = new Teks();
+          teks.str = str;
+          teks.order = index;
+          return teks;
+        });
+        teksData = teksEntities;
+      }
+
+      const dataBerita = { ...updateBeritaDto, updatedBy, deskripsiBerita: teksData };
 
       if (fotoBerita) {
         if (berita.fotoBerita) {
@@ -88,18 +100,8 @@ export class BeritaService {
         }
         dataBerita.fotoContent = fotoContent;
       }
-      let dataBeritaWithDeskripsi = {...dataBerita, deskripsiBerita: null}
-      if (updateBeritaDto.deskripsiBerita) {
-        const teksEntities = updateBeritaDto.deskripsiBerita.map((str, index) => {
-          const teks = new Teks();
-          teks.str = str;
-          teks.order = index;
-          return teks;
-        });
-        dataBeritaWithDeskripsi.deskripsiBerita = teksEntities
-      }
-      
-      Object.assign(berita, dataBeritaWithDeskripsi);
+
+      Object.assign(berita, dataBerita);
       updatedBerita = await transactionalEntityManager.save(berita);
     });
 

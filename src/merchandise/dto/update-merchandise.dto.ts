@@ -9,6 +9,7 @@ export const UpdateMerchandiseSchema = z.object({
     linkMerchandise: z.string().optional(),
     fotoMerchandise: z.array(z.string()).optional(),
     publishedAt: z.date().optional(),
+    existingFiles: z.array(z.string()).optional(), // Added for existing files
 });
 
 export class UpdateMerchandiseDto {
@@ -22,10 +23,11 @@ export class UpdateMerchandiseDto {
     stockMerchandise?: string;
     @ApiPropertyOptional({ example: 'https://link-merchandise.com' })
     linkMerchandise?: string;
-    @ApiPropertyOptional({ example: 'file type' })
+    @ApiPropertyOptional({ example: ['https://link-to-existing-file1.jpg', 'https://link-to-existing-file2.jpg'] })
     fotoMerchandise?: string[];
     @ApiPropertyOptional({ example: '2024-07-03T04:48:57.000Z' })
     publishedAt?: Date;
+    existingFiles?: string[]; // Added for existing files
 
     constructor(data: any) {
         const validatedData = UpdateMerchandiseSchema.parse(data);

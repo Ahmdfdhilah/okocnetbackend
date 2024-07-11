@@ -125,12 +125,19 @@ export class BeritaController {
   async update(
     @Param('id') id: string,
     @Param('userId') userId: string,
-    @UploadedFiles() files: {file: Express.Multer.File, file2: Express.Multer.File},
+    @UploadedFiles() files: { file?: Express.Multer.File[], file2?: Express.Multer.File[] },
     @Body() updateBeritaDto: UpdateBeritaDto,
   ): Promise<Berita> {
+    let fotoBerita: string | undefined;
+    let fotoContent: string | undefined;
 
-    const fotoBerita = getFileUrl('beritas', files.file[0]);
-    const fotoContent = getFileUrl('beritas', files.file2[0]);
+    if (files.file && files.file.length > 0) {
+      fotoBerita = getFileUrl('beritas', files.file[0]);
+    }
+
+    if (files.file2 && files.file2.length > 0) {
+      fotoContent = getFileUrl('beritas', files.file2[0]);
+    }
     try {
       return this.beritaService.update(id, userId, updateBeritaDto, fotoBerita, fotoContent);
     } catch (error) {

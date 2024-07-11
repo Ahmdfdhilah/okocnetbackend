@@ -63,7 +63,7 @@ import { StrukturPengurusModule } from './struktur-pengurus-direktorat/struktur-
             provide: APP_GUARD,
             useClass: ThrottlerGuard,
         },
-        RateLimiterMiddleware,
+        // RateLimiterMiddleware,
     ],
 })
 export class AppModule {
@@ -72,9 +72,9 @@ export class AppModule {
     async onModuleInit() {
         await this.seederService.seedAdminUser();
     }
-    configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(RateLimiterMiddleware)
-            .forRoutes('auth/login');
-    }
+    // configure(consumer: MiddlewareConsumer) {
+    //     consumer
+    //         .apply(RateLimiterMiddleware)
+    //         .forRoutes('auth/login');
+    // }
 }

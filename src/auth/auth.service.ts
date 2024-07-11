@@ -76,9 +76,7 @@ export class AuthService {
         throw new ConflictException('Username already exists');
       }
     }
-
-    const confirmationToken = randomBytes(20).toString('hex');
-
+    
     const user = await this.userService.create({
       ...userData,
       username,
