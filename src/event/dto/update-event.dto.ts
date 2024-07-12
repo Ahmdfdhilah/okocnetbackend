@@ -4,8 +4,8 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export const UpdateEventSchema = z.object({
   judulEvent: z.string().min(1).max(255).optional(),
   tanggalEvent: z.string().optional(),
-  hargaEvent: z.string().min(1).max(255).optional(),
-  pointEvent: z.string().min(1).max(255).optional(),
+  hargaEvent: z.number().optional(),
+  pointEvent: z.number().optional(),
   fotoEvent: z.string().min(1).optional(),
   urlPendaftaran: z.string().min(1).optional(),
   deskripsiEvent: z.array(z.string()),
@@ -25,10 +25,10 @@ export class UpdateEventDto {
   tanggalEvent?: string;
 
   @ApiPropertyOptional({ example: '100000' })
-  hargaEvent?: string;
+  hargaEvent?: number;
 
   @ApiPropertyOptional({ example: '10' })
-  pointEvent?: string;
+  pointEvent?: number;
 
   @ApiPropertyOptional({ example: 'path/to/foto.jpg' })
   fotoEvent?: string;

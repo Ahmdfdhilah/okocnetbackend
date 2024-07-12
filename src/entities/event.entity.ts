@@ -16,8 +16,8 @@ export class Event {
     @Column({ type: 'int', nullable: false })
     hargaEvent: number;
 
-    @Column({ type: 'varchar', length: 255, nullable: false })
-    pointEvent: string;
+    @Column({ type: 'int', nullable: false })
+    pointEvent: number;
 
     @Column({ type: 'varchar', nullable: false })
     fotoEvent: string;

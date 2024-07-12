@@ -10,7 +10,7 @@ export const CreateEventSchema = z.object({
   urlPendaftaran: z.string().min(1),
   deskripsiEvent:z.array(z.string()),
   tempatEvent: z.string().min(1),
-  quotaEvent: z.string().min(1).max(255),
+  quotaEvent: z.number(),
   durasiEvent: z.string().min(1).max(255),
   narasumber: z.string().min(1),
   contactPerson: z.string().min(1).max(255),
@@ -28,7 +28,7 @@ export class CreateEventDto {
   hargaEvent: number;
 
   @ApiProperty({ example: '10' })
-  pointEvent: string;
+  pointEvent: number;
 
   @ApiProperty({ example: 'path/to/foto.jpg' })
   fotoEvent: string;
