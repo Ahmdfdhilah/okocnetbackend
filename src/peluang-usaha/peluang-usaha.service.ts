@@ -86,8 +86,8 @@ export class PeluangUsahaService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PeluangUsaha[], total: number }> {
-        const { limit, search, sort, order } = query;
-        const cacheKey = `peluang-usahas_${limit}_${search}_${sort}_${order}`;
+        let { limit, page, search, sort, order } = query;
+        const cacheKey = `peluang-usahas_${limit}_${page}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -98,7 +98,7 @@ export class PeluangUsahaService {
             return result;
         }
 
-        this.logger.log(`Fetching from DB with limit: ${limit}`);
+        this.logger.log(`Fetching from DB`);
 
         const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
         if (sort && order) {
@@ -109,12 +109,32 @@ export class PeluangUsahaService {
             orderOption['createdAt'] = 'DESC';
         }
 
-        const [peluangUsahas, total] = await this.peluangUsahaRepository.findAndCount({
-            take: limit,
-            where: search ? { judulUsaha: Like(`%${search}%`) } : {},
+        const findOptions: any = {
             order: orderOption,
             relations: ['createdBy', 'updatedBy'],
-        });
+        };
+
+        if (limit && page) {
+            findOptions.take = parseInt(limit as any, 10);
+            findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
+        }
+
+        if (search) {
+            findOptions.where = { judulUsaha: Like(`%${search}%`) };
+        }
+
+        let peluangUsahas: PeluangUsaha[];
+        let total: number;
+
+        if (limit && page) {
+            const [result, count] = await this.peluangUsahaRepository.findAndCount(findOptions);
+            peluangUsahas = result;
+            total = count;
+        } else {
+            const result = await this.peluangUsahaRepository.find(findOptions);
+            peluangUsahas = result;
+            total = result.length;
+        }
 
         this.logger.log(`DB result - PeluangUsahas count: ${peluangUsahas.length}, Total count: ${total}`);
 
@@ -141,7 +161,7 @@ export class PeluangUsahaService {
 
     private async clearPeluangUsahasCache() {
         const keys = await redis.keys('peluang-usahas_*');
-        
+
         if (keys.length > 0) {
             await redis.del(...keys);
         }

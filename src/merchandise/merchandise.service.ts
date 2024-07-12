@@ -16,7 +16,7 @@ export class MerchandiseService {
     @InjectRepository(Merchandise)
     private readonly merchandiseRepository: Repository<Merchandise>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
 
   private readonly logger = new Logger(MerchandiseService.name);
 
@@ -45,81 +45,87 @@ export class MerchandiseService {
     let updatedMerchandise: Merchandise;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
-        const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
-        if (!user) {
-            throw new NotFoundException(`User with id ${userId} not found`);
-        }
-        const merchandise = await transactionalEntityManager.findOne(Merchandise, { where: { id } });
-        if (!merchandise) {
-            throw new NotFoundException(`Merchandise with id ${id} not found`);
-        }
-        const updatedBy = user;
+      const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
+      if (!user) {
+        throw new NotFoundException(`User with id ${userId} not found`);
+      }
+      const merchandise = await transactionalEntityManager.findOne(Merchandise, { where: { id } });
+      if (!merchandise) {
+        throw new NotFoundException(`Merchandise with id ${id} not found`);
+      }
+      const updatedBy = user;
 
-        const updatedData : Partial<Merchandise> = {
-            judulMerchandise: updateMerchandiseDto.judulMerchandise || merchandise.judulMerchandise,
-            deskripsiMerchandise: updateMerchandiseDto.deskripsiMerchandise || merchandise.deskripsiMerchandise,
-            hargaMerchandise: updateMerchandiseDto.hargaMerchandise || merchandise.hargaMerchandise,
-            stockMerchandise: updateMerchandiseDto.stockMerchandise || merchandise.stockMerchandise,
-            linkMerchandise: updateMerchandiseDto.linkMerchandise || merchandise.linkMerchandise,
-            publishedAt: updateMerchandiseDto.publishedAt || merchandise.publishedAt,
-            updatedBy,
-        };
+      const updatedData: Partial<Merchandise> = {
+        judulMerchandise: updateMerchandiseDto.judulMerchandise || merchandise.judulMerchandise,
+        deskripsiMerchandise: updateMerchandiseDto.deskripsiMerchandise || merchandise.deskripsiMerchandise,
+        hargaMerchandise: updateMerchandiseDto.hargaMerchandise || merchandise.hargaMerchandise,
+        stockMerchandise: updateMerchandiseDto.stockMerchandise || merchandise.stockMerchandise,
+        linkMerchandise: updateMerchandiseDto.linkMerchandise || merchandise.linkMerchandise,
+        publishedAt: updateMerchandiseDto.publishedAt || merchandise.publishedAt,
+        updatedBy,
+      };
 
-        if (imgSrcs) {
-            if (merchandise.fotoMerchandise) {
-                for (const oldImage of merchandise.fotoMerchandise) {
-                    if (!imgSrcs.includes(oldImage)) {
-                        const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(oldImage));
-                        if (fs.existsSync(oldImagePath)) {
-                            fs.unlinkSync(oldImagePath);
-                        }
-                    }
-                }
+      if (imgSrcs) {
+        if (merchandise.fotoMerchandise) {
+          for (const oldImage of merchandise.fotoMerchandise) {
+            if (!imgSrcs.includes(oldImage)) {
+              const oldImagePath = path.join(__dirname, '../../public/upload/merchandises', path.basename(oldImage));
+              if (fs.existsSync(oldImagePath)) {
+                fs.unlinkSync(oldImagePath);
+              }
             }
-            updatedData.fotoMerchandise = imgSrcs;
+          }
         }
+        updatedData.fotoMerchandise = imgSrcs;
+      }
 
-        Object.assign(merchandise, updatedData);
-        updatedMerchandise = await transactionalEntityManager.save(merchandise);
+      Object.assign(merchandise, updatedData);
+      updatedMerchandise = await transactionalEntityManager.save(merchandise);
     });
 
     await this.clearMerchandisesCache();
     return updatedMerchandise!;
-}
+  }
   async findOne(id: string): Promise<Merchandise | undefined> {
     return this.merchandiseRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
   }
 
   async findAll(query: QueryDto): Promise<{ data: Merchandise[], total: number }> {
-    const { limit, search, sort, order } = query;
-    const cacheKey = `merchandises_${limit}_${search}_${sort}_${order}`;
+    let { limit, page, search, sort, order } = query;
+    const cacheKey = `merchandises_${limit}_${page}_${search}_${sort}_${order}`;
 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
-      this.logger.log(`Cache hit for key: ${cacheKey}`);
-      const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
-      return result;
+        this.logger.log(`Cache hit for key: ${cacheKey}`);
+        const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+        return result;
     }
 
-    this.logger.log(`Fetching from DB with limit: ${limit}`);
+    this.logger.log(`Fetching from DB`);
 
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
-      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else if (order && !sort) {
-      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else {
-      orderOption['createdAt'] = 'DESC';
+        orderOption['createdAt'] = 'DESC';
     }
 
-    const [merchandises, total] = await this.merchandiseRepository.findAndCount({
-      take: limit,
-      where: search ? { judulMerchandise: Like(`%${search}%`) } : {},
-      order: orderOption,
-      relations: ['createdBy', 'updatedBy'],
-    });
+    const findOptions: any = {
+        where: search ? { judulMerchandise: Like(`%${search}%`) } : {},
+        order: orderOption,
+        relations: ['createdBy', 'updatedBy'],
+    };
+
+    if (limit && page) {
+        findOptions.take = parseInt(limit as any, 10);
+        findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
+    }
+
+    const [merchandises, total] = await this.merchandiseRepository.findAndCount(findOptions);
 
     this.logger.log(`DB result - Merchandises count: ${merchandises.length}, Total count: ${total}`);
 
@@ -127,7 +133,7 @@ export class MerchandiseService {
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;
-  }
+}
 
   async remove(id: string): Promise<void> {
     const merchandise = await this.merchandiseRepository.findOne({ where: { id } });
@@ -150,9 +156,9 @@ export class MerchandiseService {
 
   private async clearMerchandisesCache() {
     const keys = await redis.keys('merchandises_*');
-        
+
     if (keys.length > 0) {
-        await redis.del(...keys);
+      await redis.del(...keys);
     }
   }
 }

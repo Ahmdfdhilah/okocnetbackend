@@ -90,45 +90,64 @@ export class PenggerakOkoceService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PenggerakOkoce[], total: number }> {
-        const { limit, search, sort, order } = query;
-        const cacheKey = `penggerak-okoces_${limit}_${search}_${sort}_${order}`;
-
+        const { limit, page, search, sort, order } = query;
+        const cacheKey = `penggerak-okoces_${limit}_${page}_${search}_${sort}_${order}`;
+    
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-
+    
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
-          }
-      
-          this.logger.log(`Fetching from DB with limit: ${limit}`);
-      
-          const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
-          if (sort && order) {
+        }
+    
+        this.logger.log(`Fetching from DB`);
+    
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
             orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-          } else if (order && !sort) {
+        } else if (order && !sort) {
             orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-          }
-          else {
+        } else {
             orderOption['createdAt'] = 'DESC';
-          }
-      
-        const [penggerakOkoces, total] = await this.penggerakOkoceRepository.findAndCount({
-            take: limit,
-            where: search ? { namaPenggerak: Like(`%${search}%`) } : {},
+        }
+    
+        const findOptions: any = {
             order: orderOption,
             relations: ['createdBy', 'updatedBy'],
-        });
-
+        };
+    
+        if (limit && page) {
+            findOptions.take = parseInt(limit as any, 10);
+            findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
+        }
+    
+        if (search) {
+            findOptions.where = { namaPenggerak: Like(`%${search}%`) };
+        }
+    
+        let penggerakOkoces: PenggerakOkoce[];
+        let total: number;
+    
+        if (limit && page) {
+            const [result, count] = await this.penggerakOkoceRepository.findAndCount(findOptions);
+            penggerakOkoces = result;
+            total = count;
+        } else {
+            const result = await this.penggerakOkoceRepository.find(findOptions);
+            penggerakOkoces = result;
+            total = result.length;
+        }
+    
         this.logger.log(`DB result - PenggerakOkoces count: ${penggerakOkoces.length}, Total count: ${total}`);
-
+    
         const result = { data: penggerakOkoces, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-
+    
         return result;
     }
-
+    
     async remove(id: string): Promise<void> {
         const penggerakOkoce = await this.penggerakOkoceRepository.findOne({ where: { id } });
         if (!penggerakOkoce) {

@@ -106,8 +106,8 @@ export class EventService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: Event[], total: number }> {
-        const { limit, search, sort, order } = query;
-        const cacheKey = `events_${limit}_${search}_${sort}_${order}`;
+        let { limit, page, search, sort, order } = query;
+        const cacheKey = `events_${limit}_${page}_${search}_${sort}_${order}`;
 
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -118,7 +118,12 @@ export class EventService {
             return result;
         }
 
-        this.logger.log(`Fetching from DB with limit: ${limit}`);
+        this.logger.log(`Fetching from DB with limit: ${limit}, page: ${page}`);
+
+        page = page && parseInt(page.toString());
+        limit = limit && parseInt(limit.toString());
+
+        const skip = (page && !isNaN(page) && page > 0 && limit && !isNaN(limit) && limit > 0) ? (page - 1) * limit : undefined;
 
         const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
         if (sort && order) {
@@ -130,12 +135,18 @@ export class EventService {
             orderOption['createdAt'] = 'DESC';
         }
 
-        const [events, total] = await this.eventRepository.findAndCount({
+        const findOptions: any = {
             take: limit,
             where: search ? { judulEvent: Like(`%${search}%`) } : {},
             order: orderOption,
             relations: ['createdBy', 'updatedBy', 'deskripsiEvent'],
-        });
+        };
+
+        if (skip !== undefined) {
+            findOptions.skip = skip;
+        }
+
+        const [events, total] = await this.eventRepository.findAndCount(findOptions);
 
         this.logger.log(`DB result - Events count: ${events.length}, Total count: ${total}`);
         events.forEach(event => {

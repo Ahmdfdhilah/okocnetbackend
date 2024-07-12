@@ -87,20 +87,20 @@ export class PeluangKerjaService {
     }
 
     async findAll(query: QueryDto): Promise<{ data: PeluangKerja[], total: number }> {
-        const { limit, search, sort, order } = query;
-        const cacheKey = `peluang-kerjas_${limit}_${search}_${sort}_${order}`;
-
+        let { limit, page, search, sort, order } = query;
+        const cacheKey = `peluang-kerjas_${limit}_${page}_${search}_${sort}_${order}`;
+    
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-
+    
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
         }
-
-        this.logger.log(`Fetching from DB with limit: ${limit}`);
-
+    
+        this.logger.log(`Fetching from DB`);
+    
         const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
         if (sort && order) {
             orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -109,22 +109,31 @@ export class PeluangKerjaService {
         } else {
             orderOption['createdAt'] = 'DESC';
         }
-
-        const [peluangKerjas, total] = await this.peluangKerjaRepository.findAndCount({
-            take: limit,
+    
+        const findOptions: any = {
             where: search ? { judulKerja: Like(`%${search}%`) } : {},
             order: orderOption,
             relations: ['createdBy', 'updatedBy'],
-        });
-
+        };
+    
+        if (limit) {
+            findOptions.take = parseInt(limit as any, 10);
+        }
+    
+        if (page) {
+            findOptions.skip = (parseInt(page as any, 10) - 1) * (findOptions.take || 10);
+        }
+    
+        const [peluangKerjas, total] = await this.peluangKerjaRepository.findAndCount(findOptions);
+    
         this.logger.log(`DB result - PeluangKerjas count: ${peluangKerjas.length}, Total count: ${total}`);
-
+    
         const result = { data: peluangKerjas, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-
+    
         return result;
     }
-
+    
     async remove(id: string): Promise<void> {
         const peluangKerja = await this.peluangKerjaRepository.findOne({ where: { id } });
         if (!peluangKerja) {

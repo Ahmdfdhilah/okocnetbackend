@@ -40,13 +40,13 @@ export class MagangService {
       const teksKriteriaEntities = createMagangDto.kriteriaPeserta.map((str, index) => {
         const teks = new Teks();
         teks.str = str;
-        teks.order = index; 
+        teks.order = index;
         return teks;
       });
       const teksKompetensiEntities = createMagangDto.kompetensi.map((str, index) => {
         const teks = new Teks();
         teks.str = str;
-        teks.order = index; 
+        teks.order = index;
         return teks;
       });
 
@@ -85,7 +85,7 @@ export class MagangService {
         });
       }
       if (updateMagangDto.kompetensi) {
-        teksKompetensiEntities = updateMagangDto.kompetensi.map((str, index)  => {
+        teksKompetensiEntities = updateMagangDto.kompetensi.map((str, index) => {
           const teks = new Teks();
           teks.str = str;
           teks.order = index;
@@ -94,7 +94,7 @@ export class MagangService {
       }
       if (updateMagangDto.kriteriaPeserta) {
 
-        teksKriteriaEntities = updateMagangDto.kriteriaPeserta.map((str, index)  => {
+        teksKriteriaEntities = updateMagangDto.kriteriaPeserta.map((str, index) => {
           const teks = new Teks();
           teks.str = str;
           teks.order = index;
@@ -136,7 +136,7 @@ export class MagangService {
 
   async findOne(id: string): Promise<Magang | undefined> {
     const magang = await this.magangRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'kriteriaPeserta', 'kompetensi', 'deskripsiMagang'] });
-  
+
     if (magang) {
       magang.deskripsiMagang.sort((a, b) => a.order - b.order);
       magang.kriteriaPeserta.sort((a, b) => a.order - b.order);
@@ -146,8 +146,8 @@ export class MagangService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: Magang[], total: number }> {
-    const { limit, search, sort, order } = query;
-    const cacheKey = `magangs_${limit}_${search}_${sort}_${order}`;
+    let { limit, page, search, sort, order } = query;
+    const cacheKey = `magangs_${limit}_${page}_${search}_${sort}_${order}`;
 
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
@@ -158,24 +158,32 @@ export class MagangService {
       return result;
     }
 
-    this.logger.log(`Fetching from DB with limit: ${limit}`);
+    this.logger.log(`Fetching from DB`);
 
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
       orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else if (order && !sort) {
       orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    }
-    else {
+    } else {
       orderOption['createdAt'] = 'DESC';
     }
 
-    const [magangs, total] = await this.magangRepository.findAndCount({
-      take: limit,
+    const findOptions: any = {
       where: search ? { judulMagang: Like(`%${search}%`) } : {},
       order: orderOption,
       relations: ['createdBy', 'updatedBy', 'kriteriaPeserta', 'kompetensi', 'deskripsiMagang'],
-    });
+    };
+
+    if (limit) {
+      findOptions.take = parseInt(limit as any, 10);
+    }
+
+    if (page) {
+      findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
+    }
+
+    const [magangs, total] = await this.magangRepository.findAndCount(findOptions);
 
     this.logger.log(`DB result - Magangs count: ${magangs.length}, Total count: ${total}`);
 
@@ -184,13 +192,13 @@ export class MagangService {
       magang.kriteriaPeserta.sort((a, b) => a.order - b.order);
       magang.kompetensi.sort((a, b) => a.order - b.order);
     });
-  
+
     const result = { data: magangs, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-  
+
     return result;
   }
-
+  
   async remove(id: string): Promise<void> {
     const magang = await this.magangRepository.findOne({ where: { id } });
     if (!magang) {

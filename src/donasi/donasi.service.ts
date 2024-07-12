@@ -16,7 +16,7 @@ export class DonasiService {
     @InjectRepository(Donasi)
     private readonly donasiRepository: Repository<Donasi>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
   private readonly logger = new Logger(DonasiService.name);
 
   async create(createDonasiDto: CreateDonasiDto, userId: string, imgSrc: string): Promise<Donasi> {
@@ -53,7 +53,7 @@ export class DonasiService {
         throw new NotFoundException(`Donasi with id ${id} not found`);
       }
       const updatedBy = user;
-      
+
       const dataDonasi: Partial<Donasi> = {
         judulDonasi: updateDonasiDto.judulDonasi || donasi.judulDonasi,
         deskripsiDonasi: updateDonasiDto.deskripsiDonasi || donasi.deskripsiDonasi,
@@ -73,7 +73,7 @@ export class DonasiService {
       updatedDonasi = await transactionalEntityManager.save(donasi);
     });
 
-    await this.clearAllDonasiCache(); 
+    await this.clearAllDonasiCache();
     return updatedDonasi!;
   }
 
@@ -82,9 +82,10 @@ export class DonasiService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: Donasi[], total: number }> {
-    const { limit, search, sort, order } = query;
-    const cacheKey = `donasis_${limit}_${search}_${sort}_${order}`; 
+    let { limit, page, search, sort, order } = query;
+    const cacheKey = `donasis_${limit}_${page}_${search}_${sort}_${order}`;
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
+
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
       this.logger.log(`Cache hit for key: ${cacheKey}`);
@@ -92,27 +93,57 @@ export class DonasiService {
       return result;
     }
 
-    this.logger.log(`Fetching from DB with limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}, page: ${page}`);
 
+    // Check if limit and page are provided and convert them to integers
+    if (limit) {
+      limit = parseInt(limit as any, 10);
+    }
+    if (page) {
+      page = parseInt(page as any, 10);
+    }
+
+    // Determine skip based on pagination parameters, or fetch all if not provided
+    let skip = 0;
+    if (limit && page) {
+      skip = (page - 1) * limit;
+    }
+
+    // Define order options based on sort and order parameters
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
       orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else if (order && !sort) {
       orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    }
-    else {
+    } else {
       orderOption['createdAt'] = 'DESC';
     }
-
-    const [donasis, total] = await this.donasiRepository.findAndCount({
-      take: limit,
-      where: search ? { judulDonasi: Like(`%${search}%`) } : {},
-      order: orderOption,
-      relations: ['createdBy', 'updatedBy'],
-    });
+    
+    let donasis: Donasi[];
+    let total: number;
+    if (limit && page) {
+      const [result, count] = await this.donasiRepository.findAndCount({
+        take: limit,
+        skip: skip,
+        where: search ? { judulDonasi: Like(`%${search}%`) } : {},
+        order: orderOption,
+        relations: ['createdBy', 'updatedBy'],
+      });
+      donasis = result;
+      total = count;
+    } else {
+      const result = await this.donasiRepository.find({
+        where: search ? { judulDonasi: Like(`%${search}%`) } : {},
+        order: orderOption,
+        relations: ['createdBy', 'updatedBy'],
+      });
+      donasis = result;
+      total = result.length;
+    }
 
     this.logger.log(`DB result - Donasis count: ${donasis.length}, Total count: ${total}`);
 
+    // Cache the fetched data with a TTL of 3600 seconds (1 hour)
     const result = { data: donasis, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 

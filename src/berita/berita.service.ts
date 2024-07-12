@@ -88,7 +88,9 @@ export class BeritaService {
       if (fotoBerita) {
         if (berita.fotoBerita) {
           const oldImagePath = path.join(__dirname, '../../public/upload/beritas', path.basename(berita.fotoBerita));
-          fs.unlinkSync(oldImagePath);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
         dataBerita.fotoBerita = fotoBerita;
       }
@@ -96,7 +98,9 @@ export class BeritaService {
       if (fotoContent) {
         if (berita.fotoContent) {
           const oldImagePath = path.join(__dirname, '../../public/upload/beritas', path.basename(berita.fotoContent));
-          fs.unlinkSync(oldImagePath);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
         dataBerita.fotoContent = fotoContent;
       }
@@ -112,53 +116,81 @@ export class BeritaService {
   async findOne(id: string): Promise<Berita | undefined> {
     const berita = await this.beritaRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy', 'deskripsiBerita'] });
     if (berita) {
-      berita.deskripsiBerita.sort((a, b) => a.order - b.order); 
+      berita.deskripsiBerita.sort((a, b) => a.order - b.order);
     }
     return berita;
   }
 
   async findAll(query: QueryDto): Promise<{ data: Berita[], total: number }> {
-    const { limit, search, sort, order } = query;
-    const cacheKey = `beritas_${limit}_${search}_${sort}_${order}`; 
+    let { limit, page, search, sort, order } = query;
+    const cacheKey = `beritas_${limit}_${page}_${search}_${sort}_${order}`;
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
 
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
-      this.logger.log(`Cache hit for key: ${cacheKey}`);
-      const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
-      return result;
+        this.logger.log(`Cache hit for key: ${cacheKey}`);
+        const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+        return result;
     }
 
-    this.logger.log(`Fetching from DB with limit: ${limit}`);
+    this.logger.log(`Fetching from DB with limit: ${limit}, page: ${page}`);
+
+    if (limit) {
+        limit = parseInt(limit as any, 10);
+    }
+    if (page) {
+        page = parseInt(page as any, 10);
+    }
+
+    let skip = 0;
+    if (limit && page) {
+        skip = (page - 1) * limit;
+    }
 
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
-      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else if (order && !sort) {
-      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    }
-    else {
-      orderOption['createdAt'] = 'DESC';
+        orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else {
+        orderOption['createdAt'] = 'DESC';
     }
 
-    const [beritas, total] = await this.beritaRepository.findAndCount({
-      take: limit,
-      where: search ? { judulBerita: Like(`%${search}%`) } : {},
-      order: orderOption,
-      relations: ['createdBy', 'updatedBy', 'deskripsiBerita'],
-    });
+    let beritas: Berita[];
+    let total: number;
+    if (limit && page) {
+        const [result, count] = await this.beritaRepository.findAndCount({
+            take: limit,
+            skip: skip,
+            where: search ? { judulBerita: Like(`%${search}%`) } : {},
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy', 'deskripsiBerita'],
+        });
+        beritas = result;
+        total = count;
+    } else {
+        const result = await this.beritaRepository.find({
+            where: search ? { judulBerita: Like(`%${search}%`) } : {},
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy', 'deskripsiBerita'],
+        });
+        beritas = result;
+        total = result.length;
+    }
 
     this.logger.log(`DB result - Beritas count: ${beritas.length}, Total count: ${total}`);
 
     beritas.forEach(berita => {
-      berita.deskripsiBerita.sort((a, b) => a.order - b.order);
+        if (berita.deskripsiBerita) {
+            berita.deskripsiBerita.sort((a, b) => a.order - b.order);
+        }
     });
 
     const result = { data: beritas, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;
-  }
+}
 
   async remove(id: string): Promise<void> {
     const berita = await this.beritaRepository.findOne({ where: { id }, relations: ['deskripsiBerita'] });
@@ -167,7 +199,7 @@ export class BeritaService {
     }
     if (berita.fotoBerita) {
       const imagePath = path.join(__dirname, '../../public/upload/beritas', path.basename(berita.fotoBerita));
-      fs.unlinkSync(imagePath);
+      if (fs.existsSync(imagePath)) { fs.unlinkSync(imagePath); }
     }
 
     await this.beritaRepository.delete(id);

@@ -82,34 +82,51 @@ export class BrandLokalService {
   }
 
   async findAll(query: QueryDto): Promise<{ data: BrandLokal[], total: number }> {
-    const { limit, search, sort, order } = query;
-    const cacheKey = `brandLokals_${limit}_${search}_${sort}_${order}`; // membuat cache key yang dinamis
+    let { limit, page, search, sort, order } = query;
+    const cacheKey = `brandLokals_${limit}_${page}_${search}_${sort}_${order}`;
+
     this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
     const cachedData = await redis.get<string | null>(cacheKey);
     if (cachedData) {
-      this.logger.log(`Cache hit for key: ${cacheKey}`);
-      const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
-      return result;
+        this.logger.log(`Cache hit for key: ${cacheKey}`);
+        const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+        return result;
     }
 
-    this.logger.log(`Fetching from DB with limit: ${limit}`);
+    this.logger.log(`Fetching from DB`);
 
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
-      orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
     } else if (order && !sort) {
-      orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
-    }
-    else {
-      orderOption['createdAt'] = 'DESC';
+        orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    } else {
+        orderOption['createdAt'] = 'DESC';
     }
 
-    const [brandLokals, total] = await this.brandLokalRepository.findAndCount({
-      take: limit,
-      where: search ? { judulBrand: Like(`%${search}%`) } : {},
-      order: orderOption,
-      relations: ['createdBy', 'updatedBy'],
-    });
+    let brandLokals;
+    let total = 0;
+
+    if (limit && page) {
+        limit = parseInt(limit as any, 10);
+        page = parseInt(page as any, 10);
+
+        const skip = (page - 1) * limit;
+
+        [brandLokals, total] = await this.brandLokalRepository.findAndCount({
+            take: limit,
+            skip: skip,
+            where: search ? { judulBrand: Like(`%${search}%`) } : {},
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy'],
+        });
+    } else {
+        [brandLokals, total] = await this.brandLokalRepository.findAndCount({
+            where: search ? { judulBrand: Like(`%${search}%`) } : {},
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy'],
+        });
+    }
 
     this.logger.log(`DB result - BrandLokals count: ${brandLokals.length}, Total count: ${total}`);
 
@@ -117,7 +134,7 @@ export class BrandLokalService {
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
     return result;
-  }
+}
 
   async remove(id: string): Promise<void> {
     const brandLokal = await this.brandLokalRepository.findOne({ where: { id } });
