@@ -17,7 +17,7 @@ export const fileUploadOptions = (folder: string) => ({
 });
 
 export const getFileUrl = (folder: string, file: Express.Multer.File): string | null => {
-  return file ? `http://localhost:3000/public/upload/${folder}/${file.filename}` : null;
+  return file ? `/public/upload/${folder}/${file.filename}` : null;
 };
 
 export const getFileUrls = (folder: string, files: Express.Multer.File[]) => {
