@@ -27,10 +27,10 @@ async function bootstrap() {
   }));
 
   // Rate Limiting
-  // app.use(rateLimit({
-  //   windowMs: 15 * 60 * 1000, // 15 menit
-  //   max: 100, // limit tiap IP untuk 100 requests per windowMs
-  // }));
+  app.use(rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 menit
+    max: 100, // limit tiap IP untuk 100 requests per windowMs
+  }));
 
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
