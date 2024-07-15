@@ -6,22 +6,9 @@ export class Total {
     @PrimaryGeneratedColumn("uuid")
     id: string;
     @Column({ type: 'int', nullable: false })
-    totalUmkm: number;
-
-    @Column({ type: 'int', nullable: false })
-    totalPenggerak: number;
-
-    @Column({ type: 'int', nullable: false })
-    totalPelakuUsaha: number;
-
-    @Column({ type: 'int', nullable: false })
-    totalKerjaSamaSwasta: number;
-
-    @Column({ type: 'int', nullable: false })
-    totalKerjaSamaPemerintah: number;
-
-    @Column({ type: 'int', nullable: false })
-    totalKerjaSamaPendidikan: number;
+    total: number;
+    @Column({ type: 'varchar', nullable: false })
+    nama: string;
 
     @CreateDateColumn()
     createdAt: Date;

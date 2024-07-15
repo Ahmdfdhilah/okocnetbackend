@@ -7,16 +7,10 @@ export class Sosmed {
     id: string;
 
     @Column({ type: 'varchar', nullable: false })
-    ig: string
-    
+    link: string
+
     @Column({ type: 'varchar', nullable: false })
-    wa: string
-    
-    @Column({ type: 'varchar', nullable: false })
-    fb: string
-    
-    @Column({ type: 'varchar', nullable: false })
-    tw: string
+    nama: string
 
     @CreateDateColumn()
     createdAt: Date;
