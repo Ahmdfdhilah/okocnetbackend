@@ -27,31 +27,31 @@ async function bootstrap() {
   }));
 
   // Rate Limiting
-  app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
-    max: 100, // limit tiap IP untuk 100 requests per windowMs
-  }));
+  // app.use(rateLimit({
+  //   windowMs: 15 * 60 * 1000, // 15 menit
+  //   max: 100, // limit tiap IP untuk 100 requests per windowMs
+  // }));
 
-  app.useGlobalFilters(new ThrottlerExceptionFilter());
+  // app.useGlobalFilters(new ThrottlerExceptionFilter());
 
   app.enableCors();
 
   // Content Security Policy (CSP)
-  app.use((req, res, next) => {
-    res.setHeader(
-      "Content-Security-Policy",
-      "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
-    );
-    next();
-  });
+  // app.use((req, res, next) => {
+  //   res.setHeader(
+  //     "Content-Security-Policy",
+  //     "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
+  //   );
+  //   next();
+  // });
 
   // Security Headers
-  app.use((req, res, next) => {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    next();
-  });
+  // app.use((req, res, next) => {
+  //   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  //   res.setHeader('X-Content-Type-Options', 'nosniff');
+  //   res.setHeader('X-Frame-Options', 'DENY');
+  //   next();
+  // });
 
   await app.listen(3000);
 }

@@ -76,7 +76,7 @@ export class StrukturPengurusController {
     async findOne(@Param('id') id: string): Promise<StrukturPengurus> {
         return this.strukturPengurusService.findOne(id);
     }
-
+        
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-penguruses')))
     @ApiOperation({ summary: 'Update a StrukturPengurus by ID' })

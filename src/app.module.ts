@@ -22,14 +22,20 @@ import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
 import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
 import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
 import { StrukturPengurusModule } from './struktur-pengurus-direktorat/struktur-pengurus.module';
+import { SosmedModule } from './sosmed/sosmed.module';
+import { MitraModule } from './mitra/mitra.module';
+import { ReviewModule } from './review/review.module';
+import { TotalModule } from './total/total.module';
+import { DeskripsiModule } from './deskripsi/deskripsi.module';
+import { BannerModule } from './banner/banner.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot(),
-        ThrottlerModule.forRoot([{
-            ttl: 10,
-            limit: 10,
-        }]),
+        // ThrottlerModule.forRoot([{
+        //     ttl: 10,
+        //     limit: 10,
+        // }]),
         ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mysql',
@@ -39,7 +45,7 @@ import { StrukturPengurusModule } from './struktur-pengurus-direktorat/struktur-
             database: process.env.DB_NAME,
             password: process.env.DB_PASSWORD,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: false
+            synchronize: true
         }),
         UsersModule,
         BeritaModule,
@@ -53,17 +59,23 @@ import { StrukturPengurusModule } from './struktur-pengurus-direktorat/struktur-
         PeluangUsahaModule,
         StrukturPengurusModule,
         PenggerakOkoceModule,
+        MitraModule,
+        TotalModule,
+        DeskripsiModule,
+        BannerModule,
+        SosmedModule,
+        ReviewModule,
         SeederModule,
         AuthModule,
     ],
     providers: [
         MailService,
         BackupService,
-        {
-            provide: APP_GUARD,
-            useClass: ThrottlerGuard,
-        },
-        RateLimiterMiddleware,
+        // {
+        //     provide: APP_GUARD,
+        //     useClass: ThrottlerGuard,
+        // },
+        // RateLimiterMiddleware,
     ],
 })
 export class AppModule {
@@ -72,9 +84,9 @@ export class AppModule {
     async onModuleInit() {
         await this.seederService.seedAdminUser();
     }
-    configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(RateLimiterMiddleware)
-            .forRoutes('auth/login');
-    }
+    // configure(consumer: MiddlewareConsumer) {
+    //     consumer
+    //         .apply(RateLimiterMiddleware)
+    //         .forRoutes('auth/login');
+    // }
 }
