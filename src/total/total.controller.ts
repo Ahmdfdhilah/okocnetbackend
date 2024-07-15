@@ -13,7 +13,7 @@ export class TotalController {
 
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Total' })
-    @ApiConsumes('application/json')
+    @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
             type: 'object',
@@ -26,8 +26,9 @@ export class TotalController {
                 },
                 nama: {
                     type: 'string',
-                    description: 'Name of the total.',
-                    example: 'Total A',
+                    enum: ['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan'],
+                    description: 'Name of the social media platform.',
+                    example: 'umkm',
                 },
                 publishedAt: {
                     type: 'string',
@@ -64,7 +65,7 @@ export class TotalController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })
-    @ApiConsumes('application/json')
+    @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
             type: 'object',
@@ -76,8 +77,9 @@ export class TotalController {
                 },
                 nama: {
                     type: 'string',
-                    description: 'Name of the total.',
-                    example: 'Updated Total A',
+                    enum: ['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan'],
+                    description: 'Name of the social media platform.',
+                    example: 'umkm',
                 },
                 publishedAt: {
                     type: 'string',

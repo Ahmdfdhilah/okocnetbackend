@@ -1,16 +1,17 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 import { User } from './user.entity';
 
+
 @Entity('sosmeds')
 export class Sosmed {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column({ type: 'varchar', nullable: false })
-    link: string
+    link: string;
 
-    @Column({ type: 'varchar', nullable: false })
-    nama: string
+    @Column({ type: 'enum', enum: ['whatsapp', 'instagram', 'twitter', 'facebook'], nullable: false })
+    nama: string;
 
     @CreateDateColumn()
     createdAt: Date;

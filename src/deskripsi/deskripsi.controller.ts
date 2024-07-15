@@ -1,7 +1,7 @@
 // src/deskripsi/deskripsi.controller.ts
 
 import { Controller, Post, Body, Get, Put, Param } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiConsumes } from '@nestjs/swagger';
 import { DeskripsiService } from './deskripsi.service';
 import { DeskripsiDTO } from './dto/deskripsi.dto';
 
@@ -12,6 +12,7 @@ export class DeskripsiController {
 
     @Post()
     @ApiOperation({ summary: 'Create a new Deskripsi' })
+    @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
             type: 'object',
@@ -46,6 +47,7 @@ export class DeskripsiController {
 
     @Put(':id')
     @ApiOperation({ summary: 'Update a Deskripsi by ID' })
+    @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Deskripsi ID' })
     @ApiBody({
         schema: {

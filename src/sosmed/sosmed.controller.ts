@@ -1,3 +1,4 @@
+// src/sosmed/sosmed.controller.ts
 import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
 import { SosmedService } from './sosmed.service';
 import { Sosmed } from 'src/entities/sosmed.entity';
@@ -17,7 +18,7 @@ export class SosmedController {
     @ApiBody({
         schema: {
             type: 'object',
-            required: ['link', 'nama', 'publishedAt'],
+            required: ['link', 'nama'],
             properties: {
                 link: {
                     type: 'string',
@@ -26,6 +27,7 @@ export class SosmedController {
                 },
                 nama: {
                     type: 'string',
+                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook'],
                     description: 'Name of the social media platform.',
                     example: 'Twitter',
                 },
@@ -75,6 +77,7 @@ export class SosmedController {
                 },
                 nama: {
                     type: 'string',
+                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook'],
                     description: 'Name of the social media platform.',
                     example: 'Twitter',
                 },

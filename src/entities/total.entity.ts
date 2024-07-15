@@ -7,7 +7,8 @@ export class Total {
     id: string;
     @Column({ type: 'int', nullable: false })
     total: number;
-    @Column({ type: 'varchar', nullable: false })
+
+    @Column({ type: 'enum', enum: ['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan'], nullable: false })
     nama: string;
 
     @CreateDateColumn()

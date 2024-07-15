@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CreateTotalSchema = z.object({
     total: z.number(),
-    nama: z.string().min(1).max(255),
+    nama: z.enum(['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan']),
     publishedAt: z.date().nullable(),
 });
 
