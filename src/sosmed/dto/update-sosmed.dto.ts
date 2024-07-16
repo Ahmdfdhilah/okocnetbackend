@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const UpdateSosmedDto = z.object({
     link: z.optional(z.string()),
-    nama: z.optional(z.enum(['whatsapp', 'instagram', 'twitter', 'facebook'])),
+    nama: z.optional(z.enum(['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok'])),
     publishedAt: z.optional(z.date()),
 });
 

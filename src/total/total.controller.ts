@@ -13,7 +13,7 @@ export class TotalController {
 
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Total' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',
@@ -44,6 +44,7 @@ export class TotalController {
         @Param('userId') userId: string,
         @Body() createTotalDto: CreateTotalDto,
     ): Promise<Total> {
+        console.log(createTotalDto);
         return this.totalService.create(createTotalDto, userId);
     }
 
@@ -65,7 +66,7 @@ export class TotalController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',

@@ -12,7 +12,7 @@ export class DeskripsiController {
 
     @Post()
     @ApiOperation({ summary: 'Create a new Deskripsi' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',
@@ -47,7 +47,7 @@ export class DeskripsiController {
 
     @Put(':id')
     @ApiOperation({ summary: 'Update a Deskripsi by ID' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiParam({ name: 'id', description: 'Deskripsi ID' })
     @ApiBody({
         schema: {

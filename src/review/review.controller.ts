@@ -13,7 +13,7 @@ export class ReviewController {
 
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Review' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',
@@ -68,7 +68,7 @@ export class ReviewController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Review by ID' })
     @ApiParam({ name: 'id', description: 'Review ID' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',

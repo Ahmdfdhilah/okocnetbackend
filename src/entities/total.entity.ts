@@ -8,7 +8,7 @@ export class Total {
     @Column({ type: 'int', nullable: false })
     total: number;
 
-    @Column({ type: 'enum', enum: ['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan'], nullable: false })
+    @Column({ type: 'enum', enum: ['umkm', 'penggerak', 'usaha', 'swasta', 'pemerintah', 'pendidikan'], nullable: false, unique: true })
     nama: string;
 
     @CreateDateColumn()

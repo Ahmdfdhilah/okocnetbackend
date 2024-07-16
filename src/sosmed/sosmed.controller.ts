@@ -14,7 +14,7 @@ export class SosmedController {
 
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Sosmed' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',
@@ -27,7 +27,7 @@ export class SosmedController {
                 },
                 nama: {
                     type: 'string',
-                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook'],
+                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok'],
                     description: 'Name of the social media platform.',
                     example: 'Twitter',
                 },
@@ -65,7 +65,7 @@ export class SosmedController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     @ApiBody({
         schema: {
             type: 'object',
@@ -77,7 +77,7 @@ export class SosmedController {
                 },
                 nama: {
                     type: 'string',
-                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook'],
+                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok'],
                     description: 'Name of the social media platform.',
                     example: 'Twitter',
                 },
