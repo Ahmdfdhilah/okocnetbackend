@@ -1,11 +1,12 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Repository, Like } from 'typeorm';
 import { Mitra } from 'src/entities/mitra.entity';
 import { CreateMitraDto } from './dto/create-mitra.dto';
 import { UpdateMitraDto } from './dto/update-mitra.dto';
 import { User } from 'src/entities/user.entity';
 import redis from 'src/lib/redis-client';
+import { QueryDto } from 'src/lib/query.dto';
 
 @Injectable()
 export class MitraService {
@@ -58,7 +59,7 @@ export class MitraService {
             const updatedBy = user;
 
             const updatedData = {
-                publishedAt: updateMitraDto.publishedAt || mitra.publishedAt,
+                ...updateMitraDto,
                 updatedBy: updatedBy,
                 foto: imgSrc || mitra.foto,
             };
@@ -75,8 +76,63 @@ export class MitraService {
         return this.mitraRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
     }
 
-    async findAll(): Promise<Mitra[]> {
-        return this.mitraRepository.find({ relations: ['createdBy', 'updatedBy'] });
+    async findAll(query: QueryDto): Promise<{ data: Mitra[], total: number }> {
+        const { limit, page, search, sort, order } = query;
+        const cacheKey = `mitras_${limit}_${page}_${search}_${sort}_${order}`;
+
+        this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
+
+        const cachedData = await redis.get<string | null>(cacheKey);
+        if (cachedData) {
+            this.logger.log(`Cache hit for key: ${cacheKey}`);
+            const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
+            return result;
+        }
+
+        this.logger.log(`Fetching from DB`);
+
+        const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
+        if (sort && order) {
+            orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else if (order && !sort) {
+            orderOption['createdAt'] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+        } else {
+            orderOption['createdAt'] = 'DESC';
+        }
+
+        const findOptions: any = {
+            order: orderOption,
+            relations: ['createdBy', 'updatedBy'],
+        };
+
+        if (limit && page) {
+            findOptions.take = parseInt(limit as any, 10);
+            findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
+        }
+
+        if (search) {
+            findOptions.where = { nama: Like(`%${search}%`) };
+        }
+
+        let mitras: Mitra[];
+        let total: number;
+
+        if (limit && page) {
+            const [result, count] = await this.mitraRepository.findAndCount(findOptions);
+            mitras = result;
+            total = count;
+        } else {
+            const result = await this.mitraRepository.find(findOptions);
+            mitras = result;
+            total = result.length;
+        }
+
+        this.logger.log(`DB result - Mitras count: ${mitras.length}, Total count: ${total}`);
+
+        const result = { data: mitras, total };
+        await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
+
+        return result;
     }
 
     async remove(id: string): Promise<void> {

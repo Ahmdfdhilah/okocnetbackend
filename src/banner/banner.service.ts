@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
 import { Banner } from 'src/entities/banner.entity';
 import { User } from 'src/entities/user.entity';
-import { CreateBannerDto } from './dto/create-banner.dto';
-import { UpdateBannerDto } from './dto/update-banner.dto';
+import { BannerDto } from './dto/banner.dto';
 import redis from 'src/lib/redis-client';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -17,9 +16,9 @@ export class BannerService {
     @InjectRepository(Banner)
     private readonly bannerRepository: Repository<Banner>,
     private readonly entityManager: EntityManager,
-  ) {}
+  ) { }
 
-  async create(createBannerDto: CreateBannerDto, userId: string, imgSrc: string): Promise<Banner> {
+  async create(createBannerDto: BannerDto, userId: string, imgSrc: string): Promise<Banner> {
     let newBanner: Banner;
 
     await this.entityManager.transaction(async transactionalEntityManager => {
@@ -41,50 +40,8 @@ export class BannerService {
     return newBanner!;
   }
 
-  async update(
-    id: string,
-    userId: string,
-    updateBannerDto: UpdateBannerDto,
-    imgSrc?: string,
-  ): Promise<Banner> {
-    let updatedBanner: Banner;
-
-    await this.entityManager.transaction(async transactionalEntityManager => {
-      const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
-      if (!user) {
-        throw new NotFoundException(`User with id ${userId} not found`);
-      }
-
-      const banner = await transactionalEntityManager.findOne(Banner, { where: { id } });
-      if (!banner) {
-        throw new NotFoundException(`Banner with id ${id} not found`);
-      }
-
-      const updatedBy = user;
-      const updatedData = {
-        ...banner,
-        ...updateBannerDto,
-        updatedBy: updatedBy,
-        foto: imgSrc || banner.foto,
-      };
-
-      if (imgSrc && banner.foto) {
-        const oldImagePath = path.join(__dirname, '../../public/upload/banners', path.basename(banner.foto));
-        if (oldImagePath) {
-          fs.unlinkSync(oldImagePath);
-        }
-      }
-
-      Object.assign(banner, updatedData);
-      updatedBanner = await transactionalEntityManager.save(banner);
-    });
-
-    await this.clearAllBannerCache();
-    return updatedBanner!;
-  }
-
   async findOne(id: string): Promise<Banner | undefined> {
-    return this.bannerRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
+    return this.bannerRepository.findOne({ where: { id } });
   }
 
   async findAll(): Promise<Banner[]> {
@@ -99,7 +56,7 @@ export class BannerService {
     }
 
     this.logger.log(`Fetching from DB`);
-    const banners = await this.bannerRepository.find({ relations: ['createdBy', 'updatedBy'] });
+    const banners = await this.bannerRepository.find({ order: { order: 'ASC' } }); 
     this.logger.log(`DB result - Banners count: ${banners.length}`);
 
     await redis.set(cacheKey, JSON.stringify(banners), { ex: 3600 });
@@ -118,6 +75,30 @@ export class BannerService {
     }
 
     await this.bannerRepository.delete(id);
+    await this.clearAllBannerCache();
+  }
+
+  async updateBannerOrder(bannerId: string, newOrder: number): Promise<void> {
+    const banner = await this.bannerRepository.findOne({ where: { id: bannerId } });
+    if (!banner) {
+      throw new NotFoundException(`Banner with id ${bannerId} not found`);
+    }
+
+    banner.order = newOrder;
+    await this.bannerRepository.save(banner);
+  }
+
+  async reorderBanners(banners: { id: string, order: number }[]): Promise<void> {
+    const updatePromises = banners.map(async (banner, index) => {
+      const foundBanner = await this.bannerRepository.findOne({ where: { id: banner.id } });
+      if (!foundBanner) {
+        throw new NotFoundException(`Banner with id ${banner.id} not found`);
+      }
+      foundBanner.order = index + 1;
+      await this.bannerRepository.save(foundBanner);
+    });
+
+    await Promise.all(updatePromises);
     await this.clearAllBannerCache();
   }
 

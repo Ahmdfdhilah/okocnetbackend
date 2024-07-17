@@ -28,6 +28,7 @@ import { ReviewModule } from './review/review.module';
 import { TotalModule } from './total/total.module';
 import { DeskripsiModule } from './deskripsi/deskripsi.module';
 import { BannerModule } from './banner/banner.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
     imports: [
@@ -64,6 +65,7 @@ import { BannerModule } from './banner/banner.module';
         DeskripsiModule,
         BannerModule,
         SosmedModule,
+        ProfileModule,
         ReviewModule,
         SeederModule,
         AuthModule,

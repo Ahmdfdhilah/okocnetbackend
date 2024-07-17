@@ -6,6 +6,7 @@ import { UpdateMitraDto } from './dto/update-mitra.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { QueryDto } from 'src/lib/query.dto';
 
 @Controller('mitras')
 @ApiTags('mitras')
@@ -19,8 +20,14 @@ export class MitraController {
     @ApiBody({
         schema: {
             type: 'object',
-            required: ['file', 'publishedAt'],
+            required: ['file', 'publishedAt', 'nama'],
             properties: {
+                nama: {
+                    type: 'string',
+                    format: 'text',
+                    description: 'nama mitra',
+                    example: 'mitra okoce',
+                },
                 file: {
                     type: 'string',
                     format: 'binary',
@@ -48,8 +55,8 @@ export class MitraController {
     @Get()
     @ApiOperation({ summary: 'Get all Mitra' })
     @ApiResponse({ status: 200, description: 'Returns all Mitra' })
-    async findAll(): Promise<Mitra[]> {
-        return this.mitraService.findAll();
+    async findAll(@Query() query: QueryDto): Promise<{ data: Mitra[], total: number }> {
+        return this.mitraService.findAll(query);
     }
 
     @Get(':id')
@@ -69,6 +76,12 @@ export class MitraController {
         schema: {
             type: 'object',
             properties: {
+                nama: {
+                    type: 'string',
+                    format: 'text',
+                    description: 'nama mitra',
+                    example: 'mitra okoce',
+                },
                 file: {
                     type: 'string',
                     format: 'binary',

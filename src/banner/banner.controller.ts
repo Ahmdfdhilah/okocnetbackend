@@ -1,11 +1,9 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { Banner } from 'src/entities/banner.entity';
-import { CreateBannerDto } from './dto/create-banner.dto';
-import { UpdateBannerDto } from './dto/update-banner.dto';
+import { BannerDto } from './dto/banner.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('banners')
@@ -40,7 +38,7 @@ export class BannerController {
     async create(
         @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
-        @Body() createBannerDto: CreateBannerDto,
+        @Body() createBannerDto: BannerDto,
     ): Promise<Banner> {
         const imgSrc = getFileUrl('banners', file);
         return this.bannerService.create(createBannerDto, userId, imgSrc);
@@ -49,8 +47,32 @@ export class BannerController {
     @Get()
     @ApiOperation({ summary: 'Get all Banners' })
     @ApiResponse({ status: 200, description: 'Returns all Banners' })
-    async findAll(@Query() query: QueryDto): Promise<Banner[]> {
+    async findAll(): Promise<Banner[]> {
         return this.bannerService.findAll();
+    }
+
+    @Put('reorder')
+    @ApiOperation({ summary: 'Reorder Banners' })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            required: ['banners'],
+            properties: {
+                banners: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            order: { type: 'integer' },
+                        },
+                    },
+                },
+            },
+        },
+    })
+    async reorderBanners(@Body('banners') banners: { id: string, order: number }[]): Promise<void> {
+        await this.bannerService.reorderBanners(banners);
     }
 
     @Get(':id')
@@ -60,46 +82,12 @@ export class BannerController {
     async findOne(@Param('id') id: string): Promise<Banner> {
         return this.bannerService.findOne(id);
     }
-        
-    @Put(':id/:userId')
-    @UseInterceptors(FileInterceptor('file', fileUploadOptions('banners')))
-    @ApiOperation({ summary: 'Update a Banner by ID' })
-    @ApiParam({ name: 'id', description: 'Banner ID' })
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({
-        schema: {
-            type: 'object',
-            properties: {
-                file: {
-                    type: 'string',
-                    format: 'binary',
-                    description: 'File upload',
-                    example: 'file.jpg',
-                },
-                publishedAt: {
-                    type: 'string',
-                    format: 'date-time',
-                    description: 'Tanggal publikasi',
-                    example: '2024-07-03T04:48:57.000Z',
-                },
-            },
-        },
-    })
-    async update(
-        @Param('id') id: string,
-        @Param('userId') userId: string,
-        @UploadedFile() file: Express.Multer.File,
-        @Body() updateBannerDto: UpdateBannerDto,
-    ): Promise<Banner> {
-        const imgSrc = getFileUrl('banners', file);
-        return this.bannerService.update(id, userId, updateBannerDto, imgSrc);
-    }
 
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Banner by ID' })
     @ApiParam({ name: 'id', description: 'Banner ID' })
     @ApiResponse({ status: 204, description: 'Banner successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
-        return this.bannerService.remove(id);
+        await this.bannerService.remove(id);
     }
 }

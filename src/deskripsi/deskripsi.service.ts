@@ -11,26 +11,22 @@ export class DeskripsiService {
         private readonly deskripsiRepository: Repository<Deskripsi>,
     ) { }
 
-    async create(deskripsiDto: DeskripsiDTO): Promise<Deskripsi> {
-        const deskripsi = this.deskripsiRepository.create(deskripsiDto);
-        return await this.deskripsiRepository.save(deskripsi);
+    async createOrUpdate(deskripsiDto: DeskripsiDTO): Promise<Deskripsi> {
+        const existingDeskripsi = await this.deskripsiRepository.find();
+        if (existingDeskripsi.length > 0) {
+            const updatedDeskripsi = this.deskripsiRepository.merge(existingDeskripsi[0], deskripsiDto);
+            return await this.deskripsiRepository.save(updatedDeskripsi);
+        } else {
+            const newDeskripsi = this.deskripsiRepository.create(deskripsiDto);
+            return await this.deskripsiRepository.save(newDeskripsi);
+        }
     }
 
-    async findOne(id: string): Promise<Deskripsi> {
-        const deskripsi = await this.deskripsiRepository.findOne({ where: { id } });
-        if (!deskripsi) {
+    async findOne(): Promise<Deskripsi> {
+        const deskripsi = await this.deskripsiRepository.find({});
+        if (deskripsi.length === 0) {
             throw new NotFoundException('Deskripsi not found');
         }
-        return deskripsi;
-    }
-
-    async update(deskripsiDto: DeskripsiDTO, id: string): Promise<Deskripsi> {
-        const deskripsi = await this.deskripsiRepository.findOne({ where: { id } });
-        if (!deskripsi) {
-            throw new NotFoundException('Deskripsi not found');
-        }
-
-        const updatedDeskripsi = this.deskripsiRepository.merge(deskripsi, deskripsiDto);
-        return await this.deskripsiRepository.save(updatedDeskripsi);
+        return deskripsi[0];
     }
 }

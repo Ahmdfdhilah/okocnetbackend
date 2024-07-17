@@ -5,6 +5,9 @@ import { User } from './user.entity';
 export class Mitra {
     @PrimaryGeneratedColumn("uuid")
     id: string;
+    
+    @Column({ type: 'varchar', nullable: true })
+    nama: string;
 
     @Column({ type: 'varchar', nullable: true })
     foto: string;

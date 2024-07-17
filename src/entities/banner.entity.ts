@@ -3,7 +3,7 @@ import { User } from './user.entity';
 
 @Entity('banners')
 export class Banner {
-    @PrimaryGeneratedColumn("uuid")
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @Column({ type: 'varchar', nullable: true })
@@ -23,4 +23,7 @@ export class Banner {
 
     @ManyToOne(() => User, { nullable: true })
     updatedBy: User;
+
+    @Column({ type: 'int', nullable: true, default: 0 })
+    order: number; 
 }
