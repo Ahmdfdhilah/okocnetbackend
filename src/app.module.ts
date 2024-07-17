@@ -33,10 +33,10 @@ import { ProfileModule } from './profile/profile.module';
 @Module({
     imports: [
         ConfigModule.forRoot(),
-        // ThrottlerModule.forRoot([{
-        //     ttl: 10,
-        //     limit: 10,
-        // }]),
+        ThrottlerModule.forRoot([{
+            ttl: 10,
+            limit: 10,
+        }]),
         ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mysql',
