@@ -9,7 +9,7 @@ export class Deskripsi {
     @Column({ type: 'varchar', nullable: false })
     title: string
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'text', nullable: false })
     deskripsi: string
 
     @CreateDateColumn()
