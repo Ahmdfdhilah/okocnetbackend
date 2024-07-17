@@ -9,7 +9,7 @@ export class Deskripsi {
     @Column({ type: 'varchar', nullable: false })
     title: string
 
-    @Column({ type: 'text', nullable: false })
+    @Column({ type: 'varchar', nullable: false })
     deskripsi: string
 
     @CreateDateColumn()
@@ -17,6 +17,9 @@ export class Deskripsi {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @Column({ type: 'timestamp', nullable: true })
+    publishedAt: Date;
 
     @ManyToOne(() => User, { nullable: true })
     createdBy: User;

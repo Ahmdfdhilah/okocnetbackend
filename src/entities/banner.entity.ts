@@ -3,7 +3,7 @@ import { User } from './user.entity';
 
 @Entity('banners')
 export class Banner {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn("uuid")
     id: string;
 
     @Column({ type: 'varchar', nullable: true })
