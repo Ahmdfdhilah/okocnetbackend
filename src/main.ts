@@ -17,7 +17,7 @@ async function bootstrap() {
   
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const PORT = process.env.PORT || 3000
-  
+
   app.useStaticAssets('public/upload/', {
     prefix: '/public/upload/',
   });
@@ -38,7 +38,7 @@ async function bootstrap() {
   // Rate Limiting
   app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 menit
-    max: 100, // limit tiap IP untuk 100 requests per windowMs
+    max: 100, // limit tiap IP untuk 100 requests per Ms
   }));
 
   app.useGlobalFilters(new ThrottlerExceptionFilter());
