@@ -32,7 +32,9 @@ import { ProfileModule } from './profile/profile.module';
 
 @Module({
     imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
         ThrottlerModule.forRoot([{
             ttl: 10,
             limit: 10,
@@ -46,7 +48,7 @@ import { ProfileModule } from './profile/profile.module';
             database: process.env.DB_NAME,
             password: process.env.DB_PASSWORD,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: true
+            synchronize: process.env.NODE_ENV !== 'production'?true:false
         }),
         UsersModule,
         BeritaModule,

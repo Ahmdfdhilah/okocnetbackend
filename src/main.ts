@@ -5,10 +5,19 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import rateLimit from 'express-rate-limit';
+import * as dotenv from 'dotenv';
 
 async function bootstrap() {
+
+  if (process.env.NODE_ENV === 'production') {
+    dotenv.config({ path: '.env.prod' });
+  } else {
+    dotenv.config({ path: '.env' });
+  }
+  
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const PORT = process.env.PORT || 3000
+  
   app.useStaticAssets('public/upload/', {
     prefix: '/public/upload/',
   });
