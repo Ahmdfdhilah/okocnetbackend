@@ -17,4 +17,10 @@ export class Deskripsi {
 
     @UpdateDateColumn()
     updatedAt: Date;
+
+    @ManyToOne(() => User, { nullable: true })
+    createdBy: User;
+
+    @ManyToOne(() => User, { nullable: true })
+    updatedBy: User;
 }
