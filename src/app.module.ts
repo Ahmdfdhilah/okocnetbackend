@@ -73,11 +73,11 @@ import { ProfileModule } from './profile/profile.module';
     providers: [
         MailService,
         BackupService,
-        // {
-        //     provide: APP_GUARD,
-        //     useClass: ThrottlerGuard,
-        // },
-        // RateLimiterMiddleware,
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        RateLimiterMiddleware,
     ],
 })
 export class AppModule {
@@ -86,9 +86,9 @@ export class AppModule {
     async onModuleInit() {
         await this.seederService.seedAdminUser();
     }
-    // configure(consumer: MiddlewareConsumer) {
-    //     consumer
-    //         .apply(RateLimiterMiddleware)
-    //         .forRoutes('auth/login');
-    // }
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(RateLimiterMiddleware)
+            .forRoutes('auth/login');
+    }
 }
