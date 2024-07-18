@@ -1,4 +1,3 @@
-import { Exclude } from 'class-transformer';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity('users')
@@ -6,14 +5,13 @@ export class User {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column({unique: true})
+    @Column({ unique: true })
     username: string;
 
     @Column({ unique: true })
     email: string;
 
-    @Column()
-    @Exclude({ toPlainOnly: true }) 
+    @Column({ select: false })
     password: string;
 
     @Column({ nullable: true })
