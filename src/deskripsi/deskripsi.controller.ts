@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Put, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { DeskripsiService } from './deskripsi.service';
 import { DeskripsiDTO } from './dto/deskripsi.dto';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -15,6 +15,7 @@ export class DeskripsiController {
     @Roles('admin')
     @Post()
     @ApiOperation({ summary: 'Create or Update Deskripsi' })
+    @ApiBearerAuth()
     @ApiConsumes('application/json')
     @ApiBody({
         schema: {

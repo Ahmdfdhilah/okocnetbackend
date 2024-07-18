@@ -5,7 +5,7 @@ import { Sosmed } from 'src/entities/sosmed.entity';
 import { CreateSosmedDto } from './dto/create-sosmed.dto';
 import { UpdateSosmedDto } from './dto/update-sosmed.dto';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -19,6 +19,7 @@ export class SosmedController {
     @Roles('admin')
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Sosmed' })
+    @ApiBearerAuth()
     @ApiConsumes('application/json')
     @ApiBody({
         schema: {
@@ -73,6 +74,7 @@ export class SosmedController {
     @ApiOperation({ summary: 'Update a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
     @ApiConsumes('application/json')
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             type: 'object',
@@ -108,6 +110,7 @@ export class SosmedController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @Delete(':id')
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
     async remove(@Param('id') id: string): Promise<void> {

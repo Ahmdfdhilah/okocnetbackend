@@ -4,7 +4,7 @@ import { Review } from 'src/entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -19,6 +19,7 @@ export class ReviewController {
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Review' })
     @ApiConsumes('application/json')
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             type: 'object',
@@ -75,6 +76,7 @@ export class ReviewController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Review by ID' })
     @ApiParam({ name: 'id', description: 'Review ID' })
+    @ApiBearerAuth()
     @ApiConsumes('application/json')
     @ApiBody({
         schema: {
@@ -117,6 +119,7 @@ export class ReviewController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Review by ID' })
     @ApiParam({ name: 'id', description: 'Review ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'Review successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.reviewService.remove(id);

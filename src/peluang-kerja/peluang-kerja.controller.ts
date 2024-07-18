@@ -5,7 +5,7 @@ import { CreatePeluangKerjaDto} from './dto/create-peluang-kerja.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { UpdatePeluangKerjaDto } from './dto/update-peluang-kerja.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -21,6 +21,7 @@ export class PeluangKerjaController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-kerjas')))
     @ApiOperation({ summary: 'Create a new Peluang Kerja' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -124,6 +125,7 @@ export class PeluangKerjaController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-kerjas')))
     @ApiOperation({ summary: 'Update a Peluang Kerja by ID' })
     @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth()
     @ApiParam({ name: 'id', description: 'Peluang Kerja ID' })
     @ApiBody({
         schema: {
@@ -210,6 +212,7 @@ export class PeluangKerjaController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @Delete(':id')
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete a Peluang Kerja by ID' })
     @ApiParam({ name: 'id', description: 'Peluang Kerja ID' })
     @ApiResponse({ status: 204, description: 'Peluang Kerja successfully deleted' })

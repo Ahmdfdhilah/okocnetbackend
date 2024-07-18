@@ -6,7 +6,7 @@ import { CreateDonasiDto } from './dto/create-donasi.dto';
 import { UpdateDonasiDto } from './dto/update-donasi.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
@@ -21,6 +21,7 @@ export class DonasiController {
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Donasi' })
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -80,6 +81,7 @@ export class DonasiController {
   @Roles('admin')
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Donasi by ID' })
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiParam({ name: 'id', description: 'Donasi ID' })
   @ApiBody({
@@ -121,11 +123,12 @@ export class DonasiController {
     const imgSrc = getFileUrl('donasis', file);
     return this.donasiService.update(id, userId, updateDonasiDto, imgSrc);
   }
-  
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Donasi by ID' })
+  @ApiBearerAuth()
   @ApiParam({ name: 'id', description: 'Donasi ID' })
   @ApiResponse({ status: 204, description: 'Donasi successfully deleted' })
   async remove(@Param('id') id: string): Promise<void> {

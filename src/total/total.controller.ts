@@ -4,7 +4,7 @@ import { Total } from 'src/entities/total.entity';
 import { CreateTotalDto } from './dto/create-total.dto';
 import { UpdateTotalDto } from './dto/update-total.dto';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -18,6 +18,7 @@ export class TotalController {
     @Roles('admin')
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Total' })
+    @ApiBearerAuth()
     @ApiConsumes('application/json')
     @ApiBody({
         schema: {
@@ -73,6 +74,7 @@ export class TotalController {
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })
+    @ApiBearerAuth()
     @ApiConsumes('application/json')
     @ApiBody({
         schema: {
@@ -112,6 +114,7 @@ export class TotalController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'The Total has been successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.totalService.remove(id);

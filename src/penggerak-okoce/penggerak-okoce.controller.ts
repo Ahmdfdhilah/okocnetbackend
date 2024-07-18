@@ -5,7 +5,7 @@ import { CreatePenggerakOkoceDto} from './dto/create-penggerak-okoce.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { UpdatePenggerakOkoceDto } from './dto/update-penggerak-okoce.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -21,6 +21,7 @@ export class PenggerakOkoceController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('penggerak-okoces')))
     @ApiOperation({ summary: 'Create a new PenggerakOkoce' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -80,6 +81,7 @@ export class PenggerakOkoceController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('penggerak-okoces')))
     @ApiOperation({ summary: 'Update a PenggerakOkoce by ID' })
     @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth()
     @ApiParam({ name: 'id', description: 'PenggerakOkoce ID' })
     @ApiBody({
         schema: {
@@ -123,6 +125,7 @@ export class PenggerakOkoceController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a PenggerakOkoce by ID' })
     @ApiParam({ name: 'id', description: 'PenggerakOkoce ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'PenggerakOkoce successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.penggerakOkoceService.remove(id);

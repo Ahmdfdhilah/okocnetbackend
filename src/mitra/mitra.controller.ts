@@ -5,7 +5,7 @@ import { CreateMitraDto } from './dto/create-mitra.dto';
 import { UpdateMitraDto } from './dto/update-mitra.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { QueryDto } from 'src/lib/query.dto';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
@@ -21,6 +21,7 @@ export class MitraController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('mitras')))
     @ApiOperation({ summary: 'Create a new Mitra' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -78,6 +79,7 @@ export class MitraController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('mitras')))
     @ApiOperation({ summary: 'Update a Mitra by ID' })
     @ApiParam({ name: 'id', description: 'Mitra ID' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -119,6 +121,7 @@ export class MitraController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Mitra by ID' })
     @ApiParam({ name: 'id', description: 'Mitra ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'Mitra successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.mitraService.remove(id);

@@ -6,7 +6,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express'; // Sesuaikan i
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { CreateBeritaDto } from './dto/create-berita.dto';
 import { UpdateBeritaDto } from './dto/update-berita.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -21,6 +21,7 @@ export class BeritaController {
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Berita' })
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -99,6 +100,7 @@ export class BeritaController {
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Berita by ID' })
   @ApiParam({ name: 'id', description: 'Berita ID' })
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -152,12 +154,13 @@ export class BeritaController {
       throw new HttpException('Failed to update Berita', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Berita by ID' })
   @ApiParam({ name: 'id', description: 'Berita ID' })
+  @ApiBearerAuth()
   @ApiResponse({ status: 204, description: 'Berita successfully deleted' })
   async remove(@Param('id') id: string): Promise<void> {
     console.log('Delete Berita - id:', id);

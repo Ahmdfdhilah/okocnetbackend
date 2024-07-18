@@ -6,7 +6,7 @@ import { CreateMagangDto } from './dto/create-magang.dto';
 import { UpdateMagangDto } from './dto/update-magang.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
@@ -20,6 +20,7 @@ export class MagangController {
   @Roles('admin')
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Magang' })
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -130,6 +131,7 @@ export class MagangController {
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Magang by ID' })
   @ApiParam({ name: 'id', description: 'Magang ID' })
+  @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -225,6 +227,7 @@ export class MagangController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Magang by ID' })
   @ApiParam({ name: 'id', description: 'Magang ID' })
+  @ApiBearerAuth()
   @ApiResponse({ status: 204, description: 'Magang successfully deleted' })
   async remove(@Param('id') id: string): Promise<void> {
     return this.magangService.remove(id);

@@ -6,7 +6,7 @@ import { UpdateStrukturPengurusDto } from './dto/update-struktur-pengurus.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -21,6 +21,7 @@ export class StrukturPengurusController {
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-penguruses')))
     @ApiOperation({ summary: 'Create a new StrukturPengurus' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -88,6 +89,7 @@ export class StrukturPengurusController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-penguruses')))
     @ApiOperation({ summary: 'Update a StrukturPengurus by ID' })
     @ApiParam({ name: 'id', description: 'StrukturPengurus ID' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -139,6 +141,7 @@ export class StrukturPengurusController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a StrukturPengurus by ID' })
     @ApiParam({ name: 'id', description: 'StrukturPengurus ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'StrukturPengurus successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.strukturPengurusService.remove(id);

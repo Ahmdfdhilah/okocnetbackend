@@ -6,7 +6,7 @@ import { CreateBrandLokalDto } from './dto/create-brand-lokal.dto';
 import { UpdateBrandLokalDto } from './dto/update-brand-lokal.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -21,6 +21,7 @@ export class BrandLokalController {
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Brand Lokal' })
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiBody({
     schema: {
       type: 'object',
@@ -67,6 +68,7 @@ export class BrandLokalController {
   @Roles('admin')
   @Put(':id/:userId')
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a Brand Lokal by ID' })
   @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
   @ApiBody({
@@ -99,6 +101,7 @@ export class BrandLokalController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin')
   @Delete(':id')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a Brand Lokal by ID' })
   @ApiParam({ name: 'id', description: 'Brand Lokal ID' })
   @ApiResponse({ status: 204, description: 'Brand Lokal successfully deleted' })

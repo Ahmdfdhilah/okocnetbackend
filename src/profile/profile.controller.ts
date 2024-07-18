@@ -6,7 +6,7 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
@@ -22,6 +22,7 @@ export class ProfileController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('profiles')))
     @ApiOperation({ summary: 'Create a new Profile' })
     @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             type: 'object',
@@ -80,6 +81,7 @@ export class ProfileController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('profiles')))
     @ApiOperation({ summary: 'Update a Profile by ID' })
     @ApiParam({ name: 'id', description: 'Profile ID' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -123,6 +125,7 @@ export class ProfileController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Profile by ID' })
     @ApiParam({ name: 'id', description: 'Profile ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'Profile successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.profileService.remove(id);

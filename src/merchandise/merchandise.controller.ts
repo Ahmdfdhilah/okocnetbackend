@@ -6,7 +6,7 @@ import { UpdateMerchandiseDto } from './dto/update-merchandise.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrls } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
@@ -21,6 +21,7 @@ export class MerchandiseController {
     @Post(':userId')
     @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Create a new Merchandise' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
@@ -101,6 +102,7 @@ export class MerchandiseController {
     @Put(':id/:userId')
     @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Update a Merchandise by ID' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Merchandise ID' })
     @ApiBody({
@@ -182,6 +184,7 @@ export class MerchandiseController {
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Merchandise by ID' })
     @ApiParam({ name: 'id', description: 'Merchandise ID' })
+    @ApiBearerAuth()
     @ApiResponse({ status: 204, description: 'Merchandise successfully deleted' })
     async remove(@Param('id') id: string): Promise<void> {
         return this.merchandiseService.remove(id);

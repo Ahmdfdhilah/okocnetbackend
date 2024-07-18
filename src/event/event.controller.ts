@@ -6,7 +6,7 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { Roles } from 'src/auth/decorators/roles.decorators';
@@ -22,6 +22,7 @@ export class EventController {
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('events')))
     @ApiOperation({ summary: 'Create a new Event' })
     @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth()
     @ApiBody({
         schema: {
             type: 'object',
@@ -132,6 +133,7 @@ export class EventController {
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('events')))
     @ApiOperation({ summary: 'Update an Event by ID' })
+    @ApiBearerAuth()
     @ApiConsumes('multipart/form-data')
     @ApiParam({ name: 'id', description: 'Event ID' })
     @ApiBody({
@@ -227,6 +229,7 @@ export class EventController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @Delete(':id')
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Delete an Event by ID' })
     @ApiParam({ name: 'id', description: 'Event ID' })
     @ApiResponse({ status: 204, description: 'Event successfully deleted' })
