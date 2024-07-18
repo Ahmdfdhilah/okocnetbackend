@@ -1,16 +1,21 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
 import { TotalService } from './total.service';
 import { Total } from 'src/entities/total.entity';
 import { CreateTotalDto } from './dto/create-total.dto';
 import { UpdateTotalDto } from './dto/update-total.dto';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('totals')
 @Controller('totals')
 export class TotalController {
     constructor(private readonly totalService: TotalService) {}
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Total' })
     @ApiConsumes('application/json')
@@ -63,6 +68,8 @@ export class TotalController {
         return this.totalService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })
@@ -100,6 +107,8 @@ export class TotalController {
         return this.totalService.update(id, userId, updateTotalDto);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Total by ID' })
     @ApiParam({ name: 'id', description: 'Total ID' })

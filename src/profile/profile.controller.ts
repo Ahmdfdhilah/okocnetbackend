@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { ProfileService } from './profile.service';
 import { Profile } from 'src/entities/profile.entity';
 import { CreateProfileDto } from './dto/create-profile.dto';
@@ -7,12 +7,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 
 @Controller('profiles')
 @ApiTags('profiles')
 export class ProfileController {
     constructor(private readonly profileService: ProfileService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('profiles')))
     @ApiOperation({ summary: 'Create a new Profile' })

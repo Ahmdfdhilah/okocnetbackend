@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFiles, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFiles, Query, UseGuards } from '@nestjs/common';
 import { MerchandiseService } from './merchandise.service';
 import { Merchandise } from 'src/entities/merchandise.entity';
 import { CreateMerchandiseDto } from './dto/create-merchandise.dto';
@@ -7,12 +7,17 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrls } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @Controller('merchandises')
 @ApiTags('merchandises')
 export class MerchandiseController {
     constructor(private readonly merchandiseService: MerchandiseService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Create a new Merchandise' })
@@ -91,6 +96,8 @@ export class MerchandiseController {
         return this.merchandiseService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @UseInterceptors(FilesInterceptor('files', 10, fileUploadOptions('merchandises')))
     @ApiOperation({ summary: 'Update a Merchandise by ID' })
@@ -170,6 +177,8 @@ export class MerchandiseController {
         return this.merchandiseService.update(id, updateMerchandiseDto, userId, imgSrcs);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Merchandise by ID' })
     @ApiParam({ name: 'id', description: 'Merchandise ID' })

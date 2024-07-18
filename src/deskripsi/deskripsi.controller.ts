@@ -1,13 +1,18 @@
-import { Controller, Post, Body, Get, Put, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Put, Param, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiParam, ApiConsumes } from '@nestjs/swagger';
 import { DeskripsiService } from './deskripsi.service';
 import { DeskripsiDTO } from './dto/deskripsi.dto';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('deskripsi')
 @Controller('deskripsi')
 export class DeskripsiController {
     constructor(private readonly deskripsiService: DeskripsiService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post()
     @ApiOperation({ summary: 'Create or Update Deskripsi' })
     @ApiConsumes('application/json')

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { MitraService } from './mitra.service';
 import { Mitra } from 'src/entities/mitra.entity';
 import { CreateMitraDto } from './dto/create-mitra.dto';
@@ -7,12 +7,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { QueryDto } from 'src/lib/query.dto';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @Controller('mitras')
 @ApiTags('mitras')
 export class MitraController {
     constructor(private readonly mitraService: MitraService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('mitras')))
     @ApiOperation({ summary: 'Create a new Mitra' })
@@ -67,6 +72,8 @@ export class MitraController {
         return this.mitraService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('mitras')))
     @ApiOperation({ summary: 'Update a Mitra by ID' })
@@ -107,6 +114,8 @@ export class MitraController {
         return this.mitraService.update(id, userId, updateMitraDto, imgSrc);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Mitra by ID' })
     @ApiParam({ name: 'id', description: 'Mitra ID' })

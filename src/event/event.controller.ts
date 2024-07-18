@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import { Event } from 'src/entities/event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -7,12 +7,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
 
 @Controller('events')
 @ApiTags('events')
 export class EventController {
     constructor(private readonly eventService: EventService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('events')))
     @ApiOperation({ summary: 'Create a new Event' })
@@ -122,6 +127,8 @@ export class EventController {
         return this.eventService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('events')))
     @ApiOperation({ summary: 'Update an Event by ID' })
@@ -217,6 +224,8 @@ export class EventController {
         return this.eventService.update(id, userId, updateEventDto, imgSrc);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete an Event by ID' })
     @ApiParam({ name: 'id', description: 'Event ID' })

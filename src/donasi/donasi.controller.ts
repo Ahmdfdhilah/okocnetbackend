@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { DonasiService } from './donasi.service';
 import { Donasi } from 'src/entities/donasi.entity';
 import { QueryDto } from 'src/lib/query.dto';
@@ -7,12 +7,17 @@ import { UpdateDonasiDto } from './dto/update-donasi.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 
 @Controller('donasis')
 @ApiTags('donasis')
 export class DonasiController {
   constructor(private readonly donasiService: DonasiService) {}
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Donasi' })
   @ApiConsumes('multipart/form-data')
@@ -71,6 +76,8 @@ export class DonasiController {
     return this.donasiService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Donasi by ID' })
   @ApiConsumes('multipart/form-data')
@@ -114,7 +121,9 @@ export class DonasiController {
     const imgSrc = getFileUrl('donasis', file);
     return this.donasiService.update(id, userId, updateDonasiDto, imgSrc);
   }
-
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Donasi by ID' })
   @ApiParam({ name: 'id', description: 'Donasi ID' })

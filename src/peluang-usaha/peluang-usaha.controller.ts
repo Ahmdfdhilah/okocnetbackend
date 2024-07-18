@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { PeluangUsahaService } from './peluang-usaha.service';
 import { PeluangUsaha } from 'src/entities/peluang-usaha.entity';
 import { CreatePeluangUsahaDto } from './dto/create-peluang-usaha.dto';
@@ -7,12 +7,17 @@ import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { UpdatePeluangUsahaDto } from './dto/update-peluang-usaha.dto';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @Controller('peluang-usahas')
 @ApiTags('peluang-usahas')
 export class PeluangUsahaController {
     constructor(private readonly peluangUsahaService: PeluangUsahaService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-usahas')))
     @ApiOperation({ summary: 'Create a new Peluang Usaha' })
@@ -107,6 +112,8 @@ export class PeluangUsahaController {
         return this.peluangUsahaService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('peluang-usahas')))
     @ApiOperation({ summary: 'Update a Peluang Usaha by ID' })
@@ -181,6 +188,8 @@ export class PeluangUsahaController {
         return this.peluangUsahaService.update(id, userId, updatePeluangUsahaDto, imgSrc);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Peluang Usaha by ID' })
     @ApiParam({ name: 'id', description: 'Peluang Usaha ID' })

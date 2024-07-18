@@ -1,17 +1,22 @@
 // src/sosmed/sosmed.controller.ts
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
 import { SosmedService } from './sosmed.service';
 import { Sosmed } from 'src/entities/sosmed.entity';
 import { CreateSosmedDto } from './dto/create-sosmed.dto';
 import { UpdateSosmedDto } from './dto/update-sosmed.dto';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('sosmeds')
 @Controller('sosmeds')
 export class SosmedController {
     constructor(private readonly sosmedService: SosmedService) {}
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Sosmed' })
     @ApiConsumes('application/json')
@@ -62,6 +67,8 @@ export class SosmedController {
         return this.sosmedService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
@@ -98,6 +105,8 @@ export class SosmedController {
         return this.sosmedService.update(id, userId, updateSosmedDto);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFiles, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFiles, HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { BeritaService } from './berita.service';
 import { Berita } from 'src/entities/berita.entity';
 import { QueryDto } from 'src/lib/query.dto';
@@ -7,12 +7,17 @@ import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { CreateBeritaDto } from './dto/create-berita.dto';
 import { UpdateBeritaDto } from './dto/update-berita.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
 
 @Controller('beritas')
 @ApiTags('beritas')
 export class BeritaController {
   constructor(private readonly beritaService: BeritaService) { }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Berita' })
   @ApiConsumes('multipart/form-data')
@@ -34,7 +39,7 @@ export class BeritaController {
           example: 'file2.jpg',
         },
         judulBerita: { type: 'string', example: 'Judul Berita', description: 'Judul dari berita' },
-        deskripsiBerita: { 
+        deskripsiBerita: {
           type: 'array',
           items: {
             type: 'string',
@@ -50,12 +55,12 @@ export class BeritaController {
     },
   })
   @UseInterceptors(FileFieldsInterceptor([
-    { name: "file" , maxCount:1},
-    { name: "file2" , maxCount:1}
+    { name: "file", maxCount: 1 },
+    { name: "file2", maxCount: 1 }
   ], fileUploadOptions('beritas')))
   async create(
     @Param('userId') userId: string,
-    @UploadedFiles() files: {file: Express.Multer.File, file2: Express.Multer.File},
+    @UploadedFiles() files: { file: Express.Multer.File, file2: Express.Multer.File },
     @Body() createBeritaDto: CreateBeritaDto,
   ): Promise<Berita> {
     if (typeof createBeritaDto.deskripsiBerita === 'string') {
@@ -89,6 +94,8 @@ export class BeritaController {
     return this.beritaService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id/:userId')
   @ApiOperation({ summary: 'Update a Berita by ID' })
   @ApiParam({ name: 'id', description: 'Berita ID' })
@@ -119,8 +126,8 @@ export class BeritaController {
     },
   })
   @UseInterceptors(FileFieldsInterceptor([
-    { name: "file" , maxCount:1},
-    { name: "file2" , maxCount:1}
+    { name: "file", maxCount: 1 },
+    { name: "file2", maxCount: 1 }
   ], fileUploadOptions('beritas')))
   async update(
     @Param('id') id: string,
@@ -145,7 +152,9 @@ export class BeritaController {
       throw new HttpException('Failed to update Berita', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
+  
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Berita by ID' })
   @ApiParam({ name: 'id', description: 'Berita ID' })

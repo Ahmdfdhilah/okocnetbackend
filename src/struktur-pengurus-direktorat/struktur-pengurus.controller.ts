@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { StrukturPengurusService } from './struktur-pengurus.service';
 import { StrukturPengurus } from 'src/entities/struktur-pengurus.entity';
 import { CreateStrukturPengurusDto } from './dto/create-struktur-pengurus.dto';
@@ -7,12 +7,17 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @Controller('struktur-penguruses')
 @ApiTags('struktur-penguruses')
 export class StrukturPengurusController {
     constructor(private readonly strukturPengurusService: StrukturPengurusService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-penguruses')))
     @ApiOperation({ summary: 'Create a new StrukturPengurus' })
@@ -77,6 +82,8 @@ export class StrukturPengurusController {
         return this.strukturPengurusService.findOne(id);
     }
         
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('struktur-penguruses')))
     @ApiOperation({ summary: 'Update a StrukturPengurus by ID' })
@@ -127,6 +134,8 @@ export class StrukturPengurusController {
         return this.strukturPengurusService.update(id, userId, updateStrukturPengurusDto, imgSrc);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a StrukturPengurus by ID' })
     @ApiParam({ name: 'id', description: 'StrukturPengurus ID' })

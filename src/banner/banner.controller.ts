@@ -1,16 +1,21 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { BannerService } from './banner.service';
 import { Banner } from 'src/entities/banner.entity';
 import { BannerDto } from './dto/banner.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @Controller('banners')
 @ApiTags('banners')
 export class BannerController {
     constructor(private readonly bannerService: BannerService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('banners')))
     @ApiOperation({ summary: 'Create a new Banner' })
@@ -50,7 +55,8 @@ export class BannerController {
     async findAll(): Promise<Banner[]> {
         return this.bannerService.findAll();
     }
-
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put('reorder')
     @ApiOperation({ summary: 'Reorder Banners' })
     @ApiBody({
@@ -82,7 +88,9 @@ export class BannerController {
     async findOne(@Param('id') id: string): Promise<Banner> {
         return this.bannerService.findOne(id);
     }
-
+    
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Banner by ID' })
     @ApiParam({ name: 'id', description: 'Banner ID' })

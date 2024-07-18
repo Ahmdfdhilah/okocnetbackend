@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { MagangService } from './magang.service';
 import { Magang } from 'src/entities/magang.entity';
 import { QueryDto } from 'src/lib/query.dto';
@@ -7,12 +7,17 @@ import { UpdateMagangDto } from './dto/update-magang.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 
 @Controller('magangs')
 @ApiTags('magangs')
 export class MagangController {
   constructor(private readonly magangService: MagangService) { }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Magang' })
   @ApiConsumes('multipart/form-data')

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Put, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { BrandLokalService } from './brand-lokal.service';
 import { BrandLokal } from 'src/entities/brand-lokal.entity';
 import { QueryDto } from 'src/lib/query.dto';
@@ -7,19 +7,24 @@ import { UpdateBrandLokalDto } from './dto/update-brand-lokal.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
 
 @Controller('brand-lokals')
 @ApiTags('brand-lokals')
 export class BrandLokalController {
-  constructor(private readonly brandLokalService: BrandLokalService) {}
+  constructor(private readonly brandLokalService: BrandLokalService) { }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Post(':userId')
   @ApiOperation({ summary: 'Create a new Brand Lokal' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
-      required:['judulBrand', 'deskripsiBrand', 'publishedAt', 'file'],
+      required: ['judulBrand', 'deskripsiBrand', 'publishedAt', 'file'],
       properties: {
         file: {
           type: 'string',
@@ -27,9 +32,9 @@ export class BrandLokalController {
           description: 'File upload',
           example: 'file.jpg',
         },
-        judulBrand: { type: 'string' , example: 'Brand Lokal'},
+        judulBrand: { type: 'string', example: 'Brand Lokal' },
         deskripsiBrand: { type: 'string', example: 'Deskripsi Brand Lokal' },
-        publishedAt: { type: 'string', format: 'date-time' ,example: '2024-07-03T04:48:57.000Z' },
+        publishedAt: { type: 'string', format: 'date-time', example: '2024-07-03T04:48:57.000Z' },
       },
     },
   })
@@ -58,6 +63,8 @@ export class BrandLokalController {
     return this.brandLokalService.findOne(id);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Put(':id/:userId')
   @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update a Brand Lokal by ID' })
@@ -72,9 +79,9 @@ export class BrandLokalController {
           description: 'File upload',
           example: 'file.jpg',
         },
-        judulBrand: { type: 'string' , example: 'Brand Lokal'},
+        judulBrand: { type: 'string', example: 'Brand Lokal' },
         deskripsiBrand: { type: 'string', example: 'Deskripsi Brand Lokal' },
-        publishedAt: { type: 'string', format: 'date-time' ,example: '2024-07-03T04:48:57.000Z' },
+        publishedAt: { type: 'string', format: 'date-time', example: '2024-07-03T04:48:57.000Z' },
       },
     },
   })
@@ -89,6 +96,8 @@ export class BrandLokalController {
     return this.brandLokalService.update(id, userId, updateBrandLokalDto, imgSrc);
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a Brand Lokal by ID' })
   @ApiParam({ name: 'id', description: 'Brand Lokal ID' })

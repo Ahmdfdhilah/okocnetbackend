@@ -1,16 +1,21 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { ReviewService } from './review.service';
 import { Review } from 'src/entities/review.entity';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { Roles } from 'src/auth/decorators/roles.decorators';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
 
 @ApiTags('reviews')
 @Controller('reviews')
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) {}
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @ApiOperation({ summary: 'Create a new Review' })
     @ApiConsumes('application/json')
@@ -65,6 +70,8 @@ export class ReviewController {
         return this.reviewService.findOne(id);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Put(':id/:userId')
     @ApiOperation({ summary: 'Update a Review by ID' })
     @ApiParam({ name: 'id', description: 'Review ID' })
@@ -105,6 +112,8 @@ export class ReviewController {
         return this.reviewService.update(id, userId, updateReviewDto);
     }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Delete(':id')
     @ApiOperation({ summary: 'Delete a Review by ID' })
     @ApiParam({ name: 'id', description: 'Review ID' })

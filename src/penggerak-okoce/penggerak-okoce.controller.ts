@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, UseInterceptors, UploadedFile, Query, UseGuards } from '@nestjs/common';
 import { PenggerakOkoceService } from './penggerak-okoce.service';
 import { PenggerakOkoce } from 'src/entities/penggerak-okoce.entity';
 import { CreatePenggerakOkoceDto} from './dto/create-penggerak-okoce.dto';
@@ -7,12 +7,17 @@ import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
 import { QueryDto } from 'src/lib/query.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { UpdatePenggerakOkoceDto } from './dto/update-penggerak-okoce.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
+import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { Roles } from 'src/auth/decorators/roles.decorators';
 
 @Controller('penggerak-okoces')
 @ApiTags('penggerak-okoces')
 export class PenggerakOkoceController {
     constructor(private readonly penggerakOkoceService: PenggerakOkoceService) { }
 
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('admin')
     @Post(':userId')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('penggerak-okoces')))
     @ApiOperation({ summary: 'Create a new PenggerakOkoce' })
