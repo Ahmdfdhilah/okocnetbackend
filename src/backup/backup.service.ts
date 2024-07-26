@@ -5,7 +5,7 @@ import * as mysql from 'mysql2/promise';
 @Injectable()
 export class BackupService {
     private readonly logger = new Logger(BackupService.name);
-
+    
     @Cron('0 0 * * *')  // cron job untuk berjalan setiap hari pada tengah malam
     async handleCron() {
         this.logger.debug('Starting database backup...');

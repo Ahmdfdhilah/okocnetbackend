@@ -121,7 +121,9 @@ export class MagangService {
       if (imgSrc) {
         if (magang.fotoMagang) {
           const oldImagePath = path.join(__dirname, '../../public/upload/magangs', path.basename(magang.fotoMagang));
-          fs.unlinkSync(oldImagePath);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
         updatedData.fotoMagang = imgSrc;
       }
@@ -198,7 +200,7 @@ export class MagangService {
 
     return result;
   }
-  
+
   async remove(id: string): Promise<void> {
     const magang = await this.magangRepository.findOne({ where: { id } });
     if (!magang) {
@@ -207,7 +209,8 @@ export class MagangService {
 
     if (magang.fotoMagang) {
       const imagePath = path.join(__dirname, '../../public/upload/magangs', path.basename(magang.fotoMagang));
-      fs.unlinkSync(imagePath);
+      if (fs.existsSync(imagePath)) { fs.unlinkSync(imagePath); }
+
     }
 
     await this.magangRepository.delete(id);

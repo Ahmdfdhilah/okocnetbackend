@@ -64,7 +64,9 @@ export class BrandLokalService {
       if (imgSrc) {
         if (brandLokal.fotoBrand) {
           const oldImagePath = path.join(__dirname, '../../public/upload/brand-lokals', path.basename(brandLokal.fotoBrand));
-          fs.unlinkSync(oldImagePath);
+          if(fs.existsSync(oldImagePath)){
+            fs.unlinkSync(oldImagePath);
+          }
         }
         dataBrandLokal.fotoBrand = imgSrc;
       }
@@ -73,7 +75,7 @@ export class BrandLokalService {
       updatedBrandLokal = await transactionalEntityManager.save(brandLokal);
     });
 
-    await this.clearAllBrandLokalCache(); // hapus semua cache yang relevan
+    await this.clearAllBrandLokalCache(); 
     return updatedBrandLokal!;
   }
 
@@ -143,11 +145,13 @@ export class BrandLokalService {
     }
     if (brandLokal.fotoBrand) {
       const imagePath = path.join(__dirname, '../../public/upload/brand-lokals', path.basename(brandLokal.fotoBrand));
-      fs.unlinkSync(imagePath);
+      if(fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
 
     await this.brandLokalRepository.delete(id);
-    await this.clearAllBrandLokalCache(); // hapus semua cache yang relevan
+    await this.clearAllBrandLokalCache(); 
   }
 
   private async clearAllBrandLokalCache(): Promise<void> {

@@ -36,7 +36,7 @@ export class DonasiService {
       );
     });
 
-    await this.clearAllDonasiCache(); // hapus semua cache yang relevan
+    await this.clearAllDonasiCache();
     return newDonasi!;
   }
 
@@ -64,7 +64,9 @@ export class DonasiService {
       if (imgSrc) {
         if (donasi.fotoDonasi) {
           const oldImagePath = path.join(__dirname, '../../public/upload/donasis', path.basename(donasi.fotoDonasi));
-          fs.unlinkSync(oldImagePath);
+          if (fs.existsSync(oldImagePath)) {
+            fs.unlinkSync(oldImagePath);
+          }
         }
         dataDonasi.fotoDonasi = imgSrc;
       }
@@ -94,22 +96,16 @@ export class DonasiService {
     }
 
     this.logger.log(`Fetching from DB with limit: ${limit}, page: ${page}`);
-
-    // Check if limit and page are provided and convert them to integers
     if (limit) {
       limit = parseInt(limit as any, 10);
     }
     if (page) {
       page = parseInt(page as any, 10);
     }
-
-    // Determine skip based on pagination parameters, or fetch all if not provided
     let skip = 0;
     if (limit && page) {
       skip = (page - 1) * limit;
     }
-
-    // Define order options based on sort and order parameters
     const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
     if (sort && order) {
       orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -118,7 +114,7 @@ export class DonasiService {
     } else {
       orderOption['createdAt'] = 'DESC';
     }
-    
+
     let donasis: Donasi[];
     let total: number;
     if (limit && page) {
@@ -143,7 +139,6 @@ export class DonasiService {
 
     this.logger.log(`DB result - Donasis count: ${donasis.length}, Total count: ${total}`);
 
-    // Cache the fetched data with a TTL of 3600 seconds (1 hour)
     const result = { data: donasis, total };
     await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
 
@@ -157,11 +152,13 @@ export class DonasiService {
     }
     if (donasi.fotoDonasi) {
       const imagePath = path.join(__dirname, '../../public/upload/donasis', path.basename(donasi.fotoDonasi));
-      fs.unlinkSync(imagePath);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
 
     await this.donasiRepository.delete(id);
-    await this.clearAllDonasiCache(); // hapus semua cache yang relevan
+    await this.clearAllDonasiCache();
   }
 
   private async clearAllDonasiCache(): Promise<void> {

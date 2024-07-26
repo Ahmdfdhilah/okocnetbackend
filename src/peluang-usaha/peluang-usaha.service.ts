@@ -69,7 +69,9 @@ export class PeluangUsahaService {
 
             if (imgSrc && peluangUsaha.fotoUsaha) {
                 const oldImagePath = path.join(__dirname, '../../public/upload/peluang-usahas', path.basename(peluangUsaha.fotoUsaha));
-                fs.unlinkSync(oldImagePath);
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
             }
 
             updatedPeluangUsaha = await transactionalEntityManager.save(
@@ -152,7 +154,9 @@ export class PeluangUsahaService {
 
         if (peluangUsaha.fotoUsaha) {
             const imagePath = path.join(__dirname, '../../public/upload/peluang-usahas', path.basename(peluangUsaha.fotoUsaha));
-            fs.unlinkSync(imagePath);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await this.peluangUsahaRepository.delete(id);

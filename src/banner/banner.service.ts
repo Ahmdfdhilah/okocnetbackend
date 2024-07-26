@@ -56,7 +56,7 @@ export class BannerService {
     }
 
     this.logger.log(`Fetching from DB`);
-    const banners = await this.bannerRepository.find({ order: { order: 'ASC' } }); 
+    const banners = await this.bannerRepository.find({ order: { order: 'ASC' } });
     this.logger.log(`DB result - Banners count: ${banners.length}`);
 
     await redis.set(cacheKey, JSON.stringify(banners), { ex: 3600 });
@@ -71,7 +71,9 @@ export class BannerService {
 
     if (banner.foto) {
       const imagePath = path.join(__dirname, '../../public/upload/banners', path.basename(banner.foto));
-      fs.unlinkSync(imagePath);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
     }
 
     await this.bannerRepository.delete(id);

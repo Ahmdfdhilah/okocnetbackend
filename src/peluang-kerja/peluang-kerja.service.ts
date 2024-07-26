@@ -69,7 +69,9 @@ export class PeluangKerjaService {
             if (imgSrc) {
                 if (peluangKerja.fotoKerja) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/peluang-kerjas', path.basename(peluangKerja.fotoKerja));
-                    fs.unlinkSync(oldImagePath);
+                    if(fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
                 }
                 dataPeluangKerja.fotoKerja = imgSrc;
             }
@@ -142,7 +144,9 @@ export class PeluangKerjaService {
 
         if (peluangKerja.fotoKerja) {
             const imagePath = path.join(__dirname, '../../public/upload/peluang-kerjas', path.basename(peluangKerja.fotoKerja));
-            fs.unlinkSync(imagePath);
+            if(fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await this.peluangKerjaRepository.delete(id);

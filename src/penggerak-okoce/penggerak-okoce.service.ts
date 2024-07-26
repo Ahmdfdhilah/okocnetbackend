@@ -70,7 +70,9 @@ export class PenggerakOkoceService {
             if (imgSrc) {
                 if (penggerakOkoce.fotoPenggerak) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/penggerak-okoces', path.basename(penggerakOkoce.fotoPenggerak));
-                    fs.unlinkSync(oldImagePath);
+                    if (fs.existsSync(oldImagePath)) {
+                        fs.unlinkSync(oldImagePath);
+                    }
                 }
                 updatedData.fotoPenggerak = imgSrc;
             } else {
@@ -92,18 +94,18 @@ export class PenggerakOkoceService {
     async findAll(query: QueryDto): Promise<{ data: PenggerakOkoce[], total: number }> {
         const { limit, page, search, sort, order } = query;
         const cacheKey = `penggerak-okoces_${limit}_${page}_${search}_${sort}_${order}`;
-    
+
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-    
+
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
         }
-    
+
         this.logger.log(`Fetching from DB`);
-    
+
         const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
         if (sort && order) {
             orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -112,24 +114,24 @@ export class PenggerakOkoceService {
         } else {
             orderOption['createdAt'] = 'DESC';
         }
-    
+
         const findOptions: any = {
             order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         };
-    
+
         if (limit && page) {
             findOptions.take = parseInt(limit as any, 10);
             findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
         }
-    
+
         if (search) {
             findOptions.where = { namaPenggerak: Like(`%${search}%`) };
         }
-    
+
         let penggerakOkoces: PenggerakOkoce[];
         let total: number;
-    
+
         if (limit && page) {
             const [result, count] = await this.penggerakOkoceRepository.findAndCount(findOptions);
             penggerakOkoces = result;
@@ -139,15 +141,15 @@ export class PenggerakOkoceService {
             penggerakOkoces = result;
             total = result.length;
         }
-    
+
         this.logger.log(`DB result - PenggerakOkoces count: ${penggerakOkoces.length}, Total count: ${total}`);
-    
+
         const result = { data: penggerakOkoces, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-    
+
         return result;
     }
-    
+
     async remove(id: string): Promise<void> {
         const penggerakOkoce = await this.penggerakOkoceRepository.findOne({ where: { id } });
         if (!penggerakOkoce) {
@@ -156,7 +158,9 @@ export class PenggerakOkoceService {
 
         if (penggerakOkoce.fotoPenggerak) {
             const imagePath = path.join(__dirname, '../../public/upload/penggerak-okoces', path.basename(penggerakOkoce.fotoPenggerak));
-            fs.unlinkSync(imagePath);
+            if(fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await this.penggerakOkoceRepository.delete(id);
@@ -165,7 +169,7 @@ export class PenggerakOkoceService {
 
     private async clearAllCache() {
         const keys = await redis.keys('penggerak-okoces_*');
-        
+
         if (keys.length > 0) {
             await redis.del(...keys);
         }

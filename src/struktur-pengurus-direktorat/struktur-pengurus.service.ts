@@ -72,7 +72,7 @@ export class StrukturPengurusService {
             if (imgSrc) {
                 if (strukturPengurus.foto) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/struktur-penguruses', path.basename(strukturPengurus.foto));
-                    if (oldImagePath) {
+                    if (fs.existsSync(oldImagePath)) {
                         fs.unlinkSync(oldImagePath);
                     }
                 }
@@ -160,7 +160,9 @@ export class StrukturPengurusService {
 
         if (strukturPengurus.foto) {
             const imagePath = path.join(__dirname, '../../public/upload/struktur-penguruses', path.basename(strukturPengurus.foto));
-            fs.unlinkSync(imagePath);
+            if(fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await this.strukturPengurusRepository.delete(id);

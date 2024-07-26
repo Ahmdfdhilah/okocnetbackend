@@ -84,7 +84,9 @@ export class EventService {
             if (imgSrc) {
                 if (event.fotoEvent) {
                     const oldImagePath = path.join(__dirname, '../../public/upload/events', path.basename(event.fotoEvent));
-                    fs.unlinkSync(oldImagePath);
+                    if(fs.existsSync(oldImagePath)){
+                        fs.unlinkSync(oldImagePath);
+                    }
                 }
                 dataEvent.fotoEvent = imgSrc;
             }
@@ -166,7 +168,9 @@ export class EventService {
         }
         if (event.fotoEvent) {
             const imagePath = path.join(__dirname, '../../public/upload/events', path.basename(event.fotoEvent));
-            fs.unlinkSync(imagePath);
+            if(fs.existsSync(imagePath)){
+                fs.unlinkSync(imagePath);
+            }
         }
 
         await this.eventRepository.delete(id);

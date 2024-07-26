@@ -6,18 +6,19 @@ import { ThrottlerExceptionFilter } from './security/throttler-exception.filter'
 import { NestExpressApplication } from '@nestjs/platform-express';
 import rateLimit from 'express-rate-limit';
 import * as dotenv from 'dotenv';
+const cors = require('cors');
+
 
 async function bootstrap() {
-
   if (process.env.NODE_ENV === 'production') {
     dotenv.config({ path: '.env.prod' });
   } else {
     dotenv.config({ path: '.env' });
   }
-  
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const PORT = process.env.PORT || 3000
+  const PORT = process.env.PORT || 3000;
 
+  app.use(cors());
   app.useStaticAssets('public/upload/', {
     prefix: '/public/upload/',
   });
@@ -37,13 +38,11 @@ async function bootstrap() {
 
   // Rate Limiting
   app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
-    max: 100, // limit tiap IP untuk 100 requests per Ms
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
   }));
 
   app.useGlobalFilters(new ThrottlerExceptionFilter());
-
-  app.enableCors();
 
   // Content Security Policy (CSP)
   app.use((req, res, next) => {
