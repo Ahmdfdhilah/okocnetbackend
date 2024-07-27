@@ -4,7 +4,6 @@ import helmet from 'helmet';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import rateLimit from 'express-rate-limit';
 import * as dotenv from 'dotenv';
 const cors = require('cors');
 
@@ -34,12 +33,6 @@ async function bootstrap() {
 
   app.use(helmet({
     crossOriginResourcePolicy: false
-  }));
-
-  // Rate Limiting
-  app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
   }));
 
   app.useGlobalFilters(new ThrottlerExceptionFilter());

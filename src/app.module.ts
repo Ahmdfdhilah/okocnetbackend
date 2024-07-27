@@ -35,10 +35,6 @@ import { ProfileModule } from './profile/profile.module';
         ConfigModule.forRoot({
             isGlobal: true,
         }),
-        ThrottlerModule.forRoot([{
-            ttl: 10,
-            limit: 10,
-        }]),
         ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mysql',
@@ -75,10 +71,6 @@ import { ProfileModule } from './profile/profile.module';
     providers: [
         MailService,
         BackupService,
-        {
-            provide: APP_GUARD,
-            useClass: ThrottlerGuard,
-        },
         RateLimiterMiddleware,
     ],
 })

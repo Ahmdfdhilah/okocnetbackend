@@ -1,5 +1,5 @@
 // src/sosmed/sosmed.controller.ts
-import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UseGuards, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { SosmedService } from './sosmed.service';
 import { Sosmed } from 'src/entities/sosmed.entity';
 import { CreateSosmedDto } from './dto/create-sosmed.dto';
@@ -9,6 +9,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiConsumes, Api
 import { Roles } from 'src/auth/decorators/roles.decorators';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guards';
 import { RolesGuard } from 'src/auth/guards/roles.guards';
+import { fileUploadOptions, getFileUrl } from 'src/lib/file-upload.util';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('sosmeds')
 @Controller('sosmeds')
@@ -18,14 +20,21 @@ export class SosmedController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @Post(':userId')
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('sosmeds')))
     @ApiOperation({ summary: 'Create a new Sosmed' })
     @ApiBearerAuth()
-    @ApiConsumes('application/json')
+    @ApiConsumes('multipart/form-data')
     @ApiBody({
         schema: {
             type: 'object',
             required: ['link', 'nama'],
             properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
                 link: {
                     type: 'string',
                     description: 'Link URL for social media.',
@@ -33,7 +42,7 @@ export class SosmedController {
                 },
                 nama: {
                     type: 'string',
-                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok'],
+                    enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok', 'youtube'],
                     description: 'Name of the social media platform.',
                     example: 'Twitter',
                 },
@@ -48,9 +57,11 @@ export class SosmedController {
     })
     async create(
         @Param('userId') userId: string,
+        @UploadedFile() file: Express.Multer.File,
         @Body() createSosmedDto: CreateSosmedDto,
     ): Promise<Sosmed> {
-        return this.sosmedService.create(createSosmedDto, userId);
+        const imgSrc = getFileUrl('sosmeds', file);
+        return this.sosmedService.create(createSosmedDto, userId, imgSrc);
     }
 
     @Get()
@@ -71,14 +82,21 @@ export class SosmedController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
     @Put(':id/:userId')
+    @UseInterceptors(FileInterceptor('file', fileUploadOptions('sosmeds')))
     @ApiOperation({ summary: 'Update a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
-    @ApiConsumes('application/json')
+    @ApiConsumes('multipart/form-data')
     @ApiBearerAuth()
     @ApiBody({
         schema: {
             type: 'object',
             properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File upload',
+                    example: 'file.jpg',
+                },
                 link: {
                     type: 'string',
                     description: 'Link URL for social media.',
@@ -102,9 +120,11 @@ export class SosmedController {
     async update(
         @Param('id') id: string,
         @Param('userId') userId: string,
+        @UploadedFile() file: Express.Multer.File,
         @Body() updateSosmedDto: UpdateSosmedDto,
     ): Promise<Sosmed> {
-        return this.sosmedService.update(id, userId, updateSosmedDto);
+        const imgSrc = getFileUrl('sosmeds', file);
+        return this.sosmedService.update(id, userId, updateSosmedDto, imgSrc);
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)

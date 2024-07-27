@@ -17,9 +17,9 @@ export class SosmedService {
         private readonly sosmedRepository: Repository<Sosmed>,
         @InjectEntityManager()
         private readonly entityManager: EntityManager,
-    ) {}
+    ) { }
 
-    async create(createSosmedDto: CreateSosmedDto, userId: string): Promise<Sosmed> {
+    async create(createSosmedDto: CreateSosmedDto, userId: string, imgSrc: string): Promise<Sosmed> {
         let newSosmed: Sosmed;
 
         await this.entityManager.transaction(async transactionalEntityManager => {
@@ -29,7 +29,7 @@ export class SosmedService {
             }
             const createdBy = user;
 
-            const dataSosmed = { ...createSosmedDto, createdBy };
+            const dataSosmed = { ...createSosmedDto, foto:imgSrc, createdBy };
             newSosmed = await transactionalEntityManager.save(
                 this.sosmedRepository.create(dataSosmed),
             );
@@ -39,7 +39,7 @@ export class SosmedService {
         return newSosmed!;
     }
 
-    async update(id: string, userId: string, updateSosmedDto: UpdateSosmedDto): Promise<Sosmed> {
+    async update(id: string, userId: string, updateSosmedDto: UpdateSosmedDto, imgSrc: string): Promise<Sosmed> {
         let updatedSosmed: Sosmed;
 
         await this.entityManager.transaction(async transactionalEntityManager => {
@@ -55,6 +55,7 @@ export class SosmedService {
             const updatedData = {
                 link: updateSosmedDto.link || sosmed.link,
                 nama: updateSosmedDto.nama || sosmed.nama,
+                foto: imgSrc || sosmed.foto,
                 publishedAt: updateSosmedDto.publishedAt || sosmed.publishedAt,
                 updatedBy: user,
             };
@@ -74,18 +75,18 @@ export class SosmedService {
     async findAll(query: QueryDto): Promise<{ data: Sosmed[], total: number }> {
         const { limit, page, search, sort, order } = query;
         const cacheKey = `sosmeds_${limit}_${page}_${search}_${sort}_${order}`;
-    
+
         this.logger.log(`Fetching data for cacheKey: ${cacheKey}`);
-    
+
         const cachedData = await redis.get<string | null>(cacheKey);
         if (cachedData) {
             this.logger.log(`Cache hit for key: ${cacheKey}`);
             const result = typeof cachedData === 'string' ? JSON.parse(cachedData) : cachedData;
             return result;
         }
-    
+
         this.logger.log(`Fetching from DB`);
-    
+
         const orderOption: { [key: string]: 'ASC' | 'DESC' } = {};
         if (sort && order) {
             orderOption[sort] = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
@@ -94,24 +95,24 @@ export class SosmedService {
         } else {
             orderOption['createdAt'] = 'DESC';
         }
-    
+
         const findOptions: any = {
             order: orderOption,
             relations: ['createdBy', 'updatedBy'],
         };
-    
+
         if (limit && page) {
             findOptions.take = parseInt(limit as any, 10);
             findOptions.skip = (parseInt(page as any, 10) - 1) * findOptions.take;
         }
-    
+
         if (search) {
             findOptions.where = { nama: Like(`%${search}%`) };
         }
-    
+
         let sosmeds: Sosmed[];
         let total: number;
-    
+
         if (limit && page) {
             const [result, count] = await this.sosmedRepository.findAndCount(findOptions);
             sosmeds = result;
@@ -121,15 +122,15 @@ export class SosmedService {
             sosmeds = result;
             total = result.length;
         }
-    
+
         this.logger.log(`DB result - Sosmeds count: ${sosmeds.length}, Total count: ${total}`);
-    
+
         const result = { data: sosmeds, total };
         await redis.set(cacheKey, JSON.stringify(result), { ex: 3600 });
-    
+
         return result;
     }
-        
+
     async remove(id: string): Promise<void> {
         const sosmed = await this.sosmedRepository.findOne({ where: { id } });
         if (!sosmed) {

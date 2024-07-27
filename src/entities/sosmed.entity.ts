@@ -10,7 +10,10 @@ export class Sosmed {
     @Column({ type: 'varchar', nullable: false })
     link: string;
 
-    @Column({ type: 'enum', enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok'], nullable: false, unique: true })
+    @Column({ type: 'varchar', nullable: false })
+    foto: string;
+
+    @Column({ type: 'enum', enum: ['whatsapp', 'instagram', 'twitter', 'facebook', 'tiktok', 'youtube'], nullable: false, unique: true })
     nama: string;
 
     @CreateDateColumn()
