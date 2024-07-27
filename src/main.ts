@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as dotenv from 'dotenv';
 const cors = require('cors');
@@ -34,25 +33,6 @@ async function bootstrap() {
   app.use(helmet({
     crossOriginResourcePolicy: false
   }));
-
-  app.useGlobalFilters(new ThrottlerExceptionFilter());
-
-  // Content Security Policy (CSP)
-  app.use((req, res, next) => {
-    res.setHeader(
-      "Content-Security-Policy",
-      "default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self' 'unsafe-inline'"
-    );
-    next();
-  });
-
-  // Security Headers
-  app.use((req, res, next) => {
-    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    next();
-  });
 
   await app.listen(PORT);
 }
