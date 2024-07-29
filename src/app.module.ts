@@ -16,7 +16,7 @@ import { MagangModule } from './magang/magang.module';
 import { BrandLokalModule } from './brand-lokal/brand-lokal.module';
 import { DonasiModule } from './donasi/donasi.module';
 import { EventModule } from './event/event.module';
-import { MasterMentorModule } from './master-mentor/master-mentor.module';
+import { BenefitMasterMentorModule } from './benefit-master-mentor/benefit-master-mentor.module';
 import { MerchandiseModule } from './merchandise/merchandise.module';
 import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
 import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
@@ -32,6 +32,7 @@ import { ProfileModule } from './profile/profile.module';
 import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
 import { AnniversaryModule } from './anniversary/anniversary.module';
 import { ThementorModule } from './thementor/thementor.module';
+import { TujuanMasterMentorModule } from './tujuan-master-mentor/tujuan-master-mentor.module';
 
 @Module({
     imports: [
@@ -58,7 +59,8 @@ import { ThementorModule } from './thementor/thementor.module';
         AnniversaryModule,
         MagangModule,
         DonasiModule,
-        MasterMentorModule,
+        BenefitMasterMentorModule,
+        TujuanMasterMentorModule,
         BrandLokalModule,
         MerchandiseModule,
         PeluangKerjaModule,

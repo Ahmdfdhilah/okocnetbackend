@@ -6,7 +6,6 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import * as dotenv from 'dotenv';
 const cors = require('cors');
 
-
 async function bootstrap() {
   if (process.env.NODE_ENV === 'production') {
     dotenv.config({ path: '.env.prod' });
