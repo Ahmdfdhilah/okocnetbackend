@@ -9,7 +9,7 @@ export const UpdateMerchandiseSchema = z.object({
     linkMerchandise: z.string().optional(),
     fotoMerchandise: z.array(z.string()).optional(),
     publishedAt: z.date().optional(),
-    existingFiles: z.array(z.string()).optional(), // Added for existing files
+    existingFiles: z.array(z.string()).optional(), 
 });
 
 export class UpdateMerchandiseDto {

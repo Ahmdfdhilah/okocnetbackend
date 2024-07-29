@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { RateLimiterMiddleware } from './security/rate-limiter.middleware';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { UsersModule } from './users/users.module';
 import { SeederModule } from './seeder/seeder.module';
 import { SeederService } from './seeder/seeder.service';
@@ -29,12 +29,19 @@ import { TotalModule } from './total/total.module';
 import { DeskripsiModule } from './deskripsi/deskripsi.module';
 import { BannerModule } from './banner/banner.module';
 import { ProfileModule } from './profile/profile.module';
+import { ThrottlerExceptionFilter } from './security/throttler-exception.filter';
+import { AnniversaryModule } from './anniversary/anniversary.module';
+import { ThementorModule } from './thementor/thementor.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true,
         }),
+        ThrottlerModule.forRoot([{
+            ttl: 10,
+            limit: 10,
+        }]),
         ScheduleModule.forRoot(),
         TypeOrmModule.forRoot({
             type: 'mysql',
@@ -44,10 +51,11 @@ import { ProfileModule } from './profile/profile.module';
             database: process.env.DB_NAME,
             password: process.env.DB_PASSWORD,
             entities: [__dirname + '/**/*.entity{.ts,.js}'],
-            synchronize: process.env.NODE_ENV !== 'production'?true:false
+            synchronize: true
         }),
         UsersModule,
         BeritaModule,
+        AnniversaryModule,
         MagangModule,
         DonasiModule,
         MasterMentorModule,
@@ -57,6 +65,7 @@ import { ProfileModule } from './profile/profile.module';
         EventModule,
         PeluangUsahaModule,
         StrukturPengurusModule,
+        ThementorModule,
         PenggerakOkoceModule,
         MitraModule,
         TotalModule,
@@ -72,10 +81,18 @@ import { ProfileModule } from './profile/profile.module';
         MailService,
         BackupService,
         RateLimiterMiddleware,
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: ThrottlerExceptionFilter,
+        }
     ],
 })
 export class AppModule {
-    constructor(private readonly seederService: SeederService) {}
+    constructor(private readonly seederService: SeederService) { }
 
     async onModuleInit() {
         await this.seederService.seedAdminUser();
