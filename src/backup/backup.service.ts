@@ -5,8 +5,9 @@ import * as mysql from 'mysql2/promise';
 @Injectable()
 export class BackupService {
     private readonly logger = new Logger(BackupService.name);
-    
-    @Cron('0 0 * * *')  // cron job untuk berjalan setiap hari pada tengah malam
+    private readonly excludedTables = ['users'];
+
+    @Cron('0 0 0,6,12,18 * * *')
     async handleCron() {
         this.logger.debug('Starting database backup...');
         try {
@@ -23,22 +24,52 @@ export class BackupService {
                 password: process.env.BACKUP_DB_PASSWORD,
                 database: process.env.BACKUP_DB_NAME,
             });
-            
-            const [tables] = await sourceConnection.query('SHOW TABLES');
-            const tableNames = (tables as any[]).map((row: any) => Object.values(row)[0]);
 
-            for (const table of tableNames) {
+            const [sourceTables] = await sourceConnection.query('SHOW TABLES');
+            const sourceTableNames = (sourceTables as mysql.RowDataPacket[]).map((row) => Object.values(row)[0] as string);
+
+            const [backupTables] = await targetConnection.query('SHOW TABLES');
+            const backupTableNames = (backupTables as mysql.RowDataPacket[]).map((row) => Object.values(row)[0] as string);
+
+            const newTables = sourceTableNames.filter(table => !backupTableNames.includes(table) && !this.excludedTables.includes(table));
+
+            for (const table of newTables) {
+                this.logger.debug(`Creating missing table: ${table}`);
+                
+                const [createTableStatement] = await sourceConnection.query(`SHOW CREATE TABLE \`${table}\``);
+                const createTableSql = (createTableStatement as mysql.RowDataPacket[])[0]['Create Table'] as string;
+
+                await targetConnection.query(createTableSql);
+            }
+
+            for (const table of sourceTableNames) {
+                if (this.excludedTables.includes(table)) {
+                    this.logger.debug(`Skipping table: ${table}`);
+                    continue;
+                }
+
                 this.logger.debug(`Backing up table: ${table}`);
 
-                // Ambil data dari tabel database sumber
-                const [rows] = await sourceConnection.query(`SELECT * FROM ${table}`);
+                const [targetColumns] = await targetConnection.query(`SHOW COLUMNS FROM \`${table}\``);
+                const targetColumnNames = (targetColumns as mysql.RowDataPacket[]).map((col) => col.Field as string);
 
-                // Hapus data lama dari tabel di database backup
-                await targetConnection.query(`DELETE FROM ${table}`);
+                const [rows] = await sourceConnection.query(`SELECT * FROM \`${table}\``);
 
-                // Masukkan data baru ke tabel di database bakcup
-                for (const row of rows as any[]) {
-                    await targetConnection.query(`INSERT INTO ${table} SET ?`, row);
+                await targetConnection.query(`DELETE FROM \`${table}\``);
+
+                for (const row of rows as mysql.RowDataPacket[]) {
+                    try {
+                        const filteredRow = Object.keys(row).reduce((acc, key) => {
+                            if (targetColumnNames.includes(key)) {
+                                acc[key] = row[key];
+                            }
+                            return acc;
+                        }, {} as any);
+
+                        await targetConnection.query(`INSERT INTO \`${table}\` SET ?`, filteredRow);
+                    } catch (error) {
+                        this.logger.error(`Failed to insert row into table ${table}:`, error);
+                    }
                 }
             }
 

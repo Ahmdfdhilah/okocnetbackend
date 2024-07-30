@@ -19,7 +19,7 @@ export class SosmedController {
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
-    @Post(':userId')
+    @Post()
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('sosmeds')))
     @ApiOperation({ summary: 'Create a new Sosmed' })
     @ApiBearerAuth()
@@ -56,12 +56,11 @@ export class SosmedController {
         },
     })
     async create(
-        @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() createSosmedDto: CreateSosmedDto,
     ): Promise<Sosmed> {
         const imgSrc = getFileUrl('sosmeds', file);
-        return this.sosmedService.create(createSosmedDto, userId, imgSrc);
+        return this.sosmedService.create(createSosmedDto, imgSrc);
     }
 
     @Get()
@@ -81,7 +80,7 @@ export class SosmedController {
 
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles('admin')
-    @Put(':id/:userId')
+    @Put(':id')
     @UseInterceptors(FileInterceptor('file', fileUploadOptions('sosmeds')))
     @ApiOperation({ summary: 'Update a Sosmed by ID' })
     @ApiParam({ name: 'id', description: 'Sosmed ID' })
@@ -119,12 +118,11 @@ export class SosmedController {
     })
     async update(
         @Param('id') id: string,
-        @Param('userId') userId: string,
         @UploadedFile() file: Express.Multer.File,
         @Body() updateSosmedDto: UpdateSosmedDto,
     ): Promise<Sosmed> {
         const imgSrc = getFileUrl('sosmeds', file);
-        return this.sosmedService.update(id, userId, updateSosmedDto, imgSrc);
+        return this.sosmedService.update(id, updateSosmedDto, imgSrc);
     }
 
     @UseGuards(JwtAuthGuard, RolesGuard)

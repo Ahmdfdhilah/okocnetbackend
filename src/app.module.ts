@@ -33,6 +33,10 @@ import { ThrottlerExceptionFilter } from './security/throttler-exception.filter'
 import { AnniversaryModule } from './anniversary/anniversary.module';
 import { ThementorModule } from './thementor/thementor.module';
 import { TujuanMasterMentorModule } from './tujuan-master-mentor/tujuan-master-mentor.module';
+import { SyaratMasterMentorModule } from './syarat-master-mentor/syarat-master-mentor.module';
+import { BenefitTrainerModule } from './benefit-trainer/benefit-trainer-module';
+import { LogoModule } from './logo/logo.module';
+import { EmakKeceModule } from './emak-kece/emak-kece.module';
 
 @Module({
     imports: [
@@ -60,7 +64,9 @@ import { TujuanMasterMentorModule } from './tujuan-master-mentor/tujuan-master-m
         MagangModule,
         DonasiModule,
         BenefitMasterMentorModule,
+        BenefitTrainerModule,
         TujuanMasterMentorModule,
+        SyaratMasterMentorModule,
         BrandLokalModule,
         MerchandiseModule,
         PeluangKerjaModule,
@@ -74,8 +80,10 @@ import { TujuanMasterMentorModule } from './tujuan-master-mentor/tujuan-master-m
         DeskripsiModule,
         BannerModule,
         SosmedModule,
+        EmakKeceModule,
         ProfileModule,
         ReviewModule,
+        LogoModule,
         SeederModule,
         AuthModule,
     ],

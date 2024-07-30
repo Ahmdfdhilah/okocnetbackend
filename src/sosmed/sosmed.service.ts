@@ -19,17 +19,12 @@ export class SosmedService {
         private readonly entityManager: EntityManager,
     ) { }
 
-    async create(createSosmedDto: CreateSosmedDto, userId: string, imgSrc: string): Promise<Sosmed> {
+    async create(createSosmedDto: CreateSosmedDto, imgSrc: string): Promise<Sosmed> {
         let newSosmed: Sosmed;
 
         await this.entityManager.transaction(async transactionalEntityManager => {
-            const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
-            if (!user) {
-                throw new NotFoundException(`User with id ${userId} not found`);
-            }
-            const createdBy = user;
 
-            const dataSosmed = { ...createSosmedDto, foto:imgSrc, createdBy };
+            const dataSosmed = { ...createSosmedDto, foto:imgSrc};
             newSosmed = await transactionalEntityManager.save(
                 this.sosmedRepository.create(dataSosmed),
             );
@@ -39,14 +34,10 @@ export class SosmedService {
         return newSosmed!;
     }
 
-    async update(id: string, userId: string, updateSosmedDto: UpdateSosmedDto, imgSrc: string): Promise<Sosmed> {
+    async update(id: string, updateSosmedDto: UpdateSosmedDto, imgSrc: string): Promise<Sosmed> {
         let updatedSosmed: Sosmed;
 
         await this.entityManager.transaction(async transactionalEntityManager => {
-            const user = await transactionalEntityManager.findOne(User, { where: { id: userId } });
-            if (!user) {
-                throw new NotFoundException(`User with id ${userId} not found`);
-            }
             const sosmed = await transactionalEntityManager.findOne(Sosmed, { where: { id } });
             if (!sosmed) {
                 throw new NotFoundException(`Sosmed with id ${id} not found`);
@@ -57,7 +48,6 @@ export class SosmedService {
                 nama: updateSosmedDto.nama || sosmed.nama,
                 foto: imgSrc || sosmed.foto,
                 publishedAt: updateSosmedDto.publishedAt || sosmed.publishedAt,
-                updatedBy: user,
             };
 
             Object.assign(sosmed, updatedData);

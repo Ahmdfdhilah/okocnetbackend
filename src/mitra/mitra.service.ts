@@ -7,6 +7,8 @@ import { UpdateMitraDto } from './dto/update-mitra.dto';
 import { User } from 'src/entities/user.entity';
 import redis from 'src/lib/redis-client';
 import { QueryDto } from 'src/lib/query.dto';
+import fs from 'fs';
+import path from 'path';
 
 @Injectable()
 export class MitraService {
@@ -57,6 +59,13 @@ export class MitraService {
                 throw new NotFoundException(`Mitra with id ${id} not found`);
             }
             const updatedBy = user;
+
+            if (imgSrc) {
+                const oldImagePath = path.join(__dirname, '../../public/upload/mitras', path.basename(mitra.foto));
+                if (fs.existsSync(oldImagePath)) {
+                    fs.unlinkSync(oldImagePath);
+                }
+            }
 
             const updatedData = {
                 ...updateMitraDto,
@@ -139,6 +148,11 @@ export class MitraService {
         const mitra = await this.mitraRepository.findOne({ where: { id } });
         if (!mitra) {
             throw new NotFoundException(`Mitra with id ${id} not found`);
+        }
+
+        const imagePath = path.join(__dirname, '../../public/upload/mitras', path.basename(mitra.foto));
+        if (fs.existsSync(imagePath)) {
+            fs.unlinkSync(imagePath);
         }
 
         await this.mitraRepository.delete(id);

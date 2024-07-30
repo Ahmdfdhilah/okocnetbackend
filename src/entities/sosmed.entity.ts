@@ -1,5 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
-import { User } from './user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 
 @Entity('sosmeds')
@@ -24,10 +23,4 @@ export class Sosmed {
 
     @Column({ type: 'timestamp', nullable: true })
     publishedAt: Date;
-
-    @ManyToOne(() => User, { nullable: true })
-    createdBy: User;
-
-    @ManyToOne(() => User, { nullable: true })
-    updatedBy: User;
 }
