@@ -21,7 +21,7 @@ import { MerchandiseModule } from './merchandise/merchandise.module';
 import { PeluangKerjaModule } from './peluang-kerja/peluang-kerja.module';
 import { PeluangUsahaModule } from './peluang-usaha/peluang-usaha.module';
 import { PenggerakOkoceModule } from './penggerak-okoce/penggerak-okoce.module';
-import { StrukturPengurusModule } from './struktur-pengurus-direktorat/struktur-pengurus.module';
+import { StrukturPengurusModule } from './struktur-pengurus/struktur-pengurus.module';
 import { SosmedModule } from './sosmed/sosmed.module';
 import { MitraModule } from './mitra/mitra.module';
 import { ReviewModule } from './review/review.module';
@@ -37,6 +37,7 @@ import { SyaratMasterMentorModule } from './syarat-master-mentor/syarat-master-m
 import { BenefitTrainerModule } from './benefit-trainer/benefit-trainer-module';
 import { LogoModule } from './logo/logo.module';
 import { EmakKeceModule } from './emak-kece/emak-kece.module';
+import { SyaratTrainerModule } from './syarat-trainer/syarat-trainer.module';
 
 @Module({
     imports: [
@@ -67,6 +68,7 @@ import { EmakKeceModule } from './emak-kece/emak-kece.module';
         BenefitTrainerModule,
         TujuanMasterMentorModule,
         SyaratMasterMentorModule,
+        SyaratTrainerModule,
         BrandLokalModule,
         MerchandiseModule,
         PeluangKerjaModule,

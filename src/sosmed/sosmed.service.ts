@@ -59,7 +59,7 @@ export class SosmedService {
     }
 
     async findOne(id: string): Promise<Sosmed | undefined> {
-        return this.sosmedRepository.findOne({ where: { id }, relations: ['createdBy', 'updatedBy'] });
+        return this.sosmedRepository.findOne({ where: { id } });
     }
 
     async findAll(query: QueryDto): Promise<{ data: Sosmed[], total: number }> {
@@ -88,7 +88,6 @@ export class SosmedService {
 
         const findOptions: any = {
             order: orderOption,
-            relations: ['createdBy', 'updatedBy'],
         };
 
         if (limit && page) {
