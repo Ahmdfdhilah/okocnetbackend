@@ -33,8 +33,8 @@ export class AllBanner {
             'The Mentor',
             'Master Mentor',
             'Testimoni'
-        ],
-        nullable: true
+        ], 
+        unique: true
     })
     nama: string;
 
