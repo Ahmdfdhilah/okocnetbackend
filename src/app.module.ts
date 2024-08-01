@@ -38,6 +38,7 @@ import { BenefitTrainerModule } from './benefit-trainer/benefit-trainer-module';
 import { LogoModule } from './logo/logo.module';
 import { EmakKeceModule } from './emak-kece/emak-kece.module';
 import { SyaratTrainerModule } from './syarat-trainer/syarat-trainer.module';
+import { AllBannerModule } from './all-banners/all-banners.module';
 
 @Module({
     imports: [
@@ -76,6 +77,7 @@ import { SyaratTrainerModule } from './syarat-trainer/syarat-trainer.module';
         PeluangUsahaModule,
         StrukturPengurusModule,
         ThementorModule,
+        AllBannerModule,
         PenggerakOkoceModule,
         MitraModule,
         TotalModule,

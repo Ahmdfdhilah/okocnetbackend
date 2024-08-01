@@ -79,17 +79,14 @@ export class ThementorService {
         return updatedThementor!;
     }
 
-    // Inside ThementorService
     async deleteDokumentasi(thementorId: string, dokumentasiUrl: string): Promise<void> {
         const thementor = await this.thementorRepository.findOne({ where: { id: thementorId } });
         if (!thementor) {
             throw new NotFoundException(`Thementor with id ${thementorId} not found`);
         }
 
-        // Remove the file URL from the dokumentasi array
         thementor.dokumentasi = thementor.dokumentasi.filter(doc => doc !== dokumentasiUrl);
 
-        // Delete the file from the filesystem
         const filePath = path.join(__dirname, '../../public/upload/thementors', path.basename(dokumentasiUrl));
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
