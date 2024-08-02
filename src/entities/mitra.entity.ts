@@ -12,6 +12,9 @@ export class Mitra {
     @Column({ type: 'varchar', nullable: true })
     foto: string;
 
+    @Column({ type: 'enum', enum: ['swasta', 'pendidikan', 'pemerintah'], nullable: true })
+    tipe: string;
+
     @CreateDateColumn()
     createdAt: Date;
 

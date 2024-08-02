@@ -26,12 +26,12 @@ export class MitraController {
     @ApiBody({
         schema: {
             type: 'object',
-            required: ['file', 'publishedAt', 'nama'],
+            required: ['file', 'publishedAt', 'nama', 'tipe'], // Add 'tipe' to required fields
             properties: {
                 nama: {
                     type: 'string',
                     format: 'text',
-                    description: 'nama mitra',
+                    description: 'Nama mitra',
                     example: 'mitra okoce',
                 },
                 file: {
@@ -45,6 +45,12 @@ export class MitraController {
                     format: 'date-time',
                     description: 'Tanggal publikasi',
                     example: '2024-07-03T04:48:57.000Z',
+                },
+                tipe: {
+                    type: 'string',
+                    enum: ['swasta', 'pendidikan', 'pemerintah'], 
+                    description: 'Tipe mitra',
+                    example: 'swasta',
                 },
             },
         },
@@ -88,7 +94,7 @@ export class MitraController {
                 nama: {
                     type: 'string',
                     format: 'text',
-                    description: 'nama mitra',
+                    description: 'Nama mitra',
                     example: 'mitra okoce',
                 },
                 file: {
@@ -102,6 +108,12 @@ export class MitraController {
                     format: 'date-time',
                     description: 'Tanggal publikasi',
                     example: '2024-07-03T04:48:57.000Z',
+                },
+                tipe: {
+                    type: 'string',
+                    enum: ['swasta', 'pendidikan', 'pemerintah'], 
+                    description: 'Tipe mitra',
+                    example: 'swasta',
                 },
             },
         },
