@@ -66,7 +66,6 @@ export class AuthController {
         return this.authService.createUser(createUserDto);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('forgot-password')
     @ApiOperation({ summary: 'Initiate password reset' })
     @ApiBody({type: ForgotPasswordDto, description: 'Email User', required:true})
@@ -77,7 +76,6 @@ export class AuthController {
         return this.authService.initiatePasswordReset(email);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('reset-password')
     @ApiOperation({ summary: 'Reset password' })
     @ApiBody({ type: ForgotPasswordTokenDto, description: 'Reset password token and new password', required: true })
@@ -88,7 +86,6 @@ export class AuthController {
         return this.authService.resetPassword(resetPasswordToken, newPassword);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Post('resend-reset-password')
     @ApiOperation({ summary: 'Resend password reset email' })
     @ApiBody({ description: 'User email', required: true })

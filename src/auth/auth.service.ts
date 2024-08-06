@@ -121,7 +121,7 @@ export class AuthService {
     const resetPasswordSubject = 'Reset Your Password';
     const resetPasswordTitle = 'Reset Password';
     const resetPasswordBody = 'Please click the link below to reset your password.';
-    const resetPasswordActionUrl = `http://nanti-ke-frontend-biar-user-ketik new password?token=${resetPasswordToken}`;
+    const resetPasswordActionUrl = `https://okocenet.vercel.app/reset-password?token=${resetPasswordToken}`;
     const resetPasswordActionText = 'Reset Password';
 
     await this.mailService.sendTemplateMail(

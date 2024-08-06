@@ -1,6 +1,6 @@
 export function emailTemplate(title: string, body: string, actionUrl: string, actionText: string): string {
     const logoUrl = 'https://trust-d4cbc4aea2b1.herokuapp.com/public/upload/products/logookoce.png';
-
+    console.log(actionUrl);
     return `
 <!DOCTYPE html>
 <html lang="en">

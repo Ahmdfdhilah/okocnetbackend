@@ -12,7 +12,7 @@ export class MailService {
       service: 'gmail',
       auth: {
         user: 'ahmad.fadillah0210@gmail.com',
-        pass: 'gsmx ulzx ulde xpih',
+        pass: 'vuth ftjy xomj ftde',
       },
     });
   }
@@ -45,3 +45,5 @@ export class MailService {
     await Promise.all(emailTasks);
   }
 }
+
+
